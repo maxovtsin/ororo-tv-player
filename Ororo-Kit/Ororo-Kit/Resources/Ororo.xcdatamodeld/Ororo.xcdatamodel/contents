@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="18A389" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDEpisode" representedClassName="CDEpisode" syncable="YES">
+        <attribute name="downloadedId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="downloadSubtitlePath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="downloadUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="isDownloading" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="playbackProgress" attributeType="Double" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="plot" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="season" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="show" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDShow" inverseName="episodes" inverseEntity="CDShow" syncable="YES"/>
+        <relationship name="subtitles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDSubtitle" inverseName="episode" inverseEntity="CDSubtitle" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDMovie" representedClassName="CDMovie" syncable="YES">
+        <attribute name="desc" attributeType="String" syncable="YES"/>
+        <attribute name="downloadUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="isFavourite" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="playbackProgress" attributeType="Double" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="posterThumb" attributeType="String" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="subtitles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDSubtitle" inverseName="movie" inverseEntity="CDSubtitle" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDShow" representedClassName="CDShow" syncable="YES">
+        <attribute name="desc" attributeType="String" syncable="YES"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="isFavourite" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="posterThumb" attributeType="String" syncable="YES"/>
+        <relationship name="episodes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDEpisode" inverseName="show" inverseEntity="CDEpisode" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDSubtitle" representedClassName="CDSubtitle" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lang" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="episode" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDEpisode" inverseName="subtitles" inverseEntity="CDEpisode" syncable="YES"/>
+        <relationship name="movie" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDMovie" inverseName="subtitles" inverseEntity="CDMovie" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <elements>
+        <element name="CDEpisode" positionX="-63" positionY="-18" width="128" height="240"/>
+        <element name="CDMovie" positionX="-54" positionY="-9" width="128" height="180"/>
+        <element name="CDShow" positionX="-36" positionY="9" width="128" height="135"/>
+        <element name="CDSubtitle" positionX="-18" positionY="27" width="128" height="120"/>
+    </elements>
+</model>

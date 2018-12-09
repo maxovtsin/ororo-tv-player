@@ -1,0 +1,914 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5016C44B218F36C300876CA0 /* DownloadFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C448218F36C200876CA0 /* DownloadFlow.swift */; };
+		5016C44C218F36C300876CA0 /* TransitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C449218F36C300876CA0 /* TransitionHandler.swift */; };
+		5016C44D218F36C300876CA0 /* OpenPlayerFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */; };
+		5016C450218F371200876CA0 /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */; };
+		5039CE3521B01FE60085F2D0 /* SubtitleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */; };
+		5039CE3621B01FE60085F2D0 /* SubtitleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */; };
+		504064982184B7F800DF2A14 /* Ororo_PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064972184B7F800DF2A14 /* Ororo_PlayerTests.swift */; };
+		504064C42184B82B00DF2A14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504064A42184B82B00DF2A14 /* Assets.xcassets */; };
+		504064C62184B82B00DF2A14 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064A62184B82B00DF2A14 /* AppDelegate.swift */; };
+		504064C72184B82B00DF2A14 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064A82184B82B00DF2A14 /* BaseViewController.swift */; };
+		504064C82184B82B00DF2A14 /* EpisodeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064AB2184B82B00DF2A14 /* EpisodeCollectionViewCell.swift */; };
+		504064C92184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064AC2184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift */; };
+		504064CB2184B82B00DF2A14 /* SearchCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B12184B82B00DF2A14 /* SearchCollectionViewCell.swift */; };
+		504064CC2184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B22184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift */; };
+		504064CD2184B82B00DF2A14 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B32184B82B00DF2A14 /* SearchViewController.swift */; };
+		504064CF2184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B72184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift */; };
+		504064D02184B82B00DF2A14 /* SeasonCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B82184B82B00DF2A14 /* SeasonCollectionViewCell.swift */; };
+		504064D22184B82B00DF2A14 /* RootFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064BE2184B82B00DF2A14 /* RootFlow.swift */; };
+		504064D32184B82B00DF2A14 /* OpenMoviesFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */; };
+		504064D42184B82B00DF2A14 /* OpenShowsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */; };
+		504064D52184B82B00DF2A14 /* OpenMovieFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C12184B82B00DF2A14 /* OpenMovieFlow.swift */; };
+		504064D62184B82B00DF2A14 /* OpenShowFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C22184B82B00DF2A14 /* OpenShowFlow.swift */; };
+		504064D72184B82B00DF2A14 /* OpenSearchFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */; };
+		504064F92184BCE500DF2A14 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064A62184B82B00DF2A14 /* AppDelegate.swift */; };
+		504064FA2184BCE500DF2A14 /* OpenMovieFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C12184B82B00DF2A14 /* OpenMovieFlow.swift */; };
+		504064FB2184BCE500DF2A14 /* OpenMoviesFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */; };
+		504064FC2184BCE500DF2A14 /* OpenSearchFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */; };
+		504064FD2184BCE500DF2A14 /* OpenShowFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C22184B82B00DF2A14 /* OpenShowFlow.swift */; };
+		504064FE2184BCE500DF2A14 /* OpenShowsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */; };
+		504064FF2184BCE500DF2A14 /* RootFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064BE2184B82B00DF2A14 /* RootFlow.swift */; };
+		504065002184BCE500DF2A14 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064A82184B82B00DF2A14 /* BaseViewController.swift */; };
+		504065012184BCE500DF2A14 /* EpisodeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064AB2184B82B00DF2A14 /* EpisodeCollectionViewCell.swift */; };
+		504065022184BCE500DF2A14 /* EpisodeCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064AC2184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift */; };
+		504065042184BCE500DF2A14 /* SearchCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B12184B82B00DF2A14 /* SearchCollectionViewCell.swift */; };
+		504065052184BCE500DF2A14 /* SearchCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B22184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift */; };
+		504065062184BCE500DF2A14 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B32184B82B00DF2A14 /* SearchViewController.swift */; };
+		504065082184BCE500DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B72184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift */; };
+		504065092184BCE500DF2A14 /* SeasonCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B82184B82B00DF2A14 /* SeasonCollectionViewCell.swift */; };
+		504065162184C04200DF2A14 /* Ororo_Kit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; };
+		504065172184C04200DF2A14 /* Ororo_Kit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		504065192184C05500DF2A14 /* Ororo_Kit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; };
+		5040651A2184C05500DF2A14 /* Ororo_Kit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		504065272184C8D500DF2A14 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504065262184C8D500DF2A14 /* Launch Screen.storyboard */; };
+		504065292185617B00DF2A14 /* DeviceVisualTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065282185617B00DF2A14 /* DeviceVisualTheme.swift */; };
+		5040652C2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */; };
+		5040652D2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */; };
+		5040652E2185B1B700DF2A14 /* DeviceVisualTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065282185617B00DF2A14 /* DeviceVisualTheme.swift */; };
+		504065322185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */; };
+		504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */; };
+		507B0FF821BCF91300E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
+		507B0FF921BCF91600E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
+		50D8E586219096AF00D4918F /* DownloadEpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */; };
+		50D8E588219096BA00D4918F /* DownloadEpisodeCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */; };
+		50D8E58A21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */; };
+		50D8E58B21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */; };
+		50D8E5902191DB3400D4918F /* EpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58F2191DB3400D4918F /* EpisodeModel.swift */; };
+		50D8E5912191DB3400D4918F /* EpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58F2191DB3400D4918F /* EpisodeModel.swift */; };
+		50D8E5922191E59800D4918F /* DownloadFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C448218F36C200876CA0 /* DownloadFlow.swift */; };
+		50D8E5932191E5A100D4918F /* OpenPlayerFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */; };
+		50D8E5942191E5A800D4918F /* TransitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C449218F36C300876CA0 /* TransitionHandler.swift */; };
+		50D8E5952191E5AF00D4918F /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */; };
+		50D8E5962191E5CD00D4918F /* DownloadEpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */; };
+		50D8E5972191E5D000D4918F /* DownloadEpisodeCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */; };
+		50D8E59A2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E5992191EB8500D4918F /* ShowMovieOptionsFlow.swift */; };
+		50D8E59B2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E5992191EB8500D4918F /* ShowMovieOptionsFlow.swift */; };
+		50D8E59D2191EE3300D4918F /* OpenFavouritesFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E59C2191EE3300D4918F /* OpenFavouritesFlow.swift */; };
+		50D8E59E2191EE3300D4918F /* OpenFavouritesFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E59C2191EE3300D4918F /* OpenFavouritesFlow.swift */; };
+		50FD9A61219C701600518DCF /* StartPlayingEpisodeFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FD9A60219C701600518DCF /* StartPlayingEpisodeFlow.swift */; };
+		50FD9A62219C701600518DCF /* StartPlayingEpisodeFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FD9A60219C701600518DCF /* StartPlayingEpisodeFlow.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		504064942184B7F800DF2A14 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504064772184B7F700DF2A14 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5040647E2184B7F700DF2A14;
+			remoteInfo = "Ororo-Player";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		504065182184C04200DF2A14 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				504065172184C04200DF2A14 /* Ororo_Kit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5040651B2184C05500DF2A14 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5040651A2184C05500DF2A14 /* Ororo_Kit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5016C448218F36C200876CA0 /* DownloadFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadFlow.swift; sourceTree = "<group>"; };
+		5016C449218F36C300876CA0 /* TransitionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionHandler.swift; sourceTree = "<group>"; };
+		5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenPlayerFlow.swift; sourceTree = "<group>"; };
+		5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
+		5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleManager.swift; sourceTree = "<group>"; };
+		5040647F2184B7F700DF2A14 /* Ororo-Player-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ororo-Player-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		504064932184B7F800DF2A14 /* Ororo-PlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ororo-PlayerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		504064972184B7F800DF2A14 /* Ororo_PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ororo_PlayerTests.swift; sourceTree = "<group>"; };
+		504064992184B7F800DF2A14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		504064A42184B82B00DF2A14 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		504064A62184B82B00DF2A14 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		504064A82184B82B00DF2A14 /* BaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		504064AB2184B82B00DF2A14 /* EpisodeCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EpisodeCollectionViewCell.swift; sourceTree = "<group>"; };
+		504064AC2184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EpisodeCollectionViewCellPresenter.swift; sourceTree = "<group>"; };
+		504064B12184B82B00DF2A14 /* SearchCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchCollectionViewCell.swift; sourceTree = "<group>"; };
+		504064B22184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchCollectionViewCellPresenter.swift; sourceTree = "<group>"; };
+		504064B32184B82B00DF2A14 /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		504064B72184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeasonCollectionViewCellPresenter.swift; sourceTree = "<group>"; };
+		504064B82184B82B00DF2A14 /* SeasonCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeasonCollectionViewCell.swift; sourceTree = "<group>"; };
+		504064BE2184B82B00DF2A14 /* RootFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootFlow.swift; sourceTree = "<group>"; };
+		504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenMoviesFlow.swift; sourceTree = "<group>"; };
+		504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenShowsFlow.swift; sourceTree = "<group>"; };
+		504064C12184B82B00DF2A14 /* OpenMovieFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenMovieFlow.swift; sourceTree = "<group>"; };
+		504064C22184B82B00DF2A14 /* OpenShowFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenShowFlow.swift; sourceTree = "<group>"; };
+		504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSearchFlow.swift; sourceTree = "<group>"; };
+		504064DC2184B87800DF2A14 /* Ororo-Player-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ororo-Player-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Ororo_Kit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5040651F2184C71500DF2A14 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
+		504065202184C71500DF2A14 /* Info-iOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-iOS.plist"; sourceTree = "<group>"; };
+		504065262184C8D500DF2A14 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		504065282185617B00DF2A14 /* DeviceVisualTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceVisualTheme.swift; sourceTree = "<group>"; };
+		5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDownloadsFlow.swift; sourceTree = "<group>"; };
+		504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowShowOptionsFlow.swift; sourceTree = "<group>"; };
+		507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerManager.swift; sourceTree = "<group>"; };
+		50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCell.swift; sourceTree = "<group>"; };
+		50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCellPresenter.swift; sourceTree = "<group>"; };
+		50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeModel.swift; sourceTree = "<group>"; };
+		50D8E58F2191DB3400D4918F /* EpisodeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeModel.swift; sourceTree = "<group>"; };
+		50D8E5992191EB8500D4918F /* ShowMovieOptionsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowMovieOptionsFlow.swift; sourceTree = "<group>"; };
+		50D8E59C2191EE3300D4918F /* OpenFavouritesFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFavouritesFlow.swift; sourceTree = "<group>"; };
+		50FD9A60219C701600518DCF /* StartPlayingEpisodeFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartPlayingEpisodeFlow.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5040647C2184B7F700DF2A14 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504065192184C05500DF2A14 /* Ororo_Kit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504064902184B7F800DF2A14 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504064D92184B87800DF2A14 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504065162184C04200DF2A14 /* Ororo_Kit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5016C44E218F371200876CA0 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		504064762184B7F700DF2A14 = {
+			isa = PBXGroup;
+			children = (
+				504064A22184B82B00DF2A14 /* Ororo-Player */,
+				504064962184B7F800DF2A14 /* Ororo-PlayerTests */,
+				504064802184B7F700DF2A14 /* Products */,
+				5040650B2184BD3E00DF2A14 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		504064802184B7F700DF2A14 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5040647F2184B7F700DF2A14 /* Ororo-Player-iOS.app */,
+				504064932184B7F800DF2A14 /* Ororo-PlayerTests.xctest */,
+				504064DC2184B87800DF2A14 /* Ororo-Player-tvOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		504064962184B7F800DF2A14 /* Ororo-PlayerTests */ = {
+			isa = PBXGroup;
+			children = (
+				504064992184B7F800DF2A14 /* Info.plist */,
+				504064972184B7F800DF2A14 /* Ororo_PlayerTests.swift */,
+			);
+			path = "Ororo-PlayerTests";
+			sourceTree = "<group>";
+		};
+		504064A22184B82B00DF2A14 /* Ororo-Player */ = {
+			isa = PBXGroup;
+			children = (
+				504064A62184B82B00DF2A14 /* AppDelegate.swift */,
+				5040652A2185618100DF2A14 /* Components */,
+				504064BD2184B82B00DF2A14 /* Flows */,
+				507B0FFA21BCFCA700E2231C /* Managers */,
+				504064A72184B82B00DF2A14 /* Modules */,
+				504064A32184B82B00DF2A14 /* Resources */,
+			);
+			path = "Ororo-Player";
+			sourceTree = "<group>";
+		};
+		504064A32184B82B00DF2A14 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				504065202184C71500DF2A14 /* Info-iOS.plist */,
+				5040651F2184C71500DF2A14 /* Info-tvOS.plist */,
+				504064A42184B82B00DF2A14 /* Assets.xcassets */,
+				504065262184C8D500DF2A14 /* Launch Screen.storyboard */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		504064A72184B82B00DF2A14 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				504064A82184B82B00DF2A14 /* BaseViewController.swift */,
+				5016C44E218F371200876CA0 /* Player */,
+				504064AE2184B82B00DF2A14 /* Search */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		504064AA2184B82B00DF2A14 /* EpisodeCell */ = {
+			isa = PBXGroup;
+			children = (
+				504064AB2184B82B00DF2A14 /* EpisodeCollectionViewCell.swift */,
+				504064AC2184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift */,
+				50D8E58F2191DB3400D4918F /* EpisodeModel.swift */,
+			);
+			path = EpisodeCell;
+			sourceTree = "<group>";
+		};
+		504064AE2184B82B00DF2A14 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				504064B32184B82B00DF2A14 /* SearchViewController.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		504064B02184B82B00DF2A14 /* SearchCell */ = {
+			isa = PBXGroup;
+			children = (
+				504064B12184B82B00DF2A14 /* SearchCollectionViewCell.swift */,
+				504064B22184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift */,
+			);
+			path = SearchCell;
+			sourceTree = "<group>";
+		};
+		504064B62184B82B00DF2A14 /* SeasonCell */ = {
+			isa = PBXGroup;
+			children = (
+				504064B72184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift */,
+				504064B82184B82B00DF2A14 /* SeasonCollectionViewCell.swift */,
+			);
+			path = SeasonCell;
+			sourceTree = "<group>";
+		};
+		504064BD2184B82B00DF2A14 /* Flows */ = {
+			isa = PBXGroup;
+			children = (
+				5016C448218F36C200876CA0 /* DownloadFlow.swift */,
+				5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */,
+				50D8E59C2191EE3300D4918F /* OpenFavouritesFlow.swift */,
+				504064C12184B82B00DF2A14 /* OpenMovieFlow.swift */,
+				504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */,
+				5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */,
+				504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */,
+				504064C22184B82B00DF2A14 /* OpenShowFlow.swift */,
+				504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */,
+				504064BE2184B82B00DF2A14 /* RootFlow.swift */,
+				50D8E5992191EB8500D4918F /* ShowMovieOptionsFlow.swift */,
+				504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */,
+				50FD9A60219C701600518DCF /* StartPlayingEpisodeFlow.swift */,
+				5016C449218F36C300876CA0 /* TransitionHandler.swift */,
+			);
+			path = Flows;
+			sourceTree = "<group>";
+		};
+		5040650B2184BD3E00DF2A14 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5040652A2185618100DF2A14 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				50D8E5832190968D00D4918F /* Themes */,
+				50D8E5822190968500D4918F /* Views */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		507B0FFA21BCFCA700E2231C /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */,
+				507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		50D8E5822190968500D4918F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				504064B02184B82B00DF2A14 /* SearchCell */,
+				504064B62184B82B00DF2A14 /* SeasonCell */,
+				504064AA2184B82B00DF2A14 /* EpisodeCell */,
+				50D8E5842190969A00D4918F /* DownloadEpisodeCell */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		50D8E5832190968D00D4918F /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				504065282185617B00DF2A14 /* DeviceVisualTheme.swift */,
+			);
+			path = Themes;
+			sourceTree = "<group>";
+		};
+		50D8E5842190969A00D4918F /* DownloadEpisodeCell */ = {
+			isa = PBXGroup;
+			children = (
+				50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */,
+				50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */,
+				50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */,
+			);
+			path = DownloadEpisodeCell;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5040647E2184B7F700DF2A14 /* Ororo-Player-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5040649C2184B7F800DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-Player-iOS" */;
+			buildPhases = (
+				5040647B2184B7F700DF2A14 /* Sources */,
+				5040647C2184B7F700DF2A14 /* Frameworks */,
+				5040647D2184B7F700DF2A14 /* Resources */,
+				5040651B2184C05500DF2A14 /* Embed Frameworks */,
+				502FE6DC21AAF778005D3400 /* swiftlint */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ororo-Player-iOS";
+			productName = "Ororo-Player";
+			productReference = 5040647F2184B7F700DF2A14 /* Ororo-Player-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		504064922184B7F800DF2A14 /* Ororo-PlayerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5040649F2184B7F800DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-PlayerTests" */;
+			buildPhases = (
+				5040648F2184B7F800DF2A14 /* Sources */,
+				504064902184B7F800DF2A14 /* Frameworks */,
+				504064912184B7F800DF2A14 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				504064952184B7F800DF2A14 /* PBXTargetDependency */,
+			);
+			name = "Ororo-PlayerTests";
+			productName = "Ororo-PlayerTests";
+			productReference = 504064932184B7F800DF2A14 /* Ororo-PlayerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		504064DB2184B87800DF2A14 /* Ororo-Player-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 504064F32184B87900DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-Player-tvOS" */;
+			buildPhases = (
+				504064D82184B87800DF2A14 /* Sources */,
+				504064D92184B87800DF2A14 /* Frameworks */,
+				504064DA2184B87800DF2A14 /* Resources */,
+				504065182184C04200DF2A14 /* Embed Frameworks */,
+				502FE6DD21AAF788005D3400 /* swiftlint */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ororo-Player-tvOS";
+			productName = "Ororo-Player-tvOS";
+			productReference = 504064DC2184B87800DF2A14 /* Ororo-Player-tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		504064772184B7F700DF2A14 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1000;
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Max Ovtsin";
+				TargetAttributes = {
+					5040647E2184B7F700DF2A14 = {
+						CreatedOnToolsVersion = 10.0;
+					};
+					504064922184B7F800DF2A14 = {
+						CreatedOnToolsVersion = 10.0;
+						TestTargetID = 5040647E2184B7F700DF2A14;
+					};
+					504064DB2184B87800DF2A14 = {
+						CreatedOnToolsVersion = 10.0;
+					};
+				};
+			};
+			buildConfigurationList = 5040647A2184B7F700DF2A14 /* Build configuration list for PBXProject "Ororo-Player" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 504064762184B7F700DF2A14;
+			productRefGroup = 504064802184B7F700DF2A14 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5040647E2184B7F700DF2A14 /* Ororo-Player-iOS */,
+				504064DB2184B87800DF2A14 /* Ororo-Player-tvOS */,
+				504064922184B7F800DF2A14 /* Ororo-PlayerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5040647D2184B7F700DF2A14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504064C42184B82B00DF2A14 /* Assets.xcassets in Resources */,
+				504065272184C8D500DF2A14 /* Launch Screen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504064912184B7F800DF2A14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504064DA2184B87800DF2A14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		502FE6DC21AAF778005D3400 /* swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint --config \"../.swiftlint.yml\"\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		502FE6DD21AAF788005D3400 /* swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint --config \"../.swiftlint.yml\"\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5040647B2184B7F700DF2A14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504064D22184B82B00DF2A14 /* RootFlow.swift in Sources */,
+				504064CC2184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift in Sources */,
+				504064CD2184B82B00DF2A14 /* SearchViewController.swift in Sources */,
+				504064D42184B82B00DF2A14 /* OpenShowsFlow.swift in Sources */,
+				504065322185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */,
+				504064C82184B82B00DF2A14 /* EpisodeCollectionViewCell.swift in Sources */,
+				50D8E59A2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */,
+				504064CB2184B82B00DF2A14 /* SearchCollectionViewCell.swift in Sources */,
+				504064D02184B82B00DF2A14 /* SeasonCollectionViewCell.swift in Sources */,
+				504064D52184B82B00DF2A14 /* OpenMovieFlow.swift in Sources */,
+				504064CF2184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */,
+				504064D72184B82B00DF2A14 /* OpenSearchFlow.swift in Sources */,
+				50D8E59D2191EE3300D4918F /* OpenFavouritesFlow.swift in Sources */,
+				504064C62184B82B00DF2A14 /* AppDelegate.swift in Sources */,
+				504064D32184B82B00DF2A14 /* OpenMoviesFlow.swift in Sources */,
+				5016C44C218F36C300876CA0 /* TransitionHandler.swift in Sources */,
+				50D8E588219096BA00D4918F /* DownloadEpisodeCellPresenter.swift in Sources */,
+				504064C72184B82B00DF2A14 /* BaseViewController.swift in Sources */,
+				5016C44D218F36C300876CA0 /* OpenPlayerFlow.swift in Sources */,
+				50D8E58A21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */,
+				5040652C2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */,
+				5016C44B218F36C300876CA0 /* DownloadFlow.swift in Sources */,
+				5039CE3521B01FE60085F2D0 /* SubtitleManager.swift in Sources */,
+				504065292185617B00DF2A14 /* DeviceVisualTheme.swift in Sources */,
+				507B0FF821BCF91300E2231C /* VideoPlayerManager.swift in Sources */,
+				50D8E586219096AF00D4918F /* DownloadEpisodeCell.swift in Sources */,
+				50D8E5902191DB3400D4918F /* EpisodeModel.swift in Sources */,
+				5016C450218F371200876CA0 /* VideoPlayerViewController.swift in Sources */,
+				504064C92184B82B00DF2A14 /* EpisodeCollectionViewCellPresenter.swift in Sources */,
+				504064D62184B82B00DF2A14 /* OpenShowFlow.swift in Sources */,
+				50FD9A61219C701600518DCF /* StartPlayingEpisodeFlow.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5040648F2184B7F800DF2A14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504064982184B7F800DF2A14 /* Ororo_PlayerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504064D82184B87800DF2A14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504064F92184BCE500DF2A14 /* AppDelegate.swift in Sources */,
+				504064FA2184BCE500DF2A14 /* OpenMovieFlow.swift in Sources */,
+				50D8E5952191E5AF00D4918F /* VideoPlayerViewController.swift in Sources */,
+				504064FB2184BCE500DF2A14 /* OpenMoviesFlow.swift in Sources */,
+				504064FC2184BCE500DF2A14 /* OpenSearchFlow.swift in Sources */,
+				50D8E58B21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */,
+				50D8E59B2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */,
+				504064FD2184BCE500DF2A14 /* OpenShowFlow.swift in Sources */,
+				504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */,
+				50D8E5922191E59800D4918F /* DownloadFlow.swift in Sources */,
+				504064FE2184BCE500DF2A14 /* OpenShowsFlow.swift in Sources */,
+				504064FF2184BCE500DF2A14 /* RootFlow.swift in Sources */,
+				50D8E59E2191EE3300D4918F /* OpenFavouritesFlow.swift in Sources */,
+				50D8E5962191E5CD00D4918F /* DownloadEpisodeCell.swift in Sources */,
+				5040652D2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */,
+				50D8E5942191E5A800D4918F /* TransitionHandler.swift in Sources */,
+				504065002184BCE500DF2A14 /* BaseViewController.swift in Sources */,
+				50D8E5912191DB3400D4918F /* EpisodeModel.swift in Sources */,
+				504065012184BCE500DF2A14 /* EpisodeCollectionViewCell.swift in Sources */,
+				50D8E5972191E5D000D4918F /* DownloadEpisodeCellPresenter.swift in Sources */,
+				504065022184BCE500DF2A14 /* EpisodeCollectionViewCellPresenter.swift in Sources */,
+				5040652E2185B1B700DF2A14 /* DeviceVisualTheme.swift in Sources */,
+				504065042184BCE500DF2A14 /* SearchCollectionViewCell.swift in Sources */,
+				5039CE3621B01FE60085F2D0 /* SubtitleManager.swift in Sources */,
+				50D8E5932191E5A100D4918F /* OpenPlayerFlow.swift in Sources */,
+				507B0FF921BCF91600E2231C /* VideoPlayerManager.swift in Sources */,
+				504065052184BCE500DF2A14 /* SearchCollectionViewCellPresenter.swift in Sources */,
+				504065062184BCE500DF2A14 /* SearchViewController.swift in Sources */,
+				504065082184BCE500DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */,
+				504065092184BCE500DF2A14 /* SeasonCollectionViewCell.swift in Sources */,
+				50FD9A62219C701600518DCF /* StartPlayingEpisodeFlow.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		504064952184B7F800DF2A14 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5040647E2184B7F700DF2A14 /* Ororo-Player-iOS */;
+			targetProxy = 504064942184B7F800DF2A14 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5040649A2184B7F800DF2A14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5040649B2184B7F800DF2A14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5040649D2184B7F800DF2A14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2AYX89ARS;
+				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bandlab.bandlab.iphone.retaildemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Debug;
+		};
+		5040649E2184B7F800DF2A14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2AYX89ARS;
+				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bandlab.bandlab.iphone.retaildemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Release;
+		};
+		504064A02184B7F800DF2A14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				INFOPLIST_FILE = "Ororo-PlayerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-PlayerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ororo-Player.app/Ororo-Player";
+			};
+			name = Debug;
+		};
+		504064A12184B7F800DF2A14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				INFOPLIST_FILE = "Ororo-PlayerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-PlayerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ororo-Player.app/Ororo-Player";
+			};
+			name = Release;
+		};
+		504064F42184B87900DF2A14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "-Xfrontend -debug-time-function-bodies";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Debug;
+		};
+		504064F52184B87900DF2A14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "-Xfrontend -debug-time-function-bodies";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5040647A2184B7F700DF2A14 /* Build configuration list for PBXProject "Ororo-Player" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5040649A2184B7F800DF2A14 /* Debug */,
+				5040649B2184B7F800DF2A14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5040649C2184B7F800DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-Player-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5040649D2184B7F800DF2A14 /* Debug */,
+				5040649E2184B7F800DF2A14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5040649F2184B7F800DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-PlayerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				504064A02184B7F800DF2A14 /* Debug */,
+				504064A12184B7F800DF2A14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		504064F32184B87900DF2A14 /* Build configuration list for PBXNativeTarget "Ororo-Player-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				504064F42184B87900DF2A14 /* Debug */,
+				504064F52184B87900DF2A14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 504064772184B7F700DF2A14 /* Project object */;
+}
