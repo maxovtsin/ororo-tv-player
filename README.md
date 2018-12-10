@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dissimiral/ororo-tv-player.svg?branch=master)](https://travis-ci.org/dissimiral/ororo-tv-player)
+
 #  Ororo.tv Player
 
 The unofficial video player to watch [Ororo.tv](https://ororo.tv/en) on iOS and tvOS. 
