@@ -1,0 +1,6 @@
+osx_image: xcode10.1
+language: swift
+
+script:
+- brew install swiftlint
+- xctool test -workspace Ororo-Player.xcworkspace -scheme Ororo-KitTests -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
