@@ -14,7 +14,7 @@ Written in pure Swift without external dependencies.
 1) Clone the repo `git clone git@github.com:dissimiral/ororo-tv-player.git`.
 2) Open `Ororo-Player.xcworkspace`.
 3) Replace credentials in `RootFlow` with your ones.
-4) Chose the scheme either `iOS` or `tvOS`
+4) Choose the scheme either `iOS` or `tvOS`
 5) Build it.
 
 ## Features
