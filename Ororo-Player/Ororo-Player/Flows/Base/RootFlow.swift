@@ -55,7 +55,7 @@ final class RootFlow: TransitionHandler {
     // MARK: - Flow
     func start() {
         loadItems { (movies, shows) in
-            self.present(movies: movies!, shows: shows!)
+            self.present(movies: movies, shows: shows)
         }
     }
 
@@ -82,7 +82,7 @@ final class RootFlow: TransitionHandler {
         #endif
 
         tabBarViewController.setViewControllers(viewControllers,
-                                                animated: true)
+                                                animated: false)
 
         let items = tabBarViewController.tabBar.items!
         items[0].image = UIImage(named: "series.tabbar.icon")
@@ -96,7 +96,8 @@ final class RootFlow: TransitionHandler {
         window.rootViewController = tabBarViewController
     }
 
-    func loadItems(completion: @escaping ([Searchable]?, [Searchable]?) -> Void) {
+    func loadItems(completion: @escaping ([Searchable], [Searchable]) -> Void) {
+
         var shows: [Searchable]?
         var movies: [Searchable]?
 
@@ -104,8 +105,8 @@ final class RootFlow: TransitionHandler {
 
         group.enter()
         serviceProvider.showsDataProvider
-            .loadAllShows(onSuccess: { (shows_) in
-                shows = shows_?.map { Searchable(model: $0) }
+            .loadAllShows(onSuccess: {
+                shows = $0?.map { Searchable(model: $0) }
                 group.leave()
             }, onError: { (_) in
                 group.leave()
@@ -113,15 +114,15 @@ final class RootFlow: TransitionHandler {
 
         group.enter()
         serviceProvider.moviesDataProvider
-            .loadMovies(onSuccess: { (movies_) in
-                movies = movies_?.map { Searchable(model: $0) }
+            .loadMovies(onSuccess: {
+                movies = $0?.map { Searchable(model: $0) }
                 group.leave()
             }, onError: { (_) in
                 group.leave()
             })
 
         group.notify(queue: .main) {
-            completion(movies, shows)
+            completion(movies ?? [], shows ?? [])
         }
     }
 }

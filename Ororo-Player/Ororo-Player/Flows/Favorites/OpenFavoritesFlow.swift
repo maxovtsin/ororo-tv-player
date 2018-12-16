@@ -1,5 +1,5 @@
 //
-//  OpenFavouritesFlow.swift
+//  OpenFavoritesFlow.swift
 //  Ororo-Player
 //
 //  Created by Max Ovtsin on 9/12/18.
@@ -10,7 +10,7 @@ import UIKit
 import Ororo_Kit
 import CoreData
 
-final class OpenFavouritesFlow {
+final class OpenFavoritesFlow {
 
     // MARK: - Properties
     private let transitionHandler: TransitionHandler

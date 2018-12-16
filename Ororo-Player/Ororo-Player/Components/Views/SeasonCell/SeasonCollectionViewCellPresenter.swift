@@ -11,12 +11,10 @@ import Ororo_Kit
 
 final class SeasonCollectionViewCellPresenter: CollectionViewCellPresenter {
 
-    typealias CellType = SeasonCollectionViewCell
-    typealias ModelType = Season
+    static func configure(cell: SeasonCollectionViewCell,
+                          model: Season) {
 
-    static func configure(cell: CellType,
-                          model: ModelType) {
-        cell.labelName.text = "\(model.number) Season"
+        cell.labelName.text = String(model.number) + " " + "Season"
 
         if let url = URL(string: model.posterThumb!) {
             cell.imageViewCover.set(url: url)
