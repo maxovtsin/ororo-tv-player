@@ -37,7 +37,7 @@ where PresenterType: CollectionViewCellPresenter {
 
     public func filter(_ block: ([PresenterType.ModelType]) -> [PresenterType.ModelType]) {
         let new = block(original)
-        let changes = diff(old: filtered, new: new)
+        let changes = Diff.diff(old: filtered, new: new)
         performBatchUpdate(changes: changes,
                            updateType: .reload,
                            before: {
@@ -47,7 +47,7 @@ where PresenterType: CollectionViewCellPresenter {
 
     public func update(items: [PresenterType.ModelType]?) {
 
-        let changes = diff(old: filtered, new: items ?? [])
+        let changes = Diff.diff(old: filtered, new: items ?? [])
 
         performBatchUpdate(changes: changes,
                            updateType: .reload,
@@ -77,23 +77,26 @@ where PresenterType: CollectionViewCellPresenter {
                 var insertions = [IndexPath]()
                 var deletions = [IndexPath]()
                 var moves = [(IndexPath, IndexPath)]()
+                var updated = [IndexPath]()
 
                 for change in changes {
                     switch change {
-                    case let .insertion(index):
+                    case let .inserted(index):
                         insertions.append(IndexPath(row: index, section: 0))
-                    case let .deletion(index):
+                    case let .deleted(index):
                         deletions.append(IndexPath(row: index, section: 0))
-                    case let .move(from, to):
+                    case let .moved(from, to):
                         moves.append((
                             IndexPath(row: from, section: 0),
                             IndexPath(row: to, section: 0)))
+                    case let .updated(index):
+                        updated.append(IndexPath(row: index, section: 0))
                     }
                 }
 
                 self.collectionView.deleteItems(at: deletions)
                 self.collectionView.insertItems(at: insertions)
-
+                self.collectionView.reloadItems(at: updated)
                 for move in moves {
                     self.collectionView.moveItem(at: move.0, to: move.1)
                 }

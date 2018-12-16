@@ -22,4 +22,8 @@ class EpisodeModel {
 
 extension EpisodeModel: Uniqueable {
     var id: Int { return episode.id }
+
+    public static func == (lhs: EpisodeModel, rhs: EpisodeModel) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

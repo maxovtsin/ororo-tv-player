@@ -30,7 +30,7 @@ class OpenMoviesFlow {
     func start(movies: [Searchable]) -> UINavigationController {
         let movies = movies.sorted { $0.title < $1.title }
         let moviesController = SearchViewController(output: self)
-        moviesController.title = "Movies"
+        moviesController.title = "movies".localized()
         moviesController.configure(with: movies)
         return UINavigationController(rootViewController: moviesController)
     }

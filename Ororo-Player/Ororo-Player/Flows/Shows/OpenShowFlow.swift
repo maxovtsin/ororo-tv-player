@@ -65,7 +65,7 @@ class OpenShowFlow {
             .sorted(by: { Int($0.episode.number!)! < Int($1.episode.number!)! })
 
         let viewController = BaseViewController<EpisodeCollectionViewCellPresenter>()
-        viewController.title = "\(model.number) Season"
+        viewController.title = String(model.number) + " " + "season".localized()
         viewController.configure(with: models)
 
         viewController.tap = {

@@ -14,7 +14,7 @@ final class SeasonCollectionViewCellPresenter: CollectionViewCellPresenter {
     static func configure(cell: SeasonCollectionViewCell,
                           model: Season) {
 
-        cell.labelName.text = String(model.number) + " " + "Season"
+        cell.labelName.text = String(model.number) + " " + "season".localized()
 
         if let url = URL(string: model.posterThumb!) {
             cell.imageViewCover.set(url: url)

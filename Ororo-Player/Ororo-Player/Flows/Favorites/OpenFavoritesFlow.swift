@@ -47,7 +47,7 @@ final class OpenFavoritesFlow {
 
     // MARK: - Flow
     func start() -> UINavigationController {
-        viewController.title = "Favourites"
+        viewController.title = "favorites".localized()
         viewController.tap = { (model) in
             self.didPress(model: model)
         }

@@ -39,13 +39,13 @@ class OpenSearchFlow {
         searchViewController.configure(with: content)
 
         #if os(iOS)
-        searchViewController.title = "Search"
+        searchViewController.title = "search".localized()
 
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = searchViewController
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.dimsBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search shows..."
+        searchController.searchBar.placeholder = "search_placeholder".localized()
         searchViewController.navigationItem.searchController = searchController
 
         let searchNavController = UINavigationController(rootViewController: searchViewController)
@@ -54,13 +54,13 @@ class OpenSearchFlow {
         #elseif os(tvOS)
         let searchController = UISearchController(searchResultsController: searchViewController)
         searchController.searchResultsUpdater = searchViewController
-        searchController.title = "Search"
-        searchController.searchBar.placeholder = "Type something here"
+        searchController.title = "search".localized()
+        searchController.searchBar.placeholder = "search_placeholder".localized()
         searchController.view.backgroundColor = .gray
         searchController.searchBar.keyboardAppearance = .dark
 
         let searchContainerViewController = UISearchContainerViewController(searchController: searchController)
-        searchContainerViewController.title = "Search"
+        searchContainerViewController.title = "search".localized()
         searchContainerViewController.view.backgroundColor = .black
 
         let searchNavController = UINavigationController(rootViewController: searchContainerViewController)
