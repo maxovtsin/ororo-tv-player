@@ -25,7 +25,12 @@ public struct Season {
 }
 
 extension Season: Uniqueable {
+
     public var id: Int {
         return number
+    }
+
+    public static func == (lhs: Season, rhs: Season) -> Bool {
+        return lhs.id == rhs.id
     }
 }

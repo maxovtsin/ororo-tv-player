@@ -31,6 +31,7 @@ public struct Searchable: DecoratedSearchable {
 }
 
 extension Searchable: Uniqueable {
+
     public var id: Int {
         return model.id ^ title.hashValue
     }
@@ -41,5 +42,9 @@ extension Searchable: Uniqueable {
 
     public var posterThumb: String {
         return model.posterThumb
+    }
+
+    public static func == (lhs: Searchable, rhs: Searchable) -> Bool {
+        return lhs.id == rhs.id
     }
 }

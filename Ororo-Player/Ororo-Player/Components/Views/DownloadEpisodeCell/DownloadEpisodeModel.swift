@@ -20,4 +20,8 @@ struct DownloadEpisodeModel {
 
 extension DownloadEpisodeModel: Uniqueable {
     var id: Int { return episode.id }
+
+    public static func == (lhs: DownloadEpisodeModel, rhs: DownloadEpisodeModel) -> Bool {
+        return lhs.id == rhs.id && lhs.progress == rhs.progress
+    }
 }
