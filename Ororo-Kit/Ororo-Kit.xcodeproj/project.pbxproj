@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		50140E4B21C607FB00EF7E6A /* String+Localized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50140E4A21C607FB00EF7E6A /* String+Localized.swift */; };
 		5016C452218F373D00876CA0 /* String+MD5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C451218F373D00876CA0 /* String+MD5.swift */; };
 		5018A2B9212703C000CA120C /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5018A2B8212703C000CA120C /* Movie.swift */; };
 		5018A2BB212705A400CA120C /* MoviesDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5018A2BA212705A400CA120C /* MoviesDataProvider.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		50140E4A21C607FB00EF7E6A /* String+Localized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localized.swift"; sourceTree = "<group>"; };
 		5016C451218F373D00876CA0 /* String+MD5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+MD5.swift"; sourceTree = "<group>"; };
 		5018A2B8212703C000CA120C /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		5018A2BA212705A400CA120C /* MoviesDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesDataProvider.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		5040645E2184B52600DF2A14 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				50140E4A21C607FB00EF7E6A /* String+Localized.swift */,
 				5040645F2184B52600DF2A14 /* NSManagedObjectContext+Extensions.swift */,
 				504064622184B52600DF2A14 /* UIImageView+Remote.swift */,
 				504064632184B52600DF2A14 /* UICollectionView+Extensions.swift */,
@@ -429,6 +432,7 @@
 				509B62F92120777C005FD9FE /* Logger.swift in Sources */,
 				5039CE3321B012980085F2D0 /* Codable+Helpers.swift in Sources */,
 				504537DF21A83EDF0076D5B5 /* SubtitleParser.swift in Sources */,
+				50140E4B21C607FB00EF7E6A /* String+Localized.swift in Sources */,
 				509B632521207F57005FD9FE /* SeriesDataProvider.swift in Sources */,
 				504064712184B52600DF2A14 /* ConstraintItem.swift in Sources */,
 				509B632A21208090005FD9FE /* Show.swift in Sources */,

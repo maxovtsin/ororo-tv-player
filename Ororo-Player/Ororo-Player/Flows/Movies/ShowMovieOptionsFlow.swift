@@ -34,7 +34,7 @@ final class ShowMovieOptionsFlow {
                                                 preferredStyle: .actionSheet)
 
         if let isFavourite = movie.isFavourite, isFavourite {
-            let favouriteAction = UIAlertAction(title: "Remove From Favourites",
+            let favouriteAction = UIAlertAction(title: "remove_from_favorites".localized(),
                                                 style: .default) { (_) in
                                                     self.updateFavourites(movie: movie,
                                                                           isFavourite: false,
@@ -42,7 +42,7 @@ final class ShowMovieOptionsFlow {
             }
             alertController.addAction(favouriteAction)
         } else {
-            let favouriteAction = UIAlertAction(title: "Add To Favourites",
+            let favouriteAction = UIAlertAction(title: "add_to_favorites".localized(),
                                                 style: .default) { (_) in
                                                     self.updateFavourites(movie: movie,
                                                                           isFavourite: true,
@@ -51,7 +51,7 @@ final class ShowMovieOptionsFlow {
             alertController.addAction(favouriteAction)
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "cancel".localized(),
                                          style: .cancel) { (_) in }
 
         alertController.addAction(cancelAction)

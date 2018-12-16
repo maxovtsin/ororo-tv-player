@@ -31,12 +31,12 @@ final class ShowShowOptionsFlow {
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
 
-        let downloadAction = UIAlertAction(title: "Download",
+        let downloadAction = UIAlertAction(title: "download".localized(),
                                            style: .default) { (_) in
                                             self.startDownload(episode: episode)
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "cancel".localized(),
                                          style: .cancel) { (_) in }
 
         alertController.addAction(downloadAction)
@@ -50,13 +50,13 @@ final class ShowShowOptionsFlow {
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
 
-        let downloadAction = UIAlertAction(title: "Remove from Favourites",
+        let downloadAction = UIAlertAction(title: "remove_from_favorites".localized(),
                                            style: .default) { (_) in
                                             self.removeFromFavourites(episode: episode,
                                                                       comletion: completion)
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "cancel".localized(),
                                          style: .cancel) { (_) in }
 
         alertController.addAction(downloadAction)
@@ -73,7 +73,7 @@ final class ShowShowOptionsFlow {
                                                 preferredStyle: .actionSheet)
 
         if let isFavourite = show.isFavourite, isFavourite {
-            let favouriteAction = UIAlertAction(title: "Remove From Favourites",
+            let favouriteAction = UIAlertAction(title: "remove_from_favorites".localized(),
                                                 style: .default) { (_) in
                                                     self.updateFavourites(show: show,
                                                                           isFavourite: false,
@@ -81,7 +81,7 @@ final class ShowShowOptionsFlow {
             }
             alertController.addAction(favouriteAction)
         } else {
-            let favouriteAction = UIAlertAction(title: "Add To Favourites",
+            let favouriteAction = UIAlertAction(title: "add_to_favorites".localized(),
                                                 style: .default) { (_) in
                                                     self.updateFavourites(show: show,
                                                                           isFavourite: true,
@@ -90,7 +90,7 @@ final class ShowShowOptionsFlow {
             alertController.addAction(favouriteAction)
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "cancel".localized(),
                                          style: .cancel) { (_) in }
 
         alertController.addAction(cancelAction)

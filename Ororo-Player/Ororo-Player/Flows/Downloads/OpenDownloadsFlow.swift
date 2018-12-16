@@ -35,7 +35,7 @@ final class OpenDownloadsFlow {
     func start() -> UINavigationController {
         let episodes = obtainDownloadedEpisodes()
 
-        viewController.title = "Downloads"
+        viewController.title = "downloads".localized()
 
         viewController.tap = { (episode) in
             self.didPress(model: episode.episode)

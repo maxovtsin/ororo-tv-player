@@ -31,7 +31,7 @@ class OpenShowsFlow {
     func start(shows: [Searchable]) -> UINavigationController {
         let shows = shows.sorted { $0.title < $1.title }
         let showsViewController = SearchViewController(output: self)
-        showsViewController.title = "Shows"
+        showsViewController.title = "shows".localized()
         showsViewController.configure(with: shows)
         return UINavigationController(rootViewController: showsViewController)
     }

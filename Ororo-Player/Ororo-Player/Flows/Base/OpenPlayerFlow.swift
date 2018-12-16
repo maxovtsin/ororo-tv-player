@@ -50,14 +50,14 @@ class OpenPlayerFlow {
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
 
-        let continueAction = UIAlertAction(title: "Continue",
+        let continueAction = UIAlertAction(title: "continue".localized(),
                                            style: .default) { (_) in
                                             self.startPlayback(playable: playable,
                                                                progressObserver: progressObserver)
         }
         alertController.addAction(continueAction)
 
-        let fromTheBeginingAction = UIAlertAction(title: "Start from the beginning",
+        let fromTheBeginingAction = UIAlertAction(title: "start_from_the_beginning".localized(),
                                                   style: .default) { (_) in
                                                     let p = Playable(url: playable.url,
                                                                      subtitles: playable.subtitles,
@@ -69,7 +69,7 @@ class OpenPlayerFlow {
         }
         alertController.addAction(fromTheBeginingAction)
 
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "cancel".localized(),
                                          style: .cancel) { (_) in }
 
         alertController.addAction(cancelAction)
@@ -119,7 +119,7 @@ class OpenPlayerFlow {
                 case .success(let data):
                     completion(data)
                 case .error:
-                    logDebug("Subtitle loading failed")
+                    logDebug("Loading subtitle failed")
                 }
         }
     }

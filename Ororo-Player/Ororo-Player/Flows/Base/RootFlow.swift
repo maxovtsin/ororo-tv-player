@@ -39,8 +39,8 @@ final class RootFlow: TransitionHandler {
                                  serviceProvider: serviceProvider)
     }()
 
-    lazy var openFavouritesFlow: OpenFavouritesFlow = {
-        return OpenFavouritesFlow(transitionHandler: self,
+    lazy var openFavoritesFlow: OpenFavoritesFlow = {
+        return OpenFavoritesFlow(transitionHandler: self,
                                   serviceProvider: serviceProvider)
     }()
 
@@ -70,7 +70,7 @@ final class RootFlow: TransitionHandler {
         #if os(iOS)
         let downloadsViewController = openDownloadsFlow.start()
         #elseif os(tvOS)
-        let favouritesViewController = openFavouritesFlow.start()
+        let favouritesViewController = openFavoritesFlow.start()
         #endif
 
         var viewControllers = [showsViewController, moviesViewController, searchViewController]
