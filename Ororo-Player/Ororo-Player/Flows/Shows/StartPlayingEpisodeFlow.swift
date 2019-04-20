@@ -31,29 +31,36 @@ class StartPlayingEpisodeFlow {
     func start(episode: Episode) {
         serviceProvider.showsDataProvider
             .loadEpisod(episodId: episode.id,
-                        onSuccess: { (episod) in
-                            if let url = episod?.url,
-                                let url_ = URL(string: url),
-                                let subtitles = episod?.subtitles {
-
-                                let playable = OpenPlayerFlow.Playable(url: url_,
-                                                                       subtitles: subtitles,
-                                                                       subtitle: nil,
-                                                                       lang: "en",
-                                                                       progress: episode.playbackProgress ?? 0.0)
-
-                                self.openPlayerFlow
-                                    .start(playable: playable,
-                                           progressObserver: { (progress) in
-                                            self.updateProgress(episode: episode, progress: progress)
-                                    })
-                            }
-            }, onError: { (_) in
-
+                        onSuccess: { [weak self] (episod) in
+                            self?.didLoad(episod: episod)
+            }, onError: { [weak self] (_) in
+                self?.transitionHandler.tabBarViewController
+                    .showToast(title: "error_title".localized())
             })
     }
 
     // MARK: - Private functions
+
+    private func didLoad(episod: Episode?) {
+        if let episod = episod,
+            let url = episod.url,
+            let url_ = URL(string: url),
+            let subtitles = episod.subtitles {
+
+            let playable = OpenPlayerFlow.Playable(url: url_,
+                                                   subtitles: subtitles,
+                                                   subtitle: nil,
+                                                   lang: "en",
+                                                   progress: episod.playbackProgress ?? 0)
+
+            self.openPlayerFlow
+                .start(playable: playable,
+                       progressObserver: { (progress) in
+                        self.updateProgress(episode: episod, progress: progress)
+                })
+        }
+    }
+
     private func updateProgress(episode: Episode,
                                 progress: Float64) {
         serviceProvider.storageService

@@ -60,6 +60,8 @@
 		504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */; };
 		507B0FF821BCF91300E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
 		507B0FF921BCF91600E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
+		50AEE80621C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */; };
+		50AEE80721C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */; };
 		50D8E586219096AF00D4918F /* DownloadEpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */; };
 		50D8E588219096BA00D4918F /* DownloadEpisodeCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */; };
 		50D8E58A21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */; };
@@ -152,6 +154,7 @@
 		5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDownloadsFlow.swift; sourceTree = "<group>"; };
 		504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowShowOptionsFlow.swift; sourceTree = "<group>"; };
 		507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerManager.swift; sourceTree = "<group>"; };
+		50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Toast.swift"; sourceTree = "<group>"; };
 		50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCell.swift; sourceTree = "<group>"; };
 		50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCellPresenter.swift; sourceTree = "<group>"; };
 		50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeModel.swift; sourceTree = "<group>"; };
@@ -376,6 +379,7 @@
 		5040652A2185618100DF2A14 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				50AEE80421C684E600BFF1E8 /* Toast */,
 				50D8E5832190968D00D4918F /* Themes */,
 				50D8E5822190968500D4918F /* Views */,
 			);
@@ -389,6 +393,14 @@
 				507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		50AEE80421C684E600BFF1E8 /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */,
+			);
+			path = Toast;
 			sourceTree = "<group>";
 		};
 		50D8E5822190968500D4918F /* Views */ = {
@@ -498,6 +510,7 @@
 					};
 					504064DB2184B87800DF2A14 = {
 						CreatedOnToolsVersion = 10.0;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -604,6 +617,7 @@
 				504064CB2184B82B00DF2A14 /* SearchCollectionViewCell.swift in Sources */,
 				504064D02184B82B00DF2A14 /* SeasonCollectionViewCell.swift in Sources */,
 				504064D52184B82B00DF2A14 /* OpenMovieFlow.swift in Sources */,
+				50AEE80621C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */,
 				504064CF2184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */,
 				504064D72184B82B00DF2A14 /* OpenSearchFlow.swift in Sources */,
 				50D8E59D2191EE3300D4918F /* OpenFavoritesFlow.swift in Sources */,
@@ -650,6 +664,7 @@
 				504064FD2184BCE500DF2A14 /* OpenShowFlow.swift in Sources */,
 				504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */,
 				50D8E5922191E59800D4918F /* DownloadFlow.swift in Sources */,
+				50AEE80721C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */,
 				504064FE2184BCE500DF2A14 /* OpenShowsFlow.swift in Sources */,
 				504064FF2184BCE500DF2A14 /* RootFlow.swift in Sources */,
 				50D8E59E2191EE3300D4918F /* OpenFavoritesFlow.swift in Sources */,
@@ -820,7 +835,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -840,7 +855,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -902,7 +917,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -912,7 +927,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
@@ -923,7 +938,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -933,7 +948,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};

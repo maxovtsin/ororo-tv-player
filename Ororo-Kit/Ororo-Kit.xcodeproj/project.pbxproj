@@ -342,7 +342,7 @@
 				TargetAttributes = {
 					509B627021206F58005FD9FE = {
 						CreatedOnToolsVersion = 9.4.1;
-						LastSwiftMigration = 1000;
+						LastSwiftMigration = 1020;
 					};
 					509B627921206F58005FD9FE = {
 						CreatedOnToolsVersion = 9.4.1;
@@ -614,7 +614,7 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -645,7 +645,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};

@@ -41,7 +41,7 @@ final class RootFlow: TransitionHandler {
 
     lazy var openFavoritesFlow: OpenFavoritesFlow = {
         return OpenFavoritesFlow(transitionHandler: self,
-                                  serviceProvider: serviceProvider)
+                                 serviceProvider: serviceProvider)
     }()
 
     // MARK: - Life cycle

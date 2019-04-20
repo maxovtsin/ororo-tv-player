@@ -26,7 +26,7 @@ final class DownloadFlow {
 
         let group = DispatchGroup()
 
-        let fileName = episode.downloadUrl!.md5()
+        let fileName = episode.downloadUrl!.md5
         let cachePath = PathBuilder.videoFilePath(fileName: fileName)
 
         prepareDirectory(for: cachePath)

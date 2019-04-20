@@ -9,3 +9,6 @@
 "remove_from_favorites" = "Remove from favorites";
 "add_to_favorites" = "Add To Favorites";
 "download" = "Download";
+"cancel" = "Cancel";
+"close" = "Close";
+"error_title" = "Error";
