@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		50140E4621C6075F00EF7E6A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 50140E4421C6075F00EF7E6A /* Localizable.strings */; };
 		50140E4721C6076600EF7E6A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 50140E4421C6075F00EF7E6A /* Localizable.strings */; };
-		5016C44B218F36C300876CA0 /* DownloadFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C448218F36C200876CA0 /* DownloadFlow.swift */; };
-		5016C44C218F36C300876CA0 /* TransitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C449218F36C300876CA0 /* TransitionHandler.swift */; };
 		5016C44D218F36C300876CA0 /* OpenPlayerFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */; };
 		5016C450218F371200876CA0 /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */; };
 		5039CE3521B01FE60085F2D0 /* SubtitleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */; };
 		5039CE3621B01FE60085F2D0 /* SubtitleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */; };
+		503F058E22AD3B270028102B /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F058D22AD3B270028102B /* DownloadManager.swift */; };
+		503F058F22AD3B270028102B /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F058D22AD3B270028102B /* DownloadManager.swift */; };
+		503F059122AD3EBB0028102B /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F059022AD3EBB0028102B /* ServiceProvider.swift */; };
+		503F059222AD3EBB0028102B /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F059022AD3EBB0028102B /* ServiceProvider.swift */; };
 		504064982184B7F800DF2A14 /* Ororo_PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064972184B7F800DF2A14 /* Ororo_PlayerTests.swift */; };
 		504064C42184B82B00DF2A14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504064A42184B82B00DF2A14 /* Assets.xcassets */; };
 		504064C62184B82B00DF2A14 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064A62184B82B00DF2A14 /* AppDelegate.swift */; };
@@ -47,10 +49,6 @@
 		504065062184BCE500DF2A14 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B32184B82B00DF2A14 /* SearchViewController.swift */; };
 		504065082184BCE500DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B72184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift */; };
 		504065092184BCE500DF2A14 /* SeasonCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504064B82184B82B00DF2A14 /* SeasonCollectionViewCell.swift */; };
-		504065162184C04200DF2A14 /* Ororo_Kit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; };
-		504065172184C04200DF2A14 /* Ororo_Kit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		504065192184C05500DF2A14 /* Ororo_Kit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; };
-		5040651A2184C05500DF2A14 /* Ororo_Kit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		504065272184C8D500DF2A14 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504065262184C8D500DF2A14 /* Launch Screen.storyboard */; };
 		504065292185617B00DF2A14 /* DeviceVisualTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065282185617B00DF2A14 /* DeviceVisualTheme.swift */; };
 		5040652C2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */; };
@@ -58,17 +56,24 @@
 		5040652E2185B1B700DF2A14 /* DeviceVisualTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065282185617B00DF2A14 /* DeviceVisualTheme.swift */; };
 		504065322185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */; };
 		504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */; };
+		504937AE226B843300F7F4BC /* Transitions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 504937AD226B843300F7F4BC /* Transitions.framework */; };
+		50629B0722BF991200B6C2F1 /* OroroKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50629B0622BF991200B6C2F1 /* OroroKit.framework */; };
+		50629B0822BF996400B6C2F1 /* OroroKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5074DDD922A56754008719DF /* OroroKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		506ECFCF2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506ECFCE2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift */; };
+		5074DDDA22A56754008719DF /* OroroKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5074DDD922A56754008719DF /* OroroKit.framework */; };
+		5074DDDC22A56764008719DF /* Transitions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5074DDDB22A56764008719DF /* Transitions.framework */; };
 		507B0FF821BCF91300E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
 		507B0FF921BCF91600E2231C /* VideoPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */; };
+		50AEE80621C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */; };
+		50AEE80721C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */; };
+		50CBEAD722A178D800822217 /* ShowEpisodeOptionsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506ECFCE2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift */; };
 		50D8E586219096AF00D4918F /* DownloadEpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */; };
 		50D8E588219096BA00D4918F /* DownloadEpisodeCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */; };
 		50D8E58A21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */; };
 		50D8E58B21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */; };
 		50D8E5902191DB3400D4918F /* EpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58F2191DB3400D4918F /* EpisodeModel.swift */; };
 		50D8E5912191DB3400D4918F /* EpisodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E58F2191DB3400D4918F /* EpisodeModel.swift */; };
-		50D8E5922191E59800D4918F /* DownloadFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C448218F36C200876CA0 /* DownloadFlow.swift */; };
 		50D8E5932191E5A100D4918F /* OpenPlayerFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */; };
-		50D8E5942191E5A800D4918F /* TransitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C449218F36C300876CA0 /* TransitionHandler.swift */; };
 		50D8E5952191E5AF00D4918F /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */; };
 		50D8E5962191E5CD00D4918F /* DownloadEpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */; };
 		50D8E5972191E5D000D4918F /* DownloadEpisodeCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */; };
@@ -91,24 +96,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		504065182184C04200DF2A14 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				504065172184C04200DF2A14 /* Ororo_Kit.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5040651B2184C05500DF2A14 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5040651A2184C05500DF2A14 /* Ororo_Kit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		504937B2226C200200F7F4BC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				50629B0822BF996400B6C2F1 /* OroroKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,11 +122,11 @@
 /* Begin PBXFileReference section */
 		50140E4521C6075F00EF7E6A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		50140E4921C607BC00EF7E6A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
-		5016C448218F36C200876CA0 /* DownloadFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadFlow.swift; sourceTree = "<group>"; };
-		5016C449218F36C300876CA0 /* TransitionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionHandler.swift; sourceTree = "<group>"; };
 		5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenPlayerFlow.swift; sourceTree = "<group>"; };
 		5016C44F218F371200876CA0 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
 		5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleManager.swift; sourceTree = "<group>"; };
+		503F058D22AD3B270028102B /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		503F059022AD3EBB0028102B /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
 		5040647F2184B7F700DF2A14 /* Ororo-Player-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ororo-Player-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		504064932184B7F800DF2A14 /* Ororo-PlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ororo-PlayerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		504064972184B7F800DF2A14 /* Ororo_PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ororo_PlayerTests.swift; sourceTree = "<group>"; };
@@ -144,14 +148,20 @@
 		504064C22184B82B00DF2A14 /* OpenShowFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenShowFlow.swift; sourceTree = "<group>"; };
 		504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSearchFlow.swift; sourceTree = "<group>"; };
 		504064DC2184B87800DF2A14 /* Ororo-Player-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ororo-Player-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Ororo_Kit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5040651F2184C71500DF2A14 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
 		504065202184C71500DF2A14 /* Info-iOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-iOS.plist"; sourceTree = "<group>"; };
 		504065262184C8D500DF2A14 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		504065282185617B00DF2A14 /* DeviceVisualTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceVisualTheme.swift; sourceTree = "<group>"; };
 		5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDownloadsFlow.swift; sourceTree = "<group>"; };
 		504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowShowOptionsFlow.swift; sourceTree = "<group>"; };
+		504937AD226B843300F7F4BC /* Transitions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Transitions.framework; path = ../Carthage/Build/tvOS/Transitions.framework; sourceTree = "<group>"; };
+		50629B0622BF991200B6C2F1 /* OroroKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OroroKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		506ECFCE2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowEpisodeOptionsFlow.swift; sourceTree = "<group>"; };
+		5074DDD722A56744008719DF /* OroroKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OroroKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5074DDD922A56754008719DF /* OroroKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OroroKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5074DDDB22A56764008719DF /* Transitions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Transitions.framework; path = ../Carthage/Build/iOS/Transitions.framework; sourceTree = "<group>"; };
 		507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerManager.swift; sourceTree = "<group>"; };
+		50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Toast.swift"; sourceTree = "<group>"; };
 		50D8E585219096AF00D4918F /* DownloadEpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCell.swift; sourceTree = "<group>"; };
 		50D8E587219096BA00D4918F /* DownloadEpisodeCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeCellPresenter.swift; sourceTree = "<group>"; };
 		50D8E58921909AB000D4918F /* DownloadEpisodeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEpisodeModel.swift; sourceTree = "<group>"; };
@@ -166,7 +176,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				504065192184C05500DF2A14 /* Ororo_Kit.framework in Frameworks */,
+				5074DDDC22A56764008719DF /* Transitions.framework in Frameworks */,
+				5074DDDA22A56754008719DF /* OroroKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +192,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				504065162184C04200DF2A14 /* Ororo_Kit.framework in Frameworks */,
+				50629B0722BF991200B6C2F1 /* OroroKit.framework in Frameworks */,
+				504937AE226B843300F7F4BC /* Transitions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,7 +204,6 @@
 			isa = PBXGroup;
 			children = (
 				504064C12184B82B00DF2A14 /* OpenMovieFlow.swift */,
-				504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */,
 				50D8E5992191EB8500D4918F /* ShowMovieOptionsFlow.swift */,
 			);
 			path = Movies;
@@ -203,38 +214,22 @@
 			children = (
 				50FD9A60219C701600518DCF /* StartPlayingEpisodeFlow.swift */,
 				504064C22184B82B00DF2A14 /* OpenShowFlow.swift */,
-				504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */,
 				504065312185CCC800DF2A14 /* ShowShowOptionsFlow.swift */,
+				506ECFCE2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift */,
 			);
 			path = Shows;
-			sourceTree = "<group>";
-		};
-		50140E4021C603CA00EF7E6A /* Downloads */ = {
-			isa = PBXGroup;
-			children = (
-				5016C448218F36C200876CA0 /* DownloadFlow.swift */,
-				5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */,
-			);
-			path = Downloads;
 			sourceTree = "<group>";
 		};
 		50140E4121C6042D00EF7E6A /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */,
+				5040652B2185B1AB00DF2A14 /* OpenDownloadsFlow.swift */,
+				50D8E59C2191EE3300D4918F /* OpenFavoritesFlow.swift */,
+				504064BF2184B82B00DF2A14 /* OpenMoviesFlow.swift */,
 				504064C32184B82B00DF2A14 /* OpenSearchFlow.swift */,
-				504064BE2184B82B00DF2A14 /* RootFlow.swift */,
-				5016C449218F36C300876CA0 /* TransitionHandler.swift */,
+				504064C02184B82B00DF2A14 /* OpenShowsFlow.swift */,
 			);
 			path = Base;
-			sourceTree = "<group>";
-		};
-		50140E4221C6043900EF7E6A /* Favorites */ = {
-			isa = PBXGroup;
-			children = (
-				50D8E59C2191EE3300D4918F /* OpenFavoritesFlow.swift */,
-			);
-			path = Favorites;
 			sourceTree = "<group>";
 		};
 		50140E4321C6075F00EF7E6A /* Localization */ = {
@@ -356,9 +351,9 @@
 		504064BD2184B82B00DF2A14 /* Flows */ = {
 			isa = PBXGroup;
 			children = (
+				504064BE2184B82B00DF2A14 /* RootFlow.swift */,
+				5016C44A218F36C300876CA0 /* OpenPlayerFlow.swift */,
 				50140E4121C6042D00EF7E6A /* Base */,
-				50140E4021C603CA00EF7E6A /* Downloads */,
-				50140E4221C6043900EF7E6A /* Favorites */,
 				50140E3E21C6035600EF7E6A /* Movies */,
 				50140E3F21C6035F00EF7E6A /* Shows */,
 			);
@@ -368,7 +363,11 @@
 		5040650B2184BD3E00DF2A14 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5040650C2184BD3E00DF2A14 /* Ororo_Kit.framework */,
+				50629B0622BF991200B6C2F1 /* OroroKit.framework */,
+				5074DDDB22A56764008719DF /* Transitions.framework */,
+				5074DDD922A56754008719DF /* OroroKit.framework */,
+				5074DDD722A56744008719DF /* OroroKit.framework */,
+				504937AD226B843300F7F4BC /* Transitions.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -376,6 +375,7 @@
 		5040652A2185618100DF2A14 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				50AEE80421C684E600BFF1E8 /* Toast */,
 				50D8E5832190968D00D4918F /* Themes */,
 				50D8E5822190968500D4918F /* Views */,
 			);
@@ -385,10 +385,20 @@
 		507B0FFA21BCFCA700E2231C /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				503F058D22AD3B270028102B /* DownloadManager.swift */,
+				503F059022AD3EBB0028102B /* ServiceProvider.swift */,
 				5039CE3421B01FE60085F2D0 /* SubtitleManager.swift */,
 				507B0FF721BCF91300E2231C /* VideoPlayerManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		50AEE80421C684E600BFF1E8 /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				50AEE80521C6892B00BFF1E8 /* UIViewController+Toast.swift */,
+			);
+			path = Toast;
 			sourceTree = "<group>";
 		};
 		50D8E5822190968500D4918F /* Views */ = {
@@ -432,6 +442,7 @@
 				5040647D2184B7F700DF2A14 /* Resources */,
 				5040651B2184C05500DF2A14 /* Embed Frameworks */,
 				502FE6DC21AAF778005D3400 /* swiftlint */,
+				5074DDDD22A567CE008719DF /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
@@ -467,8 +478,9 @@
 				504064D82184B87800DF2A14 /* Sources */,
 				504064D92184B87800DF2A14 /* Frameworks */,
 				504064DA2184B87800DF2A14 /* Resources */,
-				504065182184C04200DF2A14 /* Embed Frameworks */,
 				502FE6DD21AAF788005D3400 /* swiftlint */,
+				506E2D15226B5E3200C9914E /* Copy Frameworks */,
+				504937B2226C200200F7F4BC /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -498,6 +510,7 @@
 					};
 					504064DB2184B87800DF2A14 = {
 						CreatedOnToolsVersion = 10.0;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -587,6 +600,46 @@
 			shellPath = /bin/sh;
 			shellScript = "if which swiftlint >/dev/null; then\nswiftlint --config \"../.swiftlint.yml\"\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
+		506E2D15226B5E3200C9914E /* Copy Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../Carthage/Build/tvOS/Transitions.framework",
+			);
+			name = "Copy Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Transitions.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
+		};
+		5074DDDD22A567CE008719DF /* Copy Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../Carthage/Build/iOS/Transitions.framework",
+			);
+			name = "Copy Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Transitions.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -595,27 +648,29 @@
 			buildActionMask = 2147483647;
 			files = (
 				504064D22184B82B00DF2A14 /* RootFlow.swift in Sources */,
+				503F058E22AD3B270028102B /* DownloadManager.swift in Sources */,
 				504064CC2184B82B00DF2A14 /* SearchCollectionViewCellPresenter.swift in Sources */,
+				506ECFCF2275D2A4008BF0CC /* ShowEpisodeOptionsFlow.swift in Sources */,
 				504064CD2184B82B00DF2A14 /* SearchViewController.swift in Sources */,
 				504064D42184B82B00DF2A14 /* OpenShowsFlow.swift in Sources */,
 				504065322185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */,
 				504064C82184B82B00DF2A14 /* EpisodeCollectionViewCell.swift in Sources */,
 				50D8E59A2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */,
+				503F059122AD3EBB0028102B /* ServiceProvider.swift in Sources */,
 				504064CB2184B82B00DF2A14 /* SearchCollectionViewCell.swift in Sources */,
 				504064D02184B82B00DF2A14 /* SeasonCollectionViewCell.swift in Sources */,
 				504064D52184B82B00DF2A14 /* OpenMovieFlow.swift in Sources */,
+				50AEE80621C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */,
 				504064CF2184B82B00DF2A14 /* SeasonCollectionViewCellPresenter.swift in Sources */,
 				504064D72184B82B00DF2A14 /* OpenSearchFlow.swift in Sources */,
 				50D8E59D2191EE3300D4918F /* OpenFavoritesFlow.swift in Sources */,
 				504064C62184B82B00DF2A14 /* AppDelegate.swift in Sources */,
 				504064D32184B82B00DF2A14 /* OpenMoviesFlow.swift in Sources */,
-				5016C44C218F36C300876CA0 /* TransitionHandler.swift in Sources */,
 				50D8E588219096BA00D4918F /* DownloadEpisodeCellPresenter.swift in Sources */,
 				504064C72184B82B00DF2A14 /* BaseViewController.swift in Sources */,
 				5016C44D218F36C300876CA0 /* OpenPlayerFlow.swift in Sources */,
 				50D8E58A21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */,
 				5040652C2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */,
-				5016C44B218F36C300876CA0 /* DownloadFlow.swift in Sources */,
 				5039CE3521B01FE60085F2D0 /* SubtitleManager.swift in Sources */,
 				504065292185617B00DF2A14 /* DeviceVisualTheme.swift in Sources */,
 				507B0FF821BCF91300E2231C /* VideoPlayerManager.swift in Sources */,
@@ -641,21 +696,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				504064F92184BCE500DF2A14 /* AppDelegate.swift in Sources */,
+				503F058F22AD3B270028102B /* DownloadManager.swift in Sources */,
 				504064FA2184BCE500DF2A14 /* OpenMovieFlow.swift in Sources */,
+				50CBEAD722A178D800822217 /* ShowEpisodeOptionsFlow.swift in Sources */,
 				50D8E5952191E5AF00D4918F /* VideoPlayerViewController.swift in Sources */,
 				504064FB2184BCE500DF2A14 /* OpenMoviesFlow.swift in Sources */,
 				504064FC2184BCE500DF2A14 /* OpenSearchFlow.swift in Sources */,
 				50D8E58B21909AB000D4918F /* DownloadEpisodeModel.swift in Sources */,
 				50D8E59B2191EB8500D4918F /* ShowMovieOptionsFlow.swift in Sources */,
+				503F059222AD3EBB0028102B /* ServiceProvider.swift in Sources */,
 				504064FD2184BCE500DF2A14 /* OpenShowFlow.swift in Sources */,
 				504065332185CCC800DF2A14 /* ShowShowOptionsFlow.swift in Sources */,
-				50D8E5922191E59800D4918F /* DownloadFlow.swift in Sources */,
+				50AEE80721C6892B00BFF1E8 /* UIViewController+Toast.swift in Sources */,
 				504064FE2184BCE500DF2A14 /* OpenShowsFlow.swift in Sources */,
 				504064FF2184BCE500DF2A14 /* RootFlow.swift in Sources */,
 				50D8E59E2191EE3300D4918F /* OpenFavoritesFlow.swift in Sources */,
 				50D8E5962191E5CD00D4918F /* DownloadEpisodeCell.swift in Sources */,
 				5040652D2185B1AB00DF2A14 /* OpenDownloadsFlow.swift in Sources */,
-				50D8E5942191E5A800D4918F /* TransitionHandler.swift in Sources */,
 				504065002184BCE500DF2A14 /* BaseViewController.swift in Sources */,
 				50D8E5912191DB3400D4918F /* EpisodeModel.swift in Sources */,
 				504065012184BCE500DF2A14 /* EpisodeCollectionViewCell.swift in Sources */,
@@ -820,9 +877,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Carthage/Build/iOS";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -840,9 +898,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_OPTIMIZATION = time;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Carthage/Build/iOS";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-iOS.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -902,7 +961,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Carthage/Build/tvOS";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -912,7 +972,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
@@ -923,7 +983,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FYCJCMJ4B5;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../Carthage/Build/tvOS";
 				INFOPLIST_FILE = "Ororo-Player/Resources/Info-tvOS.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -933,7 +994,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dissimirall.Ororo-Player";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};

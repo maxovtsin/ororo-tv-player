@@ -6,7 +6,9 @@
 //  Copyright © 2018 Max Ovtsin. All rights reserved.
 //
 
-import Ororo_Kit
+import OroroKit
+import Foundation
+import UIKit
 
 class SubtitleManager {
 
@@ -15,15 +17,23 @@ class SubtitleManager {
 
     // MARK: - Lifecycle
     func configure(subtitlePayload: Data) {
-        guard let subtitleString = String(data: subtitlePayload,
-                                          encoding: .utf8) else { return }
-        subtitleIntervals = SubtitleParser.parse(payload: subtitleString)
+
+        guard let subtitleString = String(
+            data: subtitlePayload,
+            encoding: .utf8
+            ) else { return }
+        subtitleIntervals = SubtitleParser.parse(
+            payload: subtitleString
+        )
     }
 
     func configure(label: UILabel, time: Double) {
+        
         guard let subtitleIntervals = subtitleIntervals else { return }
-        let subtitleString = SubtitleParser.searchSubtitles(payload: subtitleIntervals,
-                                                            time: time)
+        let subtitleString = SubtitleParser.searchSubtitles(
+            payload: subtitleIntervals,
+            time: time
+        )
         label.text = subtitleString
     }
 }

@@ -2,6 +2,7 @@
 "continue" = "Продолжить";
 "start_from_the_beginning" = "Начать с начала";
 "search" = "Search";
+"shows" = "Сериалы";
 "search_placeholder" = "Поиск...";
 "downloads" = "Загрузки";
 "favorites" = "Избранное";
@@ -9,3 +10,6 @@
 "remove_from_favorites" = "Удалить из избранных";
 "add_to_favorites" = "Добавить в избранные";
 "download" = "Загрузить";
+"cancel" = "Отмена";
+"close" = "Закрыть";
+"error_title" = "Ошибка";

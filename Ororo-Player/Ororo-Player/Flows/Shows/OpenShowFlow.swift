@@ -7,58 +7,79 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
+import Transitions
 
-class OpenShowFlow {
+final class OpenShowFlow: Flow {
 
-    // MARK: - Properties
-    private let transitionHandler: TransitionHandler
-    private let serviceProvider: ServiceProvider
-
-    lazy var openPlayerFlow: OpenPlayerFlow = {
-        return OpenPlayerFlow(transitionHandler: transitionHandler,
-                              serviceProvider: serviceProvider)
-    }()
-    lazy var showShowOptionsFlow: ShowShowOptionsFlow = {
-        return ShowShowOptionsFlow(transitionHandler: transitionHandler,
-                                   serviceProvider: serviceProvider)
-    }()
-    lazy var startPlayingEpisodeFlow: StartPlayingEpisodeFlow = {
-        return StartPlayingEpisodeFlow(transitionHandler: transitionHandler,
-                                       serviceProvider: serviceProvider)
-    }()
+    struct Injection {
+        let show: Show
+        let serviceProvider: ServiceProvider
+        let comletion: (() -> Void)?
+        let isLongPressed: Bool
+    }
 
     // MARK: - Life cycle
-    init(transitionHandler: TransitionHandler,
-         serviceProvider: ServiceProvider) {
-        self.transitionHandler = transitionHandler
-        self.serviceProvider = serviceProvider
+    let coordinator: Coordinator
+
+    init(coordinator: Coordinator) {
+        self.coordinator = coordinator
     }
 
-    func startWithLongPress(show: Show) {
-        #if os(tvOS)
-        showShowOptionsFlow.start(show: show, completion: nil)
-        #endif
-    }
+    func start(
+        injection: Injection,
+        transitionHandler: TransitionHandler
+        ) {
 
-    func start(show: Show) {
+        if injection.isLongPressed {
+            #if os(tvOS)
+            coordinator.show(
+                ShowShowOptionsFlow.self,
+                injection: ShowShowOptionsFlow.Injection(
+                    show: injection.show,
+                    serviceProvider: injection.serviceProvider,
+                    completion: injection.comletion
+                )
+            )
+            #endif
+            return
+        }
+
         let seasonsViewController = BaseViewController<SeasonCollectionViewCellPresenter>()
-        seasonsViewController.title = show.name
+        seasonsViewController.title = injection.show.name
 
         seasonsViewController.tap = {
-            self.didPress(model: $0, show: show)
+            self.didPress(
+                model: $0,
+                show: injection.show,
+                transitionHandler: transitionHandler,
+                serviceProvider: injection.serviceProvider
+            )
         }
 
-        load(show: show) { (episodes) in
-            seasonsViewController.configure(with: episodes)
+        load(
+            show: injection.show,
+            serviceProvider: injection.serviceProvider,
+            completion: { (episodes) in
+                seasonsViewController.configure(with: episodes)
         }
+        )
 
-        transitionHandler.present(viewController: seasonsViewController, modally: false)
+        transitionHandler.present(
+            flow: self,
+            transition: BaseTransition.push,
+            params: seasonsViewController
+        )
     }
 
     // MARK: - Private functions
 
-    private func didPress(model: Season, show: Show) {
+    private func didPress(
+        model: Season,
+        show: Show,
+        transitionHandler: TransitionHandler,
+        serviceProvider: ServiceProvider
+        ) {
 
         let models = model.episodes
             .map { EpisodeModel(episode: $0, show: show) }
@@ -68,20 +89,39 @@ class OpenShowFlow {
         viewController.title = String(model.number) + " " + "season".localized()
         viewController.configure(with: models)
 
-        viewController.tap = {
-            self.startPlayingEpisodeFlow.start(episode: $0.episode)
+        viewController.tap = { [weak self] in
+            self?.coordinator.show(
+                StartPlayingEpisodeFlow.self,
+                injection: StartPlayingEpisodeFlow.Injection(
+                    episode: $0.episode,
+                    serviceProvider: serviceProvider
+                )
+            )
         }
 
-        viewController.longTap = {
-            ShowShowOptionsFlow(transitionHandler: self.transitionHandler,
-                                serviceProvider: self.serviceProvider)
-                .start(episode: $0.episode)
+        viewController.longTap = { [weak self] in
+            self?.coordinator.show(
+                ShowEpisodeOptionsFlow.self,
+                injection: ShowEpisodeOptionsFlow.Injection(
+                    episode: $0.episode,
+                    serviceProvider: serviceProvider,
+                    completion: nil
+                )
+            )
         }
 
-        transitionHandler.present(viewController: viewController, modally: false)
+        transitionHandler.present(
+            flow: self, transition:
+            BaseTransition.push,
+            params: viewController
+        )
     }
 
-    private func load(show: Show, completion: @escaping ([Season]) -> Void) {
+    private func load(
+        show: Show,
+        serviceProvider: ServiceProvider,
+        completion: @escaping ([Season]) -> Void
+        ) {
         serviceProvider.showsDataProvider
             .loadShow(showId: show.id,
                       onSuccess: { (show) in

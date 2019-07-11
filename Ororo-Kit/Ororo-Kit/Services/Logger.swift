@@ -10,7 +10,7 @@ import Foundation
 
 @inline(__always)
 public func logDebug(_ message: @autoclosure () -> String) {
-    print(message())
+//    print(message())
 }
 
 @inline(__always)

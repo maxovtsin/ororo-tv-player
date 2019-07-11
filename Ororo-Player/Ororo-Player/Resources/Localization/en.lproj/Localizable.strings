@@ -2,6 +2,7 @@
 "continue" = "Continue";
 "start_from_the_beginning" = "Start from the beginning";
 "search" = "Search";
+"shows" = "Shows";
 "search_placeholder" = "Search...";
 "downloads" = "Downloads";
 "favorites" = "Favorites";
@@ -9,3 +10,6 @@
 "remove_from_favorites" = "Remove from favorites";
 "add_to_favorites" = "Add To Favorites";
 "download" = "Download";
+"cancel" = "Cancel";
+"close" = "Close";
+"error_title" = "Error";

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
 
 protocol SearchViewOutput {
     func didPress(model: Searchable)

@@ -33,8 +33,8 @@ public struct Episode: Codable, DecoratedSearchable {
         return "\(showName!) S:\(season) E:\(number!)"
     }
 
-    public var posterThumb: String {
-        return showPosterThumb ?? ""
+    public var posterThumb: String? {
+        return showPosterThumb
     }
 
     // MARK: Codable

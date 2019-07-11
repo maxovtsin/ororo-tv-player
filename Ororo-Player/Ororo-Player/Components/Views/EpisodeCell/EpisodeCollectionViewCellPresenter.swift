@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
 
 final class EpisodeCollectionViewCellPresenter: CollectionViewCellPresenter {
 
@@ -28,7 +28,8 @@ final class EpisodeCollectionViewCellPresenter: CollectionViewCellPresenter {
             cell.labelProgress.text = ""
         }
 
-        if let url = URL(string: model.show.posterThumb) {
+        if let urlString = model.show.posterThumb,
+            let url = URL(string: urlString) {
             cell.imageViewCover.set(url: url)
         }
     }

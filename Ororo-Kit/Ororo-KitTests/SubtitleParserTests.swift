@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Ororo_Kit
+@testable import OroroKit
 
 class SubtitleParserTests: XCTestCase {
 
