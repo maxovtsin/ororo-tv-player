@@ -33,8 +33,7 @@
 		507B0FFD21BD24E500E2231C /* Sortable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FFC21BD24E500E2231C /* Sortable.swift */; };
 		507B0FFF21BD272500E2231C /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B0FFE21BD272500E2231C /* Identifiable.swift */; };
 		507B100421BD43D500E2231C /* PathBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B100321BD43D500E2231C /* PathBuilder.swift */; };
-		507B100621BD4DC200E2231C /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507B100521BD4DC200E2231C /* ServiceProvider.swift */; };
-		509B627B21206F58005FD9FE /* Ororo_Kit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 509B627121206F58005FD9FE /* Ororo_Kit.framework */; };
+		509B627B21206F58005FD9FE /* OroroKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 509B627121206F58005FD9FE /* OroroKit.framework */; };
 		509B628221206F58005FD9FE /* Ororo_Kit.h in Headers */ = {isa = PBXBuildFile; fileRef = 509B627421206F58005FD9FE /* Ororo_Kit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		509B62EA21207604005FD9FE /* ApiServiceEnpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B62E921207604005FD9FE /* ApiServiceEnpoint.swift */; };
 		509B62F92120777C005FD9FE /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B62F82120777C005FD9FE /* Logger.swift */; };
@@ -84,8 +83,7 @@
 		507B0FFC21BD24E500E2231C /* Sortable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sortable.swift; sourceTree = "<group>"; };
 		507B0FFE21BD272500E2231C /* Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
 		507B100321BD43D500E2231C /* PathBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathBuilder.swift; sourceTree = "<group>"; };
-		507B100521BD4DC200E2231C /* ServiceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
-		509B627121206F58005FD9FE /* Ororo_Kit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ororo_Kit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		509B627121206F58005FD9FE /* OroroKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OroroKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		509B627421206F58005FD9FE /* Ororo_Kit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ororo_Kit.h; sourceTree = "<group>"; };
 		509B627521206F58005FD9FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		509B627A21206F58005FD9FE /* Ororo-KitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ororo-KitTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,7 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				509B627B21206F58005FD9FE /* Ororo_Kit.framework in Frameworks */,
+				509B627B21206F58005FD9FE /* OroroKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,7 +202,7 @@
 		509B627221206F58005FD9FE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				509B627121206F58005FD9FE /* Ororo_Kit.framework */,
+				509B627121206F58005FD9FE /* OroroKit.framework */,
 				509B627A21206F58005FD9FE /* Ororo-KitTests.xctest */,
 			);
 			name = Products;
@@ -237,10 +235,9 @@
 		509B62EE21207661005FD9FE /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				507B100521BD4DC200E2231C /* ServiceProvider.swift */,
-				507B0FFB21BD24D500E2231C /* Storage */,
-				502FE6D721AAE380005D3400 /* Network */,
 				509B62F82120777C005FD9FE /* Logger.swift */,
+				502FE6D721AAE380005D3400 /* Network */,
+				507B0FFB21BD24D500E2231C /* Storage */,
 				504537DE21A83EDF0076D5B5 /* SubtitleParser.swift */,
 			);
 			path = Services;
@@ -309,7 +306,7 @@
 			);
 			name = "Ororo-Kit";
 			productName = "Ororo-Kit";
-			productReference = 509B627121206F58005FD9FE /* Ororo_Kit.framework */;
+			productReference = 509B627121206F58005FD9FE /* OroroKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		509B627921206F58005FD9FE /* Ororo-KitTests */ = {
@@ -420,7 +417,6 @@
 				502FE6D921AAE3A5005D3400 /* RequestBuilder.swift in Sources */,
 				5032CBE2212C5FC500FAB8E2 /* Ororo.xcdatamodeld in Sources */,
 				507B0FFF21BD272500E2231C /* Identifiable.swift in Sources */,
-				507B100621BD4DC200E2231C /* ServiceProvider.swift in Sources */,
 				5040646C2184B52600DF2A14 /* UIView+Layout.swift in Sources */,
 				5040646F2184B52600DF2A14 /* GenericCollectionViewDataSource.swift in Sources */,
 				509B632221207F03005FD9FE /* NetworkService.swift in Sources */,
@@ -608,7 +604,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.max.ovtsin.Ororo-Kit";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = OroroKit;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -640,7 +636,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.max.ovtsin.Ororo-Kit";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = OroroKit;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos";
 				SWIFT_INSTALL_OBJC_HEADER = NO;

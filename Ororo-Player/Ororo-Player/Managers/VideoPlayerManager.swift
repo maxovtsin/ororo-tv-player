@@ -9,7 +9,7 @@
 import AVKit
 import AVFoundation
 import CoreMedia
-import Ororo_Kit
+import OroroKit
 
 final class VideoPlayerManager {
 

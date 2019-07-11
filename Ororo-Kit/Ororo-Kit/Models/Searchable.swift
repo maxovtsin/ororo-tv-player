@@ -11,13 +11,13 @@ import UIKit
 public protocol DecoratedSearchable {
     var id: Int { get }
     var title: String { get }
-    var desc: String { get }
-    var posterThumb: String { get }
+    var desc: String? { get }
+    var posterThumb: String? { get }
     var playbackProgress: Double? { get }
 }
 
 public extension DecoratedSearchable {
-    var desc: String { return "" }
+    var desc: String? { return "" }
     var playbackProgress: Double? { return 0.0 }
 }
 
@@ -40,7 +40,7 @@ extension Searchable: Uniqueable {
         return model.title
     }
 
-    public var posterThumb: String {
+    public var posterThumb: String? {
         return model.posterThumb
     }
 

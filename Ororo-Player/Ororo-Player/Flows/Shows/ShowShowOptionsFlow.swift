@@ -7,85 +7,45 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
+import Transitions
 
-final class ShowShowOptionsFlow {
+final class ShowShowOptionsFlow: Flow {
 
-    // MARK: - Properties
-    private let transitionHandler: TransitionHandler
-    private let serviceProvider: ServiceProvider
-
-    // MARK: - Life cycle
-    init(transitionHandler: TransitionHandler,
-         serviceProvider: ServiceProvider) {
-        self.transitionHandler = transitionHandler
-        self.serviceProvider = serviceProvider
+    struct Injection {
+        let show: Show
+        let serviceProvider: ServiceProvider
+        let completion: (() -> Void)?
     }
 
     // MARK: - Flow interface
-    public func start(episode: Episode, completion: (() -> Void)? = nil) {
+    let coordinator: Coordinator
 
-        #if os(iOS)
-
-        let alertController = UIAlertController(title: nil,
-                                                message: nil,
-                                                preferredStyle: .actionSheet)
-
-        let downloadAction = UIAlertAction(title: "download".localized(),
-                                           style: .default) { (_) in
-                                            self.startDownload(episode: episode)
-        }
-
-        let cancelAction = UIAlertAction(title: "cancel".localized(),
-                                         style: .cancel) { (_) in }
-
-        alertController.addAction(downloadAction)
-        alertController.addAction(cancelAction)
-
-        transitionHandler.present(viewController: alertController, modally: true)
-
-        #elseif os(tvOS)
-
-        let alertController = UIAlertController(title: nil,
-                                                message: nil,
-                                                preferredStyle: .actionSheet)
-
-        let downloadAction = UIAlertAction(title: "remove_from_favorites".localized(),
-                                           style: .default) { (_) in
-                                            self.removeFromFavourites(episode: episode,
-                                                                      comletion: completion)
-        }
-
-        let cancelAction = UIAlertAction(title: "cancel".localized(),
-                                         style: .cancel) { (_) in }
-
-        alertController.addAction(downloadAction)
-        alertController.addAction(cancelAction)
-
-        transitionHandler.present(viewController: alertController, modally: true)
-
-        #endif
+    init(coordinator: Coordinator) {
+        self.coordinator = coordinator
     }
 
-    public func start(show: Show, completion: (() -> Void)?) {
+    func start(
+        injection: Injection,
+        transitionHandler: TransitionHandler
+        ) {
+
         let alertController = UIAlertController(title: nil,
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
 
-        if let isFavourite = show.isFavourite, isFavourite {
+        if let isFavourite = injection.show.isFavourite, isFavourite {
             let favouriteAction = UIAlertAction(title: "remove_from_favorites".localized(),
                                                 style: .default) { (_) in
-                                                    self.updateFavourites(show: show,
-                                                                          isFavourite: false,
-                                                                          comletion: completion)
+                                                    self.updateFavourites(injection: injection,
+                                                                          isFavourite: false)
             }
             alertController.addAction(favouriteAction)
         } else {
             let favouriteAction = UIAlertAction(title: "add_to_favorites".localized(),
                                                 style: .default) { (_) in
-                                                    self.updateFavourites(show: show,
-                                                                          isFavourite: true,
-                                                                          comletion: completion)
+                                                    self.updateFavourites(injection: injection,
+                                                                          isFavourite: true)
             }
             alertController.addAction(favouriteAction)
         }
@@ -95,37 +55,20 @@ final class ShowShowOptionsFlow {
 
         alertController.addAction(cancelAction)
 
-        transitionHandler.present(viewController: alertController, modally: true)
+        transitionHandler.present(
+            flow: self,
+            transition: BaseTransition.modal,
+            params: alertController)
     }
 
     // MARK: - Private functions
 
-    private func updateFavourites(show: Show, isFavourite: Bool, comletion: (() -> Void)?) {
-        serviceProvider.storageService
+    private func updateFavourites(injection: Injection, isFavourite: Bool) {
+        injection.serviceProvider.storageService
             .performAsync(transaction: { (context) in
                 let movie = context.fetchOne("id == %@",
-                                             arguments: [show.id]) as CDShow?
+                                             arguments: [injection.show.id]) as CDShow?
                 movie?.isFavourite = NSNumber(value: isFavourite)
-            }, completion: comletion)
-    }
-
-    private func removeFromFavourites(episode: Episode, comletion: (() -> Void)?) {
-        serviceProvider.storageService
-            .performAsync(transaction: { (context) in
-                let episode = context.fetchOne("id == %@",
-                                               arguments: [episode.id]) as CDEpisode?
-                episode?.playbackProgress = 0.0
-            }, completion: comletion)
-    }
-
-    private func startDownload(episode: Episode) {
-        serviceProvider.showsDataProvider
-            .loadEpisod(episodId: episode.id,
-                        onSuccess: { (episode) in
-                            if episode!.downloadUrl != nil {
-                                DownloadFlow(serviceProvider: self.serviceProvider)
-                                    .start(episode: episode!)
-                            }
-            }, onError: { (_) in })
+            }, completion: injection.completion)
     }
 }

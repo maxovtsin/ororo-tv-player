@@ -6,7 +6,7 @@
 //  Copyright © 2018 Max Ovtsin. All rights reserved.
 //
 
-import Ororo_Kit
+import OroroKit
 
 struct DownloadEpisodeModel {
     let episode: Episode

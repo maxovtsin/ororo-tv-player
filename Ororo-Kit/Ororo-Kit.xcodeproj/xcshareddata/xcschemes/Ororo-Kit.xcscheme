@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "509B627021206F58005FD9FE"
-               BuildableName = "Ororo_Kit.framework"
+               BuildableName = "OroroKit.framework"
                BlueprintName = "Ororo-Kit"
                ReferencedContainer = "container:Ororo-Kit.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "509B627021206F58005FD9FE"
-            BuildableName = "Ororo_Kit.framework"
+            BuildableName = "OroroKit.framework"
             BlueprintName = "Ororo-Kit"
             ReferencedContainer = "container:Ororo-Kit.xcodeproj">
          </BuildableReference>
@@ -65,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "509B627021206F58005FD9FE"
-            BuildableName = "Ororo_Kit.framework"
+            BuildableName = "OroroKit.framework"
             BlueprintName = "Ororo-Kit"
             ReferencedContainer = "container:Ororo-Kit.xcodeproj">
          </BuildableReference>
@@ -83,7 +83,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "509B627021206F58005FD9FE"
-            BuildableName = "Ororo_Kit.framework"
+            BuildableName = "OroroKit.framework"
             BlueprintName = "Ororo-Kit"
             ReferencedContainer = "container:Ororo-Kit.xcodeproj">
          </BuildableReference>

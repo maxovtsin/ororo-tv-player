@@ -17,8 +17,8 @@ public struct Movie: Codable, DecoratedSearchable {
 
     public let id: Int
     public let name: String
-    public let desc: String
-    public let posterThumb: String
+    public let desc: String?
+    public let posterThumb: String?
     public let url: String?
     public let downloadUrl: String?
     public let subtitles: [Subtitle]?
@@ -69,10 +69,10 @@ extension CDMovie {
     func configure(with movie: Movie) {
         self.id = movie.id
         self.name = movie.name
-        self.desc = movie.desc
+        self.desc = movie.desc ?? ""
         self.url = movie.url
         self.downloadUrl = movie.downloadUrl
-        self.posterThumb = movie.posterThumb
+        self.posterThumb = movie.posterThumb ?? ""
 
         let subtitles = movie.subtitles?.map { (st) -> CDSubtitle in
             let subtitle = CDSubtitle.forceCreate(with: st.id!,

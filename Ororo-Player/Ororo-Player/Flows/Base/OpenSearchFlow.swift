@@ -7,40 +7,58 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
+import Transitions
 
-class OpenSearchFlow {
+final class OpenSearchFlow: Flow {
 
-    // MARK: - Properties
-    lazy var openMovieFlow: OpenMovieFlow = {
-        return OpenMovieFlow(transitionHandler: transitionHandler,
-                             serviceProvider: serviceProvider)
-    }()
-    lazy var openShowFlow: OpenShowFlow = {
-        return OpenShowFlow(transitionHandler: transitionHandler,
-                            serviceProvider: serviceProvider)
-    }()
-    private let transitionHandler: TransitionHandler
-    private let serviceProvider: ServiceProvider
-
-    // MARK: - Life cycle
-    init(transitionHandler: TransitionHandler,
-         serviceProvider: ServiceProvider) {
-        self.transitionHandler = transitionHandler
-        self.serviceProvider = serviceProvider
+    struct Injection {
+        let movies: [Searchable]
+        let shows: [Searchable]
+        let serviceProvider: ServiceProvider
     }
 
-    // MARK: - Public interface
-    func start(movies: [Searchable], shows: [Searchable]) -> UINavigationController {
+    let coordinator: Coordinator
+    unowned var serviceProvider: ServiceProvider!
+
+    init(coordinator: Coordinator) {
+        self.coordinator = coordinator
+    }
+
+    func start(
+        injection: Injection,
+        transitionHandler: TransitionHandler
+        ) {
+        serviceProvider = injection.serviceProvider
 
         let searchViewController = SearchViewController(output: self)
-        let content = (movies + shows).sorted { $0.title < $1.title }
+        let content = (injection.movies + injection.shows)
+            .sorted { $0.title < $1.title }
 
         searchViewController.configure(with: content)
 
+        let viewController = getSearchController(
+            searchViewController: searchViewController
+        )
         #if os(iOS)
         searchViewController.title = "search".localized()
+        #endif
 
+        transitionHandler.present(
+            flow: self,
+            transition: BaseTransition.inTabBar,
+            params: (
+                viewController,
+                UIImage(named: "search.tabbar.icon")
+            )
+        )
+    }
+
+    // MARK: - Private functions
+    #if os(iOS)
+    private func getSearchController(
+        searchViewController: SearchViewController
+        ) -> UINavigationController {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = searchViewController
         searchController.obscuresBackgroundDuringPresentation = false
@@ -48,43 +66,86 @@ class OpenSearchFlow {
         searchController.searchBar.placeholder = "search_placeholder".localized()
         searchViewController.navigationItem.searchController = searchController
 
-        let searchNavController = UINavigationController(rootViewController: searchViewController)
+        let searchNavController = UINavigationController(
+            rootViewController: searchViewController
+        )
 
         return searchNavController
-        #elseif os(tvOS)
-        let searchController = UISearchController(searchResultsController: searchViewController)
+    }
+    #endif
+
+    #if os(tvOS)
+    private func getSearchController(
+        searchViewController: SearchViewController
+        ) -> UINavigationController {
+        let searchController = UISearchController(
+            searchResultsController: searchViewController
+        )
         searchController.searchResultsUpdater = searchViewController
         searchController.title = "search".localized()
         searchController.searchBar.placeholder = "search_placeholder".localized()
         searchController.view.backgroundColor = .gray
         searchController.searchBar.keyboardAppearance = .dark
 
-        let searchContainerViewController = UISearchContainerViewController(searchController: searchController)
+        let searchContainerViewController = UISearchContainerViewController(
+            searchController: searchController
+        )
         searchContainerViewController.title = "search".localized()
         searchContainerViewController.view.backgroundColor = .black
 
-        let searchNavController = UINavigationController(rootViewController: searchContainerViewController)
+        let searchNavController = UINavigationController(
+            rootViewController: searchContainerViewController
+        )
         return searchNavController
-        #endif
     }
+    #endif
 }
 
 extension OpenSearchFlow: SearchViewOutput {
-    func didPressLong(model: Searchable) {
 
+    func didPressLong(model: Searchable) {
         if let show = model.model as? Show {
-            openShowFlow.startWithLongPress(show: show)
+            coordinator.show(
+                OpenShowFlow.self,
+                injection: OpenShowFlow.Injection(
+                    show: show,
+                    serviceProvider: serviceProvider,
+                    comletion: nil,
+                    isLongPressed: true
+                )
+            )
         } else if let movie = model.model as? Movie {
-            openMovieFlow.startWithLongPress(movie: movie)
+            coordinator.show(
+                OpenMovieFlow.self,
+                injection: OpenMovieFlow.Injection(
+                    movie: movie,
+                    serviceProvider: serviceProvider,
+                    isLongPressed: true
+                )
+            )
         }
     }
 
     func didPress(model: Searchable) {
-
         if let show = model.model as? Show {
-            openShowFlow.start(show: show)
+            coordinator.show(
+                OpenShowFlow.self,
+                injection: OpenShowFlow.Injection(
+                    show: show,
+                    serviceProvider: serviceProvider,
+                    comletion: nil,
+                    isLongPressed: false
+                )
+            )
         } else if let movie = model.model as? Movie {
-            openMovieFlow.start(movie: movie)
+            coordinator.show(
+                OpenMovieFlow.self,
+                injection: OpenMovieFlow.Injection(
+                    movie: movie,
+                    serviceProvider: serviceProvider,
+                    isLongPressed: false
+                )
+            )
         }
     }
 }

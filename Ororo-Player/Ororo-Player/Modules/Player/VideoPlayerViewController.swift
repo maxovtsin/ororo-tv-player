@@ -7,7 +7,7 @@
 //
 
 import AVKit
-import Ororo_Kit
+import OroroKit
 
 final class VideoPlayerViewController: AVPlayerViewController {
 
@@ -45,7 +45,10 @@ final class VideoPlayerViewController: AVPlayerViewController {
     private func configureObserver() {
         videoPlayerManager.addTimeObserver(period: 1) { [weak self] (progress, _) in
             guard let self = self else { return }
-            self.subtitleManager.configure(label: self.labelSubtitle, time: progress)
+            self.subtitleManager.configure(
+                label: self.labelSubtitle,
+                time: progress
+            )
         }
     }
 
@@ -65,13 +68,11 @@ final class VideoPlayerViewController: AVPlayerViewController {
         contentOverlayView?.addSubview(labelSubtitle)
 
         labelSubtitle.layout(builder: {
-
             #if os(tvOS)
             $0.bottom <-> -50
             #elseif os(iOS)
             $0.bottom <-> -20
             #endif
-
             $0.centerX <-> self.contentOverlayView!.centerX
             $0.leading <-> (self.contentOverlayView!.leading + 30)
             $0.trailing <-> (self.contentOverlayView!.trailing + (-30))

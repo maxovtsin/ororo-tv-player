@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
 
 extension CollectionViewCellPresenter {
 
@@ -16,7 +16,8 @@ extension CollectionViewCellPresenter {
     }
 }
 
-class BaseViewController<PresenterType>: UIViewController where PresenterType: CollectionViewCellPresenter {
+class BaseViewController<PresenterType>: UIViewController
+where PresenterType: CollectionViewCellPresenter {
 
     // CollectionViewGeneric data source
     let dataSource = GenericCollectionViewDataSource<PresenterType>()
@@ -33,7 +34,9 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
     }()
 
     private let loadingLabel = UILabel()
-    private let spinner = UIActivityIndicatorView(style: DeviceVisualTheme.loaderSpinnerStyle())
+    private let spinner = UIActivityIndicatorView(
+        style: DeviceVisualTheme.loaderSpinnerStyle()
+    )
 
     override var title: String? {
         didSet {
@@ -46,7 +49,10 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
         self.init(nibName: nil, bundle: nil)
     }
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+    override init(
+        nibName nibNameOrNil: String?,
+        bundle nibBundleOrNil: Bundle?
+        ) {
         super.init(nibName: nil, bundle: nil)
         loadViewIfNeeded()
     }
@@ -59,10 +65,12 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
         super.viewDidLoad()
         setupUI()
         spinner.startAnimating()
-        dataSource.configure(with: collectionView,
-                             didPress: { [unowned self] pressedModel in
-                                self.tap?(pressedModel)
-        })
+        dataSource.configure(
+            with: collectionView,
+            didPress: { [unowned self] pressedModel in
+                self.tap?(pressedModel)
+            }
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -80,8 +88,9 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
     // MARK: - Actions
     @objc
     func handleLongPress(gesture: UILongPressGestureRecognizer) {
-        let point = gesture.location(in: self.collectionView)
-        if let indexPath = self.collectionView.indexPathForItem(at: point) {
+        guard gesture.state == .began else { return }
+        let point = gesture.location(in: collectionView)
+        if let indexPath = collectionView.indexPathForItem(at: point) {
             let model = dataSource.model(at: indexPath)
             longTap?(model)
         } else {
@@ -91,8 +100,10 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
 
     // MARK: - Private functions
     private func setupUI() {
-        collectionView = UICollectionView(frame: .zero,
-                                          collectionViewLayout: flow)
+        collectionView = UICollectionView(
+            frame: .zero,
+            collectionViewLayout: flow
+        )
 
         view.backgroundColor = .gray
         view.addSubview(collectionView)
@@ -102,7 +113,11 @@ class BaseViewController<PresenterType>: UIViewController where PresenterType: C
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
 
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        let longPressRecognizer = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleLongPress)
+        )
+//        longPressRecognizer.minimumPressDuration = 1
         collectionView.addGestureRecognizer(longPressRecognizer)
 
         view.addSubview(spinner)

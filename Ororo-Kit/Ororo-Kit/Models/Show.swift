@@ -17,9 +17,9 @@ public struct Show: Codable, DecoratedSearchable {
 
     public let id: Int
     public let name: String
-    public let desc: String
+    public let desc: String?
     public let episodes: [Episode]?
-    public let posterThumb: String
+    public let posterThumb: String?
     public let isFavourite: Bool?
 
     // MARK: - Searchable
@@ -58,8 +58,8 @@ extension CDShow {
     func configure(with show: Show) {
         self.id = show.id
         self.name = show.name
-        self.desc = show.desc
-        self.posterThumb = show.posterThumb
+        self.desc = show.desc ?? ""
+        self.posterThumb = show.posterThumb ?? ""
 
         let episodes = show.episodes?.map { (ep) -> CDEpisode in
             let episode = CDEpisode.forceCreate(with: "\(ep.id)",

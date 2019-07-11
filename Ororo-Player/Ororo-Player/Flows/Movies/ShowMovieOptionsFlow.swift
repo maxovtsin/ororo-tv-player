@@ -7,46 +7,58 @@
 //
 
 import UIKit
-import Ororo_Kit
+import OroroKit
+import Transitions
 
-final class ShowMovieOptionsFlow {
+final class ShowMovieOptionsFlow: Flow {
 
-    // MARK: - Properties
-    private let transitionHandler: TransitionHandler
-    private let serviceProvider: ServiceProvider
-
-    lazy var openPlayerFlow: OpenPlayerFlow = {
-        return OpenPlayerFlow(transitionHandler: transitionHandler,
-                              serviceProvider: serviceProvider)
-    }()
-
-    // MARK: - Life cycle
-    init(transitionHandler: TransitionHandler,
-         serviceProvider: ServiceProvider) {
-        self.transitionHandler = transitionHandler
-        self.serviceProvider = serviceProvider
+    struct Injection {
+        let movie: Movie
+        let serviceProvider: ServiceProvider
+        let completion: (() -> Void)?
     }
 
     // MARK: - Flow interface
-    public func start(movie: Movie, completion: (() -> Void)?) {
-        let alertController = UIAlertController(title: nil,
-                                                message: nil,
-                                                preferredStyle: .actionSheet)
 
-        if let isFavourite = movie.isFavourite, isFavourite {
-            let favouriteAction = UIAlertAction(title: "remove_from_favorites".localized(),
-                                                style: .default) { (_) in
-                                                    self.updateFavourites(movie: movie,
-                                                                          isFavourite: false,
-                                                                          completion: completion)
+    let coordinator: Coordinator
+
+    init(coordinator: Coordinator) {
+        self.coordinator = coordinator
+    }
+
+    func start(
+        injection: Injection,
+        transitionHandler: TransitionHandler
+        ) {
+        let alertController = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        if let isFavourite = injection.movie.isFavourite,
+            isFavourite {
+            let favouriteAction = UIAlertAction(
+                title: "remove_from_favorites".localized(),
+                style: .default) { (_) in
+                    self.updateFavourites(
+                        movie: injection.movie,
+                        isFavourite: false,
+                        serviceProvider: injection.serviceProvider,
+                        completion: injection.completion
+                    )
             }
             alertController.addAction(favouriteAction)
         } else {
-            let favouriteAction = UIAlertAction(title: "add_to_favorites".localized(),
-                                                style: .default) { (_) in
-                                                    self.updateFavourites(movie: movie,
-                                                                          isFavourite: true,
-                                                                          completion: completion)
+            let favouriteAction = UIAlertAction(
+                title: "add_to_favorites".localized(),
+                style: .default) { (_) in
+                    self.updateFavourites(
+                        movie: injection.movie,
+                        isFavourite: true,
+                        serviceProvider: injection.serviceProvider,
+                        completion: injection.completion
+                    )
             }
             alertController.addAction(favouriteAction)
         }
@@ -56,11 +68,20 @@ final class ShowMovieOptionsFlow {
 
         alertController.addAction(cancelAction)
 
-        transitionHandler.present(viewController: alertController, modally: true)
+        transitionHandler.present(
+            flow: self,
+            transition: BaseTransition.modal,
+            params: alertController
+        )
     }
 
     // MARK: - Private functions
-    private func updateFavourites(movie: Movie, isFavourite: Bool, completion: (() -> Void)?) {
+    private func updateFavourites(
+        movie: Movie,
+        isFavourite: Bool,
+        serviceProvider: ServiceProvider,
+        completion: (() -> Void)?
+        ) {
         serviceProvider.storageService
             .performAsync(transaction: { (context) in
                 let movie = context.fetchOne("id == %@",

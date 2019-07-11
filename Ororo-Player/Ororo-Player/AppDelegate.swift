@@ -7,20 +7,32 @@
 //
 
 import UIKit
+import Transitions
+import OroroKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Properties
-
-    // That property must be lazy to
-    // avoid premature initialisation of a window
-    private lazy var rootFlow = { RootFlow() }()
+    private let coordinator = MainCoordinator()
+    private let serviceProvider = ServiceProvider(
+        credentials: Credentials(
+            username: "test@example.com",
+            password: "password"
+        )
+    )
 
     // MARK: - UIApplicationDelegate
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        rootFlow.start()
+
+        coordinator.launch(
+            rootFlowType: RootFlow.self,
+            injection: RootFlow.Injection(
+                serviceProvider: serviceProvider
+            )
+        )
+
         return true
     }
 }

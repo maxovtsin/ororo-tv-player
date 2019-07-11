@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Ororo_Kit
+import OroroKit
 
 class EpisodeModel {
 

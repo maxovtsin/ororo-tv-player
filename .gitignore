@@ -20,3 +20,5 @@ DerivedData
 *.ipa
 Version.xcconfig
 injectEnv.properties
+Carthage/Build
+Carthage/Checkouts
