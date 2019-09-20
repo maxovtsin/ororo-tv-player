@@ -1,0 +1,15 @@
+load("//Config:buck_rule_macros.bzl", "apple_lib")
+
+core_data_model(
+  name = 'OroroCoreDataModel',
+  path = 'OroroKit/Resources/Ororo.xcdatamodeld',
+)
+
+apple_lib(
+    name = "OroroKit",
+    srcs = glob([
+        "OroroKit/**/*.swift",
+    ]),
+    deps = [':OroroCoreDataModel'],
+    warning_as_error = False,
+)

@@ -1,0 +1,8 @@
+load("//Config:buck_rule_macros.bzl", "apple_lib")
+
+prebuilt_apple_framework(
+    name = "Transitions",
+    framework = "Build/iOS/Transitions.framework",
+    preferred_linkage = "shared",
+    visibility = ["PUBLIC"],
+)

@@ -1,6 +1,9 @@
 # OS X
 .DS_Store
 
+#Buck
+.buckd/
+
 # Xcode
 øbuild/
 *.pbxuser
@@ -22,3 +25,4 @@ Version.xcconfig
 injectEnv.properties
 Carthage/Build
 Carthage/Checkouts
+buck-out/

@@ -1,0 +1,49 @@
+load("//Config:configs.bzl", "app_binary_configs", "library_configs", "pretty", "info_plist_substitutions", "bundle_identifier", "DEVELOPMENT_LANGUAGE")
+load("//Config:buck_rule_macros.bzl", "apple_lib", "apple_test_lib", "apple_test_all")
+
+apple_asset_catalog(
+  name = 'OroroAssets',
+  dirs = [ 'Ororo-Player/Resources/Assets.xcassets' ],
+)
+
+first_party_library_dependencies = [
+    "//OroroKit:OroroKit",
+]
+
+prebuilt_frameworks = [
+    "//Carthage:Transitions",
+]
+
+apple_binary(
+  name = 'OroroAppBinary',
+  deps = [':OroroAssets']
+  + prebuilt_frameworks
+  + first_party_library_dependencies,
+  srcs = glob([
+    'Ororo-Player/**/*.swift',
+  ]),
+  swift_version = "5",
+  configs = app_binary_configs("OroroPlayer"),
+  frameworks = [
+    '$SDKROOT/System/Library/Frameworks/UIKit.framework',
+    '$SDKROOT/System/Library/Frameworks/Foundation.framework',
+  ],
+)
+
+apple_bundle(
+    name = "OroroPlayer",
+    visibility = [
+        "//App:",
+    ],
+    extension = "app",
+    binary = ":OroroAppBinary",
+    product_name = "OroroPlayer",
+    info_plist = "Ororo-Player/Resources/Info-iOS.plist",
+    info_plist_substitutions = info_plist_substitutions("OroroPlayer"),
+    deps = prebuilt_frameworks,
+)
+
+apple_package(
+    name = "OroroPlayerPackage",
+    bundle = ":OroroPlayer",
+)
