@@ -1,8 +1,15 @@
 load("//Config:buck_rule_macros.bzl", "apple_lib")
 
 prebuilt_apple_framework(
-    name = "Transitions",
+    name = "Transitions-iOS",
     framework = "Build/iOS/Transitions.framework",
+    preferred_linkage = "shared",
+    visibility = ["PUBLIC"],
+)
+
+prebuilt_apple_framework(
+    name = "Transitions-tvOS",
+    framework = "Build/tvOS/Transitions.framework",
     preferred_linkage = "shared",
     visibility = ["PUBLIC"],
 )

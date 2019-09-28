@@ -11,7 +11,7 @@ first_party_library_dependencies = [
 ]
 
 prebuilt_frameworks = [
-    "//Carthage:Transitions",
+    "//Carthage:Transitions-iOS",
 ]
 
 apple_binary(
