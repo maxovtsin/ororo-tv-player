@@ -22,3 +22,4 @@ Version.xcconfig
 injectEnv.properties
 Carthage/Build
 Carthage/Checkouts
+.superpowers/
