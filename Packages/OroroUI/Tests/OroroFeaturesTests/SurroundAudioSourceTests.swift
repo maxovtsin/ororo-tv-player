@@ -167,4 +167,42 @@ import Testing
         for index in 1...3 { _ = await source.respond(to: "audio/0/\(index).m4s") }
         #expect(failures.all == [.starved])
     }
+
+    @Test func repeatedPreflightsAreAnsweredFromTheFirst() async throws {
+        let origin = FixtureOrigin(fixture: try await HLSAudioFixture.make(seconds: 4))
+        let started = try await Self.start(origin)
+        defer { started.source.stop() }
+        #expect(started.authored != nil)
+        // A later failure must not change the answer: asset and item see the same playlist.
+        origin.failRequests(pathSuffix: "audio.m3u8", true)
+        #expect(await started.source.author(multivariant: origin.multivariant) == started.authored)
+        #expect(await started.source.accepted)
+        for path in ["audio.m3u8", "init.mp4", "seg-0.mp4"] { #expect(origin.fetchCount(pathSuffix: path) == 1) }
+    }
+
+    @Test func concurrentFirstPreflightsShareOneRun() async throws {
+        let origin = FixtureOrigin(fixture: try await HLSAudioFixture.make(seconds: 4))
+        let source = SurroundAudioSource(fetch: origin.fetch, onFailure: { _ in })
+        _ = try await source.start()
+        defer { source.stop() }
+        async let first = source.author(multivariant: origin.multivariant)
+        async let second = source.author(multivariant: origin.multivariant)
+        let results = await [first, second]
+        #expect(results[0] != nil && results[0] == results[1])
+        for path in ["audio.m3u8", "init.mp4", "seg-0.mp4"] { #expect(origin.fetchCount(pathSuffix: path) == 1) }
+    }
+
+    @Test func aDeclineIsRememberedAndReportedAsNotAccepted() async throws {
+        let origin = FixtureOrigin(fixture: try await HLSAudioFixture.make(seconds: 4))
+        let source = SurroundAudioSource(fetch: origin.fetch, onFailure: { _ in })
+        _ = try await source.start()
+        defer { source.stop() }
+        #expect(await source.accepted == false) // no pre-flight yet
+        origin.failRequests(pathSuffix: "audio.m3u8", true)
+        #expect(await source.author(multivariant: origin.multivariant) == nil)
+        origin.failRequests(pathSuffix: "audio.m3u8", false)
+        #expect(await source.author(multivariant: origin.multivariant) == nil)
+        #expect(await source.accepted == false)
+        #expect(origin.fetchCount(pathSuffix: "audio.m3u8") == 1)
+    }
 }

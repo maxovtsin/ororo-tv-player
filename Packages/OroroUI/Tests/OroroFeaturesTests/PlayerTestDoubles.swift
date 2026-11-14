@@ -60,14 +60,17 @@ final class FakeSurroundSource: SurroundSource {
     private let servesAfterWake: Bool
     private let failsAfterStart: Duration?
     private let startDelay: Duration?
+    private let declines: Bool
 
     /// - Parameter startDelay: how long `start()` suspends before it succeeds or fails.
+    /// - Parameter declines: the pre-flight declines (`author` returns `nil`, `accepted` is false).
     init(startFails: Bool = false, servesAfterWake: Bool = true, failsAfterStart: Duration? = nil,
-         startDelay: Duration? = nil) {
+         startDelay: Duration? = nil, declines: Bool = false) {
         self.startFails = startFails
         self.servesAfterWake = servesAfterWake
         self.failsAfterStart = failsAfterStart
         self.startDelay = startDelay
+        self.declines = declines
     }
 
     var startCount: Int { state.withLock { $0.startCount } }
@@ -99,7 +102,11 @@ final class FakeSurroundSource: SurroundSource {
     }
 
     func author(multivariant: String) async -> String? {
-        multivariant
+        declines ? nil : multivariant
+    }
+
+    var accepted: Bool {
+        get async { !declines }
     }
 
     func ensureServing() async -> Bool {

@@ -19,6 +19,8 @@ protocol SurroundSource: Sendable {
     func start() async throws -> URL
     /// The pre-flight: the multivariant playlist re-pointed at local 5.1 renditions, or `nil` to leave it untouched.
     func author(multivariant: String) async -> String?
+    /// The pre-flight ran and accepted: the player is actually given generated 5.1 audio.
+    var accepted: Bool { get async }
     /// Re-listens if the loopback listener was lost (for example while the app was in the background).
     func ensureServing() async -> Bool
     nonisolated func stop()
@@ -88,6 +90,8 @@ actor SurroundAudioSource: SurroundSource {
     private var slotWaiters: [(id: UUID, continuation: CheckedContinuation<Bool, Never>)] = []
     private var health = SurroundHealth()
     private var hasFailed = false
+    /// The latest pre-flight and the multivariant text it was run for.
+    private var authoring: (input: String, task: Task<String?, Never>)?
 
     init(fetch: @escaping SubtitleResourceResponder.ResolvingFetch = SubtitleResourceLoader.download,
          transcode: @escaping SurroundTranscode = SurroundAudioSource.liveTranscode(signal: nil),
@@ -139,8 +143,26 @@ actor SurroundAudioSource: SurroundSource {
 
     // MARK: - Pre-flight
 
+    /// Memoised: the first pre-flight for a given multivariant decides for every later request of the same text (the
+    /// resource loader asks more than once), so the asset and the item always see the same playlist. Concurrent first
+    /// calls share one pre-flight.
     func author(multivariant: String) async -> String? {
-        guard let base else { return decline(.notStarted) }
+        if let authoring, authoring.input == multivariant { return await authoring.task.value }
+        let task = Task { await self.preflight(multivariant) }
+        authoring = (multivariant, task)
+        return await task.value
+    }
+
+    var accepted: Bool {
+        get async {
+            guard let task = authoring?.task else { return false }
+            return await task.value != nil
+        }
+    }
+
+    private func preflight(_ multivariant: String) async -> String? {
+        // A stopped source (for example one the engine dropped after a decline) never points the player at itself.
+        guard let base, !slot.withLock({ $0.isStopped }) else { return decline(.notStarted) }
         guard let authored = SurroundPlaylistBuilder.multivariant(absolutised: multivariant, localBase: base) else {
             return decline(.layout)
         }

@@ -62,6 +62,7 @@ private struct UnavailableSurroundSource: SurroundSource {
 
     func start() async throws -> URL { throw Unavailable() }
     func author(multivariant: String) async -> String? { nil }
+    var accepted: Bool { false }
     func ensureServing() async -> Bool { false }
     func stop() {}
 }
