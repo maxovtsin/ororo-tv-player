@@ -1197,6 +1197,47 @@ Reading the results:
 
 ---
 
+### Checkpoint A result (2026-11-14)
+
+Run on Max's Apple TV 4K (3rd gen) → TV → Sony HT-RT4: 6 output channels over HDMI; speaker test correct on all six channels (LFE faint, as expected for a 60 Hz test beep at 0.25); steady tone has no ticks (joins seamless, generation keeps up). New finding: some titles carry their own 5.1 rendition (`CHANNELS="6"`, `DEFAULT=NO`) that the app never selects, because the engine sets `appliesMediaSelectionCriteriaAutomatically = false`. Bug: the debug test-signal picker opens an empty view on tvOS. Max approved Tasks 9a and 9b before continuing.
+
+---
+
+### Task 9a: Play a title's own multichannel audio when the output supports it
+
+**Files:**
+- Modify: `Packages/OroroUI/Sources/OroroFeatures/Player/AVPlayerEngine.swift`
+- Test: additions to `Packages/OroroUI/Tests/OroroFeaturesTests/AVPlayerEngineTests.swift`; new pure helper test file if a helper is extracted
+
+**Interfaces:**
+- Produces: `struct AudioOptionChoice { static func best(among options: [Candidate], current: Candidate?) -> Candidate? }` where `struct Candidate: Equatable { var index: Int; var language: String?; var channels: Int? }` (pure, testable), and the engine's use of it after the item is ready.
+
+Behaviour:
+- After the item is ready (in `load`, before the seek), when `outputChannels() >= AudioOutput.surroundChannelCount`: load the asset's `.audible` media selection group and its variants (`asset.load(.variants)`); for each audio option take the channel count from `variant.audioAttributes?.renditionSpecificAttributes(for: option)?.channelCount` (max over variants that list it). Select the option with the most channels if that is more than 2, preferring options whose language matches the currently selected option's (fall back to any language only when no option in that language has more than 2 channels). If channel counts are unavailable for every option, change nothing.
+- This applies whether or not simulated surround is enabled (it is real audio, not simulation), and also on the stereo retry and the session's reloads. With a stereo output nothing changes. When the generated surround track is in use, the choice is harmless (the authored playlist has only the 6-channel rendition).
+- Log one `.notice` line under the existing "Surround" category: the chosen option's channel count and language (never a URL), or "no multichannel option".
+
+- [ ] **Step 1: Failing tests** for `AudioOptionChoice.best`: picks the 6-channel option over a default stereo one in the same language; prefers same-language 6-channel over other-language 6-channel; falls back to another language only when the current language has no multichannel option; returns nil when every count is nil or ≤ 2; ties keep the first in order. Engine test: with `outputChannels: { 2 }` the selection is untouched (use the existing silent-WAV asset, which has one audio option).
+- [ ] **Step 2: Run to verify failure** — `UI_TEST AVPlayerEngineTests` (plus the helper's suite).
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Verify** — focused suites, full tvOS scheme, `UI_BUILD_IOS`, `LINT`.
+- [ ] **Step 5: Commit** — `feat(player): prefer a title's own multichannel audio on a 5.1 output`
+
+---
+
+### Task 9b: Make the debug test-signal switch usable on tvOS
+
+**Files:**
+- Modify: `Packages/OroroUI/Sources/OroroFeatures/Settings/SettingsScreen.swift` (the `#if DEBUG && os(tvOS)` section)
+
+On the device, the Debug section's `Picker` opens an empty view. Replace it with a single focusable `Button` whose label reads `Surround test signal: Off|Speaker test|Steady tone` and which cycles Off → Speaker test → Steady tone → Off on each press, bound to the same `@AppStorage(SurroundDebug.defaultsKey)` string (`""` for Off). Keep everything inside `#if DEBUG && os(tvOS)`, strings verbatim.
+
+- [ ] **Step 1: Implement** (no unit test: view-only; `SurroundDebug.signal(in:)` is already tested).
+- [ ] **Step 2: Verify** — full tvOS scheme, tvOS Release build of the package, `LINT`.
+- [ ] **Step 3: Commit** — `fix(settings): debug test-signal switch that works on tvOS`
+
+---
+
 ### Task 10: The real upmix
 
 **Files:**
