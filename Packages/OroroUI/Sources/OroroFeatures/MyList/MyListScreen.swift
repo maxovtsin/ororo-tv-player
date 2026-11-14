@@ -61,6 +61,8 @@ public struct MyListScreen: View {
     private func content(_ model: MyListViewModel) -> some View {
         if model.hasLoaded && model.isEmpty {
             emptyState
+                // Nothing scrolls: Menu goes to the tab bar.
+                .onAppear { router.isAtTop = true }
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.shelfGap) {

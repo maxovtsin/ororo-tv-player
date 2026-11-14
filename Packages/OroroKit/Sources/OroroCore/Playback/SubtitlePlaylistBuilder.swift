@@ -55,7 +55,13 @@ public enum SubtitlePlaylistBuilder {
         return out.joined(separator: "\n")
     }
 
-    public static func subtitlePlaylist(vttURL: URL, duration: TimeInterval) -> String {
+    /// Used when the video's duration is unknown (non-finite or not positive): longer than any title.
+    public static let fallbackDuration: TimeInterval = 6 * 3600
+    /// Upper bound, so the target duration always fits an `Int`.
+    public static let maximumDuration: TimeInterval = 7 * 24 * 3600
+
+    public static func subtitlePlaylist(vttURL: URL, duration rawDuration: TimeInterval) -> String {
+        let duration = rawDuration.isFinite && rawDuration > 0 ? min(rawDuration, maximumDuration) : fallbackDuration
         let target = Int(duration.rounded(.up))
         return """
         #EXTM3U

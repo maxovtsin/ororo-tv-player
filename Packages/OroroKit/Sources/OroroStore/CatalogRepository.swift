@@ -57,6 +57,8 @@ public actor CatalogRepository: CatalogProviding {
         let started = generation
         // Shows first: a 401 here means bad credentials, and nothing has been stored yet.
         let shows = try await api.shows(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0))
+        // `/shows` succeeded: say so even when the server sent no Content-Length (no byte progress at all).
+        progress?(Self.showsCompletedProgress)
         let movies = try await api.movies(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0.5))
         guard case .fresh(let showList) = shows, case .fresh(let movieList) = movies else { throw APIError.decoding }
         // Superseded by `clear` or another sign-in while downloading.
@@ -155,6 +157,9 @@ public actor CatalogRepository: CatalogProviding {
         var showsETag: String?
         var moviesETag: String?
     }
+
+    /// Reported once `/shows` succeeded during sign-in: just past its half, so callers know `/movies` is next.
+    public static let showsCompletedProgress = 0.5 + 0.001
 
     /// Maps one download's 0...1 onto its half of the overall progress (the mean of the two downloads).
     private static func half(of progress: (@Sendable (Double) -> Void)?, offset: Double) -> (@Sendable (Double) -> Void)? {

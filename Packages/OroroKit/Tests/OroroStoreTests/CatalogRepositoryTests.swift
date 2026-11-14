@@ -75,8 +75,9 @@ import Testing
         #expect(credentials.stored == Samples.credentials)
         #expect(await repository.current() == catalog)
         #expect(await repository.lastUpdated() == catalog.fetchedAt)
-        // Each download reports 1 when done; overall progress is the mean of the two.
-        #expect(reported.withLock { $0 } == [0.5, 1.0])
+        // Each download reports 1 when done; overall progress is the mean of the two. `/shows` succeeding is
+        // reported explicitly just past 0.5, even when no Content-Length means no byte progress.
+        #expect(reported.withLock { $0 } == [0.5, CatalogRepository.showsCompletedProgress, 1.0])
         #expect(try fileContents("shows.json") == "shows")
         #expect(try fileContents("movies.json") == "movies")
         #expect(fileExists("meta.json"))

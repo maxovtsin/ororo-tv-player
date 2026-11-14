@@ -74,13 +74,6 @@ public enum Display {
         return String(format: "%d:%02d", minutes, secs)
     }
 
-    /// "1 Season", "2 Seasons"
-    /// Note for I1: English-only plural; move to the string catalog with plural variations.
-    public static func seasonCount(_ n: Int, locale: Locale) -> String {
-        let number = n.formatted(.number.locale(locale))
-        return n == 1 ? "\(number) Season" : "\(number) Seasons"
-    }
-
     /// "240p–1080p"; same → "720p"
     public static func qualityRange(lowest: String, highest: String) -> String {
         lowest == highest ? lowest : "\(lowest)–\(highest)"

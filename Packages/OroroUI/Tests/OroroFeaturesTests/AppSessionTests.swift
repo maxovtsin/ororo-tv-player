@@ -1,5 +1,6 @@
 import Foundation
 import OroroCore
+import OroroStore
 @testable import OroroFeatures
 import OroroTestSupport
 import Testing
@@ -291,7 +292,7 @@ import Testing
 
         await gated.open(.shows)
         #expect(await eventually { await gated.isWaiting(.movies) })
-        #expect(await eventually { session.state == .loadingCatalog(0.75) })
+        #expect(await eventually { session.state == .loadingCatalog(CatalogRepository.showsCompletedProgress) })
 
         await gated.open(.movies)
         try await signIn.value
@@ -432,7 +433,8 @@ actor GatedCatalog: CatalogProviding {
         await wait(.shows)
         progress?(0.5)  // like the transport, the /shows body is reported before its status is checked
         if let showsError { throw showsError }
-        progress?(0.75)
+        // The repository's explicit tick once `/shows` succeeded (no byte progress: no Content-Length).
+        progress?(CatalogRepository.showsCompletedProgress)
         await wait(.movies)
         if let moviesError { throw moviesError }
         progress?(1)

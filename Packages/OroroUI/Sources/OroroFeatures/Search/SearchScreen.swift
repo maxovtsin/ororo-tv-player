@@ -46,7 +46,6 @@ public struct SearchScreen: View {
             library = await environment.library.snapshot()
             for await updated in await environment.library.updates() { library = updated }
         }
-        .onAppear { router.isAtTop = true }
     }
 
     /// F1 contract: scroll to top and focus the first element. Forgetting the remembered row makes the top

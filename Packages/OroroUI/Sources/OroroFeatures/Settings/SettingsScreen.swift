@@ -5,6 +5,7 @@ import SwiftUI
 public struct SettingsScreen: View {
     @Environment(AppSession.self) private var session
     @Environment(\.appEnvironment) private var environment
+    @Environment(TabRouter.self) private var router
     @State private var model: SettingsViewModel?
     @State private var confirmErase = false
     @State private var confirmSignOut = false
@@ -19,6 +20,8 @@ public struct SettingsScreen: View {
                 Color.clear
             }
         }
+        // A short form: Menu always goes to the tab bar.
+        .onAppear { router.isAtTop = true }
         .task {
             let model = self.model ?? SettingsViewModel(environment: environment, session: session)
             self.model = model
@@ -120,4 +123,5 @@ public struct SettingsScreen: View {
 #Preview {
     SettingsScreen()
         .environment(AppSession(environment: .preview()))
+        .environment(TabRouter())
 }

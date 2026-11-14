@@ -84,7 +84,7 @@ import Testing
     @Test func playButtonTitlesFollowAction() {
         let ref = EpisodeRef(episodeID: 7, season: 2, number: 3)
         #expect(HeroView.playTitle(.playMovie) == "Play")
-        #expect(HeroView.playTitle(.playFirstEpisode) == "Play S1 E1")
+        #expect(HeroView.playTitle(.playFirstEpisode) == "Play") // the first episode ref is unknown here
         #expect(HeroView.playTitle(.playEpisode(ref)) == "Play S2 E3")
         #expect(HeroView.playTitle(.resumeEpisode(ref)) == "Resume S2 E3")
     }

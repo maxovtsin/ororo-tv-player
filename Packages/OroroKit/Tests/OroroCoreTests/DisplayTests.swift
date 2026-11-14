@@ -84,11 +84,6 @@ import Testing
         #expect(!Display.timecode(Double.greatestFiniteMagnitude).isEmpty) // must not trap
     }
 
-    @Test func seasonCountPluralises() {
-        #expect(Display.seasonCount(1, locale: gb) == "1 Season")
-        #expect(Display.seasonCount(2, locale: gb) == "2 Seasons")
-    }
-
     @Test func qualityRangeFormat() {
         #expect(Display.qualityRange(lowest: "240p", highest: "1080p") == "240p–1080p")
         #expect(Display.qualityRange(lowest: "720p", highest: "720p") == "720p")

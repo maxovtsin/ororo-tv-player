@@ -94,6 +94,17 @@ import Testing
         #expect(SubtitlePlaylistBuilder.subtitlePlaylist(vttURL: vtt, duration: 2700.4) == expected)
     }
 
+    @Test func subtitlePlaylistNeverTrapsOnBadDurations() {
+        let vtt = URL(string: "https://subs.example.com/en.vtt")!
+        let fallback = SubtitlePlaylistBuilder.fallbackDuration
+        for duration in [TimeInterval.nan, .infinity, -.infinity, 0, -5, .greatestFiniteMagnitude] {
+            let playlist = SubtitlePlaylistBuilder.subtitlePlaylist(vttURL: vtt, duration: duration)
+            let expected = duration == .greatestFiniteMagnitude ? SubtitlePlaylistBuilder.maximumDuration : fallback
+            #expect(playlist.contains("#EXT-X-TARGETDURATION:\(Int(expected.rounded(.up)))\n"))
+            #expect(playlist.contains("#EXTINF:\(expected),\n"))
+        }
+    }
+
     @Test func duplicateLanguagesKeepFirst() {
         let dup = Subtitle(lang: "en", url: URL(string: "https://subs.example.com/en2.vtt")!)
         let input = "#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1000\na.m3u8\n"

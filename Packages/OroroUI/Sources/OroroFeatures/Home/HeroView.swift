@@ -161,14 +161,12 @@ public struct HeroView: View {
     private static let expandedFraction: CGFloat = 0.55, collapsedFraction: CGFloat = 0.35, textWidth: CGFloat = 600
     #endif
 
-    /// "Play", "Play S1 E1", "Resume S2 E3"
+    /// "Play", "Play S2 E4", "Resume S2 E3"
     nonisolated static func playTitle(_ action: HeroAction) -> String {
         switch action {
-        case .playMovie:
+        case .playMovie, .playFirstEpisode:
+            // The show's real first episode isn't known here (it may not be S1 E1).
             return String(localized: "hero.play", defaultValue: "Play", bundle: .module)
-        case .playFirstEpisode:
-            let label = Display.episodeLabel(season: 1, number: 1)
-            return String(localized: "hero.play.episode", defaultValue: "Play \(label)", bundle: .module)
         case .playEpisode(let ref):
             let label = Display.episodeLabel(season: ref.season, number: ref.number)
             return String(localized: "hero.play.episode", defaultValue: "Play \(label)", bundle: .module)
