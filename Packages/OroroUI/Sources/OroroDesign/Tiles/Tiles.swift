@@ -1,6 +1,10 @@
 import SwiftUI
 
-/// Per-platform tile sizes (artwork only; the landscape caption overlays the space below).
+/// Per-platform tile sizes.
+///
+/// `size(_:)` is the artwork size. A landscape tile additionally reserves `captionHeight(_:)`
+/// directly below its artwork for the focus-revealed title and subtitle, so its total layout
+/// height is `size.height + captionHeight`. `ShelfRow` and `PosterGrid` must allow that total.
 public enum TileMetrics {
     public static func size(_ shape: TileShape) -> CGSize {
         #if os(tvOS)
@@ -14,6 +18,19 @@ public enum TileMetrics {
         case .landscape: CGSize(width: 240, height: 135)
         }
         #endif
+    }
+
+    /// Space reserved below the artwork for the caption (zero for posters).
+    public static func captionHeight(_ shape: TileShape) -> CGFloat {
+        switch shape {
+        case .poster: 0
+        case .landscape:
+            #if os(tvOS)
+            80
+            #else
+            44
+            #endif
+        }
     }
 
     static let cornerRadius: CGFloat = 12
@@ -66,15 +83,22 @@ public struct PosterTile: View {
     public var body: some View {
         let size = TileMetrics.size(.poster)
         ZStack(alignment: .topLeading) {
-            RemoteImage(url: model.posterURL, pointSize: size)
-            if let badge = model.badge {
-                Badge(badge).padding(Spacing.s)
+            if model.posterURL != nil {
+                RemoteImage(url: model.posterURL, pointSize: size)
+            } else {
+                PlaceholderArtwork(posterURL: nil, title: model.title)
             }
         }
         .frame(width: size.width, height: size.height)
+        .clipped()
+        .overlay(alignment: .topLeading) { badgeView }
         .modifier(TileChrome(isFocused: isFocused))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(model.accessibilityLabel)
+    }
+
+    @ViewBuilder private var badgeView: some View {
+        if let badge = model.badge { Badge(badge).padding(Spacing.s) }
     }
 }
 
@@ -90,28 +114,35 @@ public struct LandscapeTile: View {
 
     public var body: some View {
         let size = TileMetrics.size(.landscape)
-        ZStack(alignment: .topLeading) {
+        VStack(alignment: .leading, spacing: 0) {
+            artwork(size: size)
+                .modifier(TileChrome(isFocused: isFocused))
+            caption
+                .frame(width: size.width, height: TileMetrics.captionHeight(.landscape), alignment: .topLeading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(model.accessibilityLabel)
+    }
+
+    private func artwork(size: CGSize) -> some View {
+        ZStack(alignment: .bottom) {
             if let backdrop = model.backdropURL {
                 RemoteImage(url: backdrop, pointSize: size)
             } else {
                 PlaceholderArtwork(posterURL: model.posterURL, title: model.title)
             }
-            if let badge = model.badge {
-                Badge(badge).padding(Spacing.s)
-            }
             if let progress = model.progress {
                 ProgressBar(progress: progress)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
         .frame(width: size.width, height: size.height)
-        .modifier(TileChrome(isFocused: isFocused))
-        .overlay(alignment: .bottomLeading) { caption(width: size.width) }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(model.accessibilityLabel)
+        .clipped()
+        .overlay(alignment: .topLeading) {
+            if let badge = model.badge { Badge(badge).padding(Spacing.s) }
+        }
     }
 
-    private func caption(width: CGFloat) -> some View {
+    private var caption: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(verbatim: model.title)
                 .font(Typography.headline)
@@ -123,8 +154,7 @@ public struct LandscapeTile: View {
                     .lineLimit(1)
             }
         }
-        .frame(width: width, alignment: .leading)
-        .offset(y: 64)
+        .padding(.top, Spacing.m)
         .opacity(isFocused ? 1 : 0)
         .motion(Motion.quick, value: isFocused)
     }
@@ -141,15 +171,19 @@ public struct SeeAllTile: View {
         let size = TileMetrics.size(shape)
         VStack(spacing: Spacing.s) {
             Image(systemName: "chevron.right.circle")
-                .font(.largeTitle)
-            Text("See All", bundle: .module)
+                .font(Typography.title)
+            Text(label)
                 .font(Typography.headline)
         }
         .foregroundStyle(Palette.textSecondary)
         .frame(width: size.width, height: size.height)
         .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: TileMetrics.cornerRadius))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("See all", bundle: .module))
+        .accessibilityLabel(label)
+    }
+
+    private var label: String {
+        String(localized: "tile.seeAll", defaultValue: "See All", bundle: .module)
     }
 }
 
@@ -181,7 +215,7 @@ public struct SkeletonTile: View {
             .accessibilityHidden(true)
             .onAppear {
                 guard !reduceMotion else { return }
-                withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: false)) { phase = 1 }
+                withAnimation(Motion.shimmer) { phase = 1 }
             }
     }
 }
