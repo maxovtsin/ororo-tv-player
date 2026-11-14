@@ -8,16 +8,14 @@ struct AudioOptionChoice {
         var channels: Int?
     }
 
-    /// The option with the most channels, if more than 2: from `current`'s language when that language has one, else
-    /// from any language. Ties keep the first in order. `nil` when no option is known to have more than 2 channels.
+    /// The option with the most channels, if more than 2, never in another language than `current`'s (a `nil` language
+    /// matches only `nil`); any language when there is no current option. On a tie in channel count `current` stays
+    /// when it is among the best, else the first in order wins. `nil` when no allowed option is known to have more
+    /// than 2 channels.
     static func best(among options: [Candidate], current: Candidate?) -> Candidate? {
-        let multichannel = options.filter { ($0.channels ?? 0) > 2 }
-        let sameLanguage = multichannel.filter { $0.language == current?.language }
-        let pool = current != nil && !sameLanguage.isEmpty ? sameLanguage : multichannel
-        // `max(by:)` returns the last of equal maxima; reduce keeps the first.
-        return pool.reduce(nil) { best, option in
-            guard let best else { return option }
-            return (option.channels ?? 0) > (best.channels ?? 0) ? option : best
-        }
+        let pool = options.filter { ($0.channels ?? 0) > 2 && (current == nil || $0.language == current?.language) }
+        guard let most = pool.compactMap(\.channels).max() else { return nil }
+        if let current, current.channels == most, pool.contains(current) { return current }
+        return pool.first { $0.channels == most }
     }
 }

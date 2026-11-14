@@ -174,8 +174,8 @@ click-free boundaries (the spike made no attempt); how the result sounds.
   upmix and the setting come after.
 - **Titles with their own 5.1 (added after Checkpoint A).** Some Ororo titles carry a real
   multichannel rendition alongside the default stereo one. When the output offers at least
-  6 channels, the player selects the rendition with the most channels (same language as the
-  default first). This is real audio, not simulation, so it does not depend on the
+  6 channels, the player selects the rendition with the most channels (same language only; the
+  language is never switched). This is real audio, not simulation, so it does not depend on the
   "Simulated surround" setting. The upmix already declines such titles.
 - **App configuration.** The tvOS Info.plist gains the local-networking transport
   exception needed to load `http://127.0.0.1`.
