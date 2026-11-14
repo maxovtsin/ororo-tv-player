@@ -174,16 +174,26 @@ import Testing
 
     @Test func queryIsWrittenBackToTheOriginalPathEntry() {
         let original = BrowseQuery.default(.show)
-        var path: [Route] = [.browse(original), .show(1)]
         let changed = BrowseQuery(kind: .show, genre: "Drama", sort: .year)
-        #expect(BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 0))
-        #expect(path == [.browse(changed), .show(1)])
-        // Popped or different entries are left alone.
+        var path: [Route] = [.show(5), .browse(original)]
+        #expect(BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 1))
+        #expect(path == [.show(5), .browse(changed)])
+        // The entry no longer holds the original query, or the index is unusable.
         #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 1))
-        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 0))
         #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: nil))
         #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 5))
-        #expect(path == [.browse(changed), .show(1)])
+        #expect(path == [.show(5), .browse(changed)])
+    }
+
+    @Test func noWriteBackWhileADetailIsPushedOrAfterPop() {
+        let original = BrowseQuery.default(.show)
+        let changed = BrowseQuery(kind: .show, genre: "Drama", sort: .year)
+        var pushed: [Route] = [.browse(original), .show(1)]
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &pushed, at: 0))
+        #expect(pushed == [.browse(original), .show(1)])
+        var popped: [Route] = []
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &popped, at: 0))
+        #expect(popped.isEmpty)
     }
 
     @Test func tilesAndLookupMatchResults() async {

@@ -51,8 +51,10 @@ public struct BrowseGridScreen: View {
         }
         .onDisappear(perform: writeQueryBack)
         .task {
+            // Subscribe first so an update between the two calls is not lost.
+            let updates = await environment.library.updates()
             library = await environment.library.snapshot()
-            for await updated in await environment.library.updates() {
+            for await updated in updates {
                 library = updated
             }
         }

@@ -201,10 +201,11 @@ import OroroDesign
     }
 
     /// Replaces the path entry holding this grid's original query so Back and tab switches keep the filters.
-    /// Returns false when `index` no longer points at that entry (e.g. the screen was popped).
+    /// Only writes while the grid is the top entry: a push on top (detail) or a pop must not touch the stack.
+    /// Returns false when `index` no longer points at that entry.
     @discardableResult
     static func writeBack(_ query: BrowseQuery, replacing original: BrowseQuery, into path: inout [Route], at index: Int?) -> Bool {
-        guard let index, path.indices.contains(index), path[index] == .browse(original) else { return false }
+        guard let index, path.count == index + 1, path[index] == .browse(original) else { return false }
         path[index] = .browse(query)
         return true
     }
