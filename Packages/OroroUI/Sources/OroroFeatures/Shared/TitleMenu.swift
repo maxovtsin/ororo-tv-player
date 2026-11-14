@@ -42,8 +42,9 @@ enum TitleMenuModel {
         case .markWatched:
             guard let playable = playable(for: item) else { return }
             let show = showContext(for: item)
-            // `finish` with no next episode: marks watched, clears progress and any up-next at that episode.
-            await environment.library.update { $0.finish(playable, show: show, next: nil, now: Date()) }
+            let next = await nextEpisode(after: item, environment: environment)
+            // `finish`: marks watched, clears progress and sets up-next to the following episode (nil at the end).
+            await environment.library.update { $0.finish(playable, show: show, next: next, now: Date()) }
         case .dismissNew:
             guard let newestVideo, id.kind == .show else { return }
             await environment.library.update { $0.dismissNewEpisodes(showID: id.id, newestVideo: newestVideo) }
@@ -51,6 +52,14 @@ enum TitleMenuModel {
             guard id.kind == .show else { return }
             router.open(id)
         }
+    }
+
+    /// Next episode of the item's show from the cached show detail; nil for movies, the last episode, or a failed fetch.
+    private static func nextEpisode(after item: ShelfItem, environment: AppEnvironment) async -> EpisodeRef? {
+        guard let episode = item.episode, item.title.id.kind == .show,
+              let detail = try? await environment.details.show(id: item.title.id.id),
+              let next = EpisodeOrdering.next(after: episode.episodeID, in: detail.episodes) else { return nil }
+        return EpisodeOrdering.ref(next)
     }
 
     private static func playable(for item: ShelfItem) -> PlayableID? {

@@ -66,6 +66,7 @@ import Testing
                                      environment: environment(store), router: TabRouter())
         let result = await store.snapshot()
         #expect(result.progress.isEmpty)
+        #expect(result.upNext[7] == nil)
         #expect(result.watchedEpisodes.isEmpty)
     }
 
@@ -78,7 +79,6 @@ import Testing
         let result = await store.snapshot()
         #expect(result.watchedEpisodes == [701])
         #expect(result.progress.isEmpty)
-        #expect(result.upNext[7] == nil)
 
         await TitleMenuModel.perform(.markWatched, item: movieItem(), environment: env, router: TabRouter())
         #expect(await store.snapshot().watchedMovies == [3])
@@ -98,5 +98,73 @@ import Testing
         await TitleMenuModel.perform(.goToShow, item: showItem(episode: episode),
                                      environment: environment(InMemoryLibraryStore()), router: router)
         #expect(router.path == [.show(7)])
+    }
+
+    func detailEnvironment(_ store: InMemoryLibraryStore, details: FakeDetails) -> AppEnvironment {
+        AppEnvironment(api: FakeAPI(), catalog: FakeCatalog(), library: store, details: details,
+                       credentials: InMemoryCredentialStore(), newEpisodes: FakeNewEpisodes())
+    }
+
+    func threeEpisodes() -> ShowDetail {
+        ShowDetail(title: show, seasonCount: 1, episodes: (1...3).map {
+            Episode(id: 700 + $0, showID: 7, season: 1, number: $0)
+        })
+    }
+
+    func detailsReturning(_ result: Result<ShowDetail, APIError>) async -> FakeDetails {
+        let details = FakeDetails()
+        await details.configure { $0.showResults[7] = result }
+        return details
+    }
+
+    @Test func markWatchedAdvancesToNextEpisode() async {
+        let store = InMemoryLibraryStore(progressLibrary())
+        let details = await detailsReturning(.success(threeEpisodes()))
+        let e1 = EpisodeRef(episodeID: 701, season: 1, number: 1)
+        await TitleMenuModel.perform(.markWatched, item: showItem(episode: e1),
+                                     environment: detailEnvironment(store, details: details), router: TabRouter())
+        let result = await store.snapshot()
+        #expect(result.upNext[7]?.ref == EpisodeRef(episodeID: 702, season: 1, number: 2))
+        let catalog = Catalog(shows: [show], movies: [], fetchedAt: Samples.now)
+        let rows = LibraryQueries.continueWatching(result, catalog: catalog)
+        #expect(rows.map(\.title.id) == [show.id])
+        #expect(rows.first?.episode?.episodeID == 702)
+    }
+
+    @Test func markWatchedOnLastEpisodeLeavesContinueWatching() async {
+        let store = InMemoryLibraryStore(progressLibrary())
+        let details = await detailsReturning(.success(threeEpisodes()))
+        let e3 = EpisodeRef(episodeID: 703, season: 1, number: 3)
+        await TitleMenuModel.perform(.markWatched, item: showItem(episode: e3),
+                                     environment: detailEnvironment(store, details: details), router: TabRouter())
+        let result = await store.snapshot()
+        #expect(result.upNext[7] == nil)
+        #expect(result.watchedEpisodes == [703])
+    }
+
+    @Test func markWatchedFetchFailureFallsBack() async {
+        let store = InMemoryLibraryStore(progressLibrary())
+        let details = await detailsReturning(.failure(.offline))
+        await TitleMenuModel.perform(.markWatched, item: showItem(episode: episode),
+                                     environment: detailEnvironment(store, details: details), router: TabRouter())
+        let result = await store.snapshot()
+        #expect(result.watchedEpisodes == [701])
+        #expect(result.upNext[7] == nil)
+        #expect(result.progress.isEmpty)
+    }
+
+    @Test func markWatchedNotOfferedForShowWithoutEpisode() {
+        #expect(TitleMenuModel.actions(for: showItem(), context: .continueWatching, library: Library())
+            == [.addToList, .removeFromContinueWatching, .goToShow])
+    }
+
+    @Test func dismissNewNoOpWithoutNewestVideo() async {
+        var library = Library()
+        let seen = Samples.now.addingTimeInterval(-Samples.day)
+        library.followed[7] = FollowState(seenNewestVideo: seen, started: true)
+        let store = InMemoryLibraryStore(library)
+        let item = ShelfItem(title: Samples.show(7), episode: episode)
+        await TitleMenuModel.perform(.dismissNew, item: item, environment: environment(store), router: TabRouter())
+        #expect(await store.snapshot().followed[7]?.seenNewestVideo == seen)
     }
 }
