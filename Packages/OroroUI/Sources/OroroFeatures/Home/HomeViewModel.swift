@@ -171,16 +171,16 @@ import OroroCore
 enum HomeFocusArea: Hashable, Sendable {
     case hero, shelf(String)
 
-    /// The hero is expanded unless focus is in a shelf. With focus outside Home (nil: tab bar, pushed Detail,
-    /// player, context menu) it keeps the state of where focus last was, so it never springs open behind a
-    /// screen pushed from a shelf. `lastFocusInHero` starts true, so launch and tab bar → hero stay expanded.
-    static func isExpanded(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
+    /// The hero is lit (not dimmed) unless focus is in a shelf. With focus outside Home (nil: tab bar, pushed Detail,
+    /// player, context menu) it keeps the state of where focus last was, so it never lights up behind a
+    /// screen pushed from a shelf. `lastFocusInHero` starts true, so launch and tab bar → hero stay lit.
+    static func isHeroActive(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
         guard let area else { return lastFocusInHero }
         return !isInShelf(area)
     }
 
     /// Menu at the root goes to the tab bar from the hero; from a shelf it scrolls to the top first.
-    /// Nil falls back to where focus last was, as in `isExpanded`.
+    /// Nil falls back to where focus last was, as in `isHeroActive`.
     static func isAtTop(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
         guard let area else { return lastFocusInHero }
         return !isInShelf(area)
@@ -193,6 +193,12 @@ enum HomeFocusArea: Hashable, Sendable {
         case .shelf: false
         case nil: previous
         }
+    }
+
+    /// Whether the shelves offer their remembered tiles as default focus. Not while focus is outside Home after
+    /// being in the hero (tab bar): a remembered tile would win over the hero when focus comes back down.
+    static func shelvesOfferDefaultFocus(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
+        area != nil || !lastFocusInHero
     }
 
     /// Where focus returns on re-appear: the hero, unless focus was last in a shelf and that shelf is remembered.

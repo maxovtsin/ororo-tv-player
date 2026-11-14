@@ -4,7 +4,8 @@ import SwiftUI
 ///
 /// The row is one `.focusSection()` (tvOS). When it is created it scrolls to where it was and offers the remembered
 /// tile as its default focus (also for focus moving into it vertically); every focus change is written back
-/// to `memory`. Tiles are zoom sources with id `"<shelf>/<item>"`.
+/// to `memory`. With `offersDefaultFocus` false the row withdraws that offer (Home, while focus outside it must
+/// come back to the hero). Tiles are zoom sources with id `"<shelf>/<item>"`.
 public struct ShelfRow: View {
     private let screen: String
     private let shelf: String
@@ -15,6 +16,7 @@ public struct ShelfRow: View {
     private let memory: FocusMemory
     private let zoomNamespace: Namespace.ID?
     private let showsSeeAll: Bool
+    private let offersDefaultFocus: Bool
     private let onSeeAll: (() -> Void)?
     private let onSelect: (TileModel) -> Void
     private let menu: (TileModel) -> AnyView
@@ -24,8 +26,8 @@ public struct ShelfRow: View {
     @State private var defaultTarget: String?
 
     public init(screen: String, shelf: String, title: String, count: Int? = nil, items: [TileModel], shape: TileShape,
-                memory: FocusMemory, zoomNamespace: Namespace.ID? = nil, showsSeeAll: Bool = false, onSeeAll: (() -> Void)? = nil,
-                onSelect: @escaping (TileModel) -> Void, menu: @escaping (TileModel) -> AnyView = { _ in AnyView(EmptyView()) }) {
+                memory: FocusMemory, zoomNamespace: Namespace.ID? = nil, showsSeeAll: Bool = false, offersDefaultFocus: Bool = true,
+                onSeeAll: (() -> Void)? = nil, onSelect: @escaping (TileModel) -> Void, menu: @escaping (TileModel) -> AnyView = { _ in AnyView(EmptyView()) }) {
         self.screen = screen
         self.shelf = shelf
         self.title = title
@@ -35,6 +37,7 @@ public struct ShelfRow: View {
         self.memory = memory
         self.zoomNamespace = zoomNamespace
         self.showsSeeAll = showsSeeAll
+        self.offersDefaultFocus = offersDefaultFocus
         self.onSeeAll = onSeeAll
         self.onSelect = onSelect
         self.menu = menu
@@ -73,7 +76,7 @@ public struct ShelfRow: View {
                 if let leading { memory.setScrollAnchor(leading, screen: screen, shelf: shelf) }
             }
             .tileFocusSection()
-            .defaultFocus($focused, defaultTarget, priority: .userInitiated)
+            .defaultFocus($focused, offersDefaultFocus ? defaultTarget : nil, priority: .userInitiated)
             .onAppear(perform: restore)
             .onChange(of: focused) { _, id in
                 focusChanged(to: id)
