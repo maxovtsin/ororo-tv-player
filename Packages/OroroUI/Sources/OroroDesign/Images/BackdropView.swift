@@ -10,11 +10,6 @@ public struct BackdropView: View {
     private let drift: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var scale: CGFloat = 1
-
-    private static let driftScale: CGFloat = 1.06
-    private static let driftDuration: Double = 8
-    private static let size = CGSize(width: 1920, height: 1080)
 
     public init(url: URL?, dim: BackdropDim, drift: Bool = false) {
         self.url = url
@@ -25,11 +20,9 @@ public struct BackdropView: View {
     public var body: some View {
         ZStack {
             Color.black
-            RemoteImage(url: url, pointSize: Self.size)
+            DriftingImage(url: url, drift: drift)
                 .id(url)
                 .transition(.opacity)
-                .scaleEffect(scale)
-                .task(id: url) { runDrift() }
         }
         .animation(Motion.resolved(Motion.cinematic, reduceMotion: reduceMotion), value: url)
         .overlay { gradient }
@@ -71,14 +64,32 @@ public struct BackdropView: View {
             )
         }
     }
+}
 
-    /// Restarts the slow zoom whenever the image changes.
-    private func runDrift() {
-        var reset = Transaction(animation: nil)
-        reset.disablesAnimations = true
-        withTransaction(reset) { scale = 1 }
-        guard drift, !reduceMotion else { return }
-        withAnimation(.linear(duration: Self.driftDuration)) { scale = Self.driftScale }
+/// One backdrop image with its own drift state, so an outgoing image keeps its scale while it fades.
+private struct DriftingImage: View {
+    let url: URL?
+    let drift: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var scale: CGFloat = 1
+
+    private struct DriftKey: Hashable {
+        let url: URL?
+        let drift: Bool
+        let reduceMotion: Bool
+    }
+
+    var body: some View {
+        RemoteImage(url: url, pointSize: CGSize(width: 1920, height: 1080))
+            .scaleEffect(scale)
+            .task(id: DriftKey(url: url, drift: drift, reduceMotion: reduceMotion)) {
+                var reset = Transaction(animation: nil)
+                reset.disablesAnimations = true
+                withTransaction(reset) { scale = 1 }
+                guard drift, !reduceMotion else { return }
+                withAnimation(Motion.drift) { scale = 1.06 }
+            }
     }
 }
 

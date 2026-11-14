@@ -8,29 +8,39 @@ public enum ImageCache {
     public static let diskLimit = 500 * 1024 * 1024
 
     private static let cacheName = "ororo.images"
-    private static let state = Mutex<DataCache?>(nil)
-    private static let configured = Mutex(false)
-    private static let retained = Mutex<[ImagePrefetcher]>([])
+
+    private struct State {
+        var configured = false
+        var dataCache: DataCache?
+        var prefetcher: ImagePrefetcher?
+    }
+
+    private static let state = Mutex(State())
 
     /// The shared disk cache; `nil` until `configure()` has run (or if the disk is unavailable).
     static var dataCache: DataCache? {
-        state.withLock { $0 }
+        state.withLock { $0.dataCache }
+    }
+
+    /// The single prefetcher every `prefetch` call feeds; `nil` until `configure()` has run.
+    static var sharedPrefetcher: ImagePrefetcher? {
+        state.withLock { $0.prefetcher }
     }
 
     /// Builds the shared Nuke pipeline: disk cache "ororo.images", decompression off-main.
     /// Safe to call more than once; only the first call builds the pipeline.
     public static func configure() {
-        let shouldBuild = configured.withLock { done -> Bool in
-            defer { done = true }
-            return !done
+        state.withLock { state in
+            guard !state.configured else { return }
+            var configuration = ImagePipeline.Configuration.withDataCache(name: cacheName, sizeLimit: diskLimit)
+            configuration.isDecompressionEnabled = true
+            configuration.dataCachePolicy = .automatic
+            let pipeline = ImagePipeline(configuration: configuration)
+            ImagePipeline.shared = pipeline
+            state.dataCache = configuration.dataCache as? DataCache
+            state.prefetcher = ImagePrefetcher(pipeline: pipeline, destination: .diskCache)
+            state.configured = true
         }
-        guard shouldBuild else { return }
-
-        var configuration = ImagePipeline.Configuration.withDataCache(name: cacheName, sizeLimit: diskLimit)
-        configuration.isDecompressionEnabled = true
-        configuration.dataCachePolicy = .automatic
-        state.withLock { $0 = configuration.dataCache as? DataCache }
-        ImagePipeline.shared = ImagePipeline(configuration: configuration)
     }
 
     /// Resize processor to pixel size.
@@ -44,9 +54,14 @@ public enum ImageCache {
     public static func prefetch(_ urls: [URL], pointSize: CGSize) {
         guard !urls.isEmpty else { return }
         configure()
-        let prefetcher = ImagePrefetcher(destination: .diskCache)
-        prefetcher.startPrefetching(with: urls.map { prefetchRequest($0, pointSize: pointSize) })
-        retained.withLock { $0.append(prefetcher) }
+        sharedPrefetcher?.startPrefetching(with: urls.map { prefetchRequest($0, pointSize: pointSize) })
+    }
+
+    /// Cancels pending prefetches for `urls` (call when a row disappears).
+    public static func stopPrefetching(_ urls: [URL], pointSize: CGSize) {
+        guard !urls.isEmpty else { return }
+        configure()
+        sharedPrefetcher?.stopPrefetching(with: urls.map { prefetchRequest($0, pointSize: pointSize) })
     }
 
     /// Returns when cached or failed.
