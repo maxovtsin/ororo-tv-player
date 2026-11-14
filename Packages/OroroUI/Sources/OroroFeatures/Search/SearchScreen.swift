@@ -14,6 +14,9 @@ public struct SearchScreen: View {
     @State private var model = SearchViewModel()
     @State private var library = Library()
     @Namespace private var focusScope
+    #if os(tvOS)
+    @Environment(\.resetFocus) private var resetFocus
+    #endif
 
     public init() {}
 
@@ -30,7 +33,7 @@ public struct SearchScreen: View {
                 router.isAtTop = atTop
             }
             .onChange(of: router.scrollToTopToken) {
-                withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) { proxy.scrollTo(Self.topID, anchor: .top) }
+                scrollToTopAndFocus(proxy)
             }
         }
         .searchable(text: $model.query, prompt: Text(String(localized: "search.prompt", defaultValue: "Shows and movies", bundle: .module)))
@@ -44,6 +47,16 @@ public struct SearchScreen: View {
             for await updated in await environment.library.updates() { library = updated }
         }
         .onAppear { router.isAtTop = true }
+    }
+
+    /// F1 contract: scroll to top and focus the first element. Forgetting the remembered row makes the top
+    /// of the scope (the search field, else the first row) the default focus target.
+    private func scrollToTopAndFocus(_ proxy: ScrollViewProxy) {
+        withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) { proxy.scrollTo(Self.topID, anchor: .top) }
+        router.focus.reset(screen: Self.screenID)
+        #if os(tvOS)
+        resetFocus(in: focusScope)
+        #endif
     }
 
     @ViewBuilder private var content: some View {
@@ -64,7 +77,7 @@ public struct SearchScreen: View {
     }
 
     private var noResults: some View {
-        let text = model.query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = model.resultsQuery
         return Text(String(localized: "search.noResults", defaultValue: "No results for '\(text)'", bundle: .module))
             .font(Typography.headline)
             .foregroundStyle(Palette.textSecondary)
@@ -79,7 +92,10 @@ public struct SearchScreen: View {
             ShelfRow(
                 screen: Self.screenID, shelf: shelf, title: title, items: items.map { TileModel($0) }, shape: .poster,
                 memory: router.focus, zoomNamespace: zoomNamespace,
-                onSelect: { tile in router.open(TitleID(tileID: tile.id), zoomSourceID: "\(shelf)/\(tile.id)") },
+                onSelect: { tile in
+                    guard let item = byID[tile.id] else { return }
+                    router.open(item.title.id, zoomSourceID: "\(shelf)/\(tile.id)")
+                },
                 menu: { tile in
                     guard let item = byID[tile.id] else { return AnyView(EmptyView()) }
                     return titleMenu(for: item, context: .plain, library: library, environment: environment, router: router)
@@ -96,15 +112,6 @@ public struct SearchScreen: View {
         case .topRatedMovies: String(localized: "search.topRatedMovies", defaultValue: "Top Rated Movies", bundle: .module)
         default: shelf.id
         }
-    }
-}
-
-private extension TitleID {
-    /// Inverse of `TileModel.tileID`: "<kind>-<id>".
-    init(tileID: String) {
-        let parts = tileID.split(separator: "-", maxSplits: 1)
-        let kind = parts.first.flatMap { TitleKind(rawValue: String($0)) } ?? .show
-        self.init(kind: kind, id: parts.count > 1 ? Int(parts[1]) ?? 0 : 0)
     }
 }
 

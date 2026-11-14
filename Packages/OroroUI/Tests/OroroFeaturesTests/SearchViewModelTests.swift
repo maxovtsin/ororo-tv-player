@@ -17,6 +17,12 @@ import Testing
         return model
     }
 
+    private func gatedModel(_ gate: DebounceGate) -> SearchViewModel {
+        let model = SearchViewModel(debounce: .seconds(1), sleep: { _ in await gate.sleep() })
+        model.setCatalog(catalog, version: 1)
+        return model
+    }
+
     @Test func emptyQueryShowsSuggestions() async {
         let model = model()
         model.query = "  "
@@ -39,12 +45,15 @@ import Testing
     }
 
     @Test func rapidTypingRunsOneSearch() async {
-        let model = model(debounce: .milliseconds(60))
+        let gate = DebounceGate()
+        let model = gatedModel(gate)
         var tasks: [Task<Void, Never>] = []
         for text in ["b", "br", "bre", "brea", "break"] {
-            tasks.append(Task { model.query = text; await model.queryChanged() })
-            await Task.yield()
+            model.query = text
+            tasks.append(Task { await model.queryChanged() })
+            await gate.waitForSleepers(tasks.count)
         }
+        gate.releaseAll()
         for task in tasks { await task.value }
         #expect(model.searchRunCount == 1)
         #expect(model.results?.shows.map(\.name) == ["Breaking Point"])
@@ -52,16 +61,24 @@ import Testing
     }
 
     @Test func staleResultIsDiscarded() async {
-        let model = model(debounce: .milliseconds(40))
+        let gate = DebounceGate()
+        let model = gatedModel(gate)
         model.query = "unrelated"
         let first = Task { await model.queryChanged() }
-        await Task.yield()
+        await gate.waitForSleepers(1)
         model.query = "other"
         let second = Task { await model.queryChanged() }
-        await first.value
+        await gate.waitForSleepers(2)
+        // The newer run finishes first, then the superseded one wakes up: it must not overwrite.
+        gate.release(1)
         await second.value
         #expect(model.results?.shows.map(\.name) == ["Other Show"])
+        gate.release(0)
+        await first.value
+        #expect(model.searchRunCount == 1)
+        #expect(model.results?.shows.map(\.name) == ["Other Show"])
         #expect(model.results?.movies.isEmpty == true)
+        #expect(model.resultsQuery == "other")
     }
 
     @Test func noResultsFlag() async {
@@ -101,5 +118,27 @@ import Testing
         model.setCatalog(catalog, version: 1)
         model.setCatalog(nil, version: 2)
         #expect(model.suggestions.isEmpty)
+    }
+}
+
+/// Replaces the debounce sleep: each call parks until the test releases it.
+@MainActor private final class DebounceGate {
+    private var waiting: [CheckedContinuation<Void, Never>?] = []
+
+    func sleep() async {
+        await withCheckedContinuation { waiting.append($0) }
+    }
+
+    func waitForSleepers(_ count: Int) async {
+        while waiting.count < count { await Task.yield() }
+    }
+
+    func release(_ index: Int) {
+        waiting[index]?.resume()
+        waiting[index] = nil
+    }
+
+    func releaseAll() {
+        for index in waiting.indices { release(index) }
     }
 }
