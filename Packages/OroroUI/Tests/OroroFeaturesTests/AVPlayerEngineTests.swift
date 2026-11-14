@@ -183,6 +183,62 @@ import Testing
         engine.stop()
     }
 
+    @Test func anItemFailureWithSurroundIsASurroundFailureOnly() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+        #expect(subtitles.surroundFlags == [true, false] && source.startCount == 1 && source.stopCount == 1)
+    }
+
+    @Test func aSourceFailureThenAnItemFailureYieldOneSurroundFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        source.reportFailure(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+    }
+
+    @Test func anItemFailureWithoutSurroundIsAFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: false)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.contains(.failed) && !received.contains(.surroundFailed))
+    }
+
+    /// Every event `engine` yields until it stops.
+    private static func collect(_ engine: AVPlayerEngine) -> Task<[PlayerEvent], Never> {
+        let events = engine.events
+        return Task { @MainActor in
+            var received: [PlayerEvent] = []
+            for await event in events { received.append(event) }
+            return received
+        }
+    }
+
+    /// Reports the current item as failed mid-playback, as AVFoundation does.
+    private static func failCurrentItem(_ engine: AVPlayerEngine) {
+        NotificationCenter.default.post(name: AVPlayerItem.failedToPlayToEndTimeNotification,
+                                        object: engine.player.currentItem)
+    }
+
     /// Polls `condition` on the main actor every 10 ms, for at most 5 s.
     private static func waitUntil(_ condition: () -> Bool) async throws {
         for _ in 0..<500 where !condition() {

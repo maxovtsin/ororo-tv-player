@@ -473,24 +473,36 @@ extension PlaybackSessionTests {
     }
 
     @Test func surroundFailureIsIgnoredWhileNotPlaying() async {
-        let harness = Harness(.episode(id: Self.s1e1, showID: 101), gated: true)
-        let gate = harness.gate!
+        let harness = Harness(.movie(1001), library: Self.movieProgress(120, of: 1000))
         await harness.session.start()
-        await harness.session.handle(.time(position: 300, duration: 1000))
+        #expect(harness.session.phase == .askResume(position: 120))
 
-        // A failure's reload is fetching: the session is preparing.
-        await gate.arm()
-        let reload = Task { await harness.session.handle(.failed) }
-        #expect(await eventually { await gate.parked == 1 })
-        #expect(harness.session.phase == .preparing)
-        await harness.session.handle(.surroundFailed)
-        await gate.release()
-        await reload.value
+        // Delivered through the engine's event stream, as the real player does.
+        harness.engine.send(.surroundFailed)
         await settle()
+        #expect(harness.session.phase == .askResume(position: 120))
+        #expect(await harness.details.moviePlaybackCalls == 1)
+        #expect(harness.engine.loads.isEmpty)
+    }
 
+    @Test func oneSurroundFailureFromTheEngineReloadsOnceAndKeepsRecovery() async {
+        let harness = Harness(.movie(1001))
+        await harness.session.start()
+        harness.engine.send(.time(position: 300, duration: 1000))
+        harness.engine.send(.surroundFailed)
+        #expect(await eventually { harness.engine.loads.count == 2 })
+        await settle()
         #expect(harness.session.phase == .playing)
-        #expect(await harness.details.episodePlaybackCalls == 2)
+        #expect(await harness.details.moviePlaybackCalls == 2)
         #expect(harness.engine.loads.map(\.startAt) == [0, 300])
+
+        // The automatic recovery is unspent: a later stream failure reloads instead of showing the error.
+        harness.engine.send(.failed)
+        #expect(await eventually { harness.engine.loads.count == 3 })
+        await settle()
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300, 300])
+        #expect(await harness.details.moviePlaybackCalls == 3)
     }
 
     // MARK: - Subtitles

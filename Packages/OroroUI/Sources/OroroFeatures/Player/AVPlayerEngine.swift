@@ -52,6 +52,8 @@ import os
     private var failedDuringLoad = false
     /// Surround failed or was disabled: this engine plays original audio for the rest of its life.
     private var surroundDisabled = false
+    /// The current item was given up for a surround failure: it reports nothing more (the session reloads).
+    private var silencedItem = false
     /// A source reported `.slowDevice`: no engine plays surround again until the app is relaunched.
     private static var surroundDisabledUntilRelaunch = false
 
@@ -116,7 +118,7 @@ import os
         observe(item)
         loadInFlight = nil
         // The source gave up after the item became ready: the session reloads, now with original audio.
-        if failedDuringLoad, surroundSource != nil, isCurrent(generation) { continuation.yield(.surroundFailed) }
+        if failedDuringLoad, surroundSource != nil, isCurrent(generation) { abandonSurroundItem() }
     }
 
     func play() {
@@ -190,7 +192,7 @@ import os
     private func observe(_ item: AVPlayerItem) {
         itemObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard item.status == .failed else { return }
-            Self.onMain { self?.continuation.yield(.failed) }
+            Self.onMain { self?.itemFailed() }
         }
         let center = NotificationCenter.default
         func on(_ name: Notification.Name, _ action: @escaping @MainActor (AVPlayerEngine) -> Void) -> any NSObjectProtocol {
@@ -199,7 +201,7 @@ import os
             }
         }
         itemNotificationTokens = [
-            on(AVPlayerItem.failedToPlayToEndTimeNotification) { $0.continuation.yield(.failed) },
+            on(AVPlayerItem.failedToPlayToEndTimeNotification) { $0.itemFailed() },
             on(AVPlayerItem.didPlayToEndTimeNotification) { $0.continuation.yield(.ended) },
             on(AVPlayerItem.mediaSelectionDidChangeNotification) { $0.selectionChanged() },
             on(AVPlayerItem.timeJumpedNotification) { $0.timeJumped() }
@@ -218,18 +220,25 @@ import os
     private func tearDownItem() {
         surroundSource?.stop()
         surroundSource = nil
-        itemObservation?.invalidate()
-        itemObservation = nil
-        itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
-        itemNotificationTokens = []
-        stopStallCounter()
+        silenceItem()
+        silencedItem = false
         legibleGroup = nil
         selectedLanguage = nil
         ownSeeks = []
     }
 
+    /// Removes the current item's observers and stall counter; while `silencedItem`, it reports no more time or stalls.
+    private func silenceItem() {
+        silencedItem = true
+        itemObservation?.invalidate()
+        itemObservation = nil
+        itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
+        itemNotificationTokens = []
+        stopStallCounter()
+    }
+
     private func emitTime() {
-        guard player.currentItem?.status == .readyToPlay else { return }
+        guard !silencedItem, player.currentItem?.status == .readyToPlay else { return }
         continuation.yield(.time(position: position, duration: duration))
     }
 
@@ -246,7 +255,7 @@ import os
     // MARK: - Stalls
 
     private func startStallCounter() {
-        guard stallTask == nil else { return }
+        guard stallTask == nil, !silencedItem else { return }
         stallTask = Task { [weak self] in
             var seconds: TimeInterval = 0
             while !Task.isCancelled {
@@ -342,9 +351,28 @@ extension AVPlayerEngine {
         if loadInFlight == generation {
             failedDuringLoad = true
         } else {
-            // The session reloads; the next load tears down this item and source.
-            continuation.yield(.surroundFailed)
+            abandonSurroundItem()
         }
+    }
+
+    /// The current item failed. With an active surround source that is a surround failure: one `.surroundFailed`
+    /// (never also `.failed`), so the session reloads once with original audio and keeps its automatic recovery.
+    private func itemFailed() {
+        guard !isStopped else { return }
+        guard surroundSource != nil else {
+            continuation.yield(.failed)
+            return
+        }
+        Self.log.notice("Surround item failed")
+        abandonSurroundItem()
+    }
+
+    /// Drops the failed surround source and silences its item, then yields the one `.surroundFailed` the session
+    /// reloads on. The next load replaces the item.
+    private func abandonSurroundItem() {
+        disableSurroundAfterFailure()
+        silenceItem()
+        continuation.yield(.surroundFailed)
     }
 
     private struct SurroundFailedWhileLoading: Error {}
