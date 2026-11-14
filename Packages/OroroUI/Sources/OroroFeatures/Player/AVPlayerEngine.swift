@@ -1,5 +1,6 @@
 import AVFoundation
 import OroroCore
+import os
 
 /// `PlayerEngine` over `AVPlayer`. Maps AVFoundation state to `PlayerEvent`s for `PlaybackSession`.
 /// Never logs or stores the stream URL.
@@ -12,8 +13,14 @@ import OroroCore
     /// An item that never becomes ready fails like a long stall (the session recovers once, then shows the error).
     static let readyTimeout: Duration = .seconds(30)
 
+    private static let log = Logger(subsystem: "com.dissimirall.Ororo-Player", category: "Surround")
+
     let player = AVPlayer()
     let subtitles: any SubtitleProvider
+    let surround: SurroundPolicy
+    private let outputChannels: @MainActor () -> Int
+    private let readyTimeout: Duration
+    private let audioOptions: AudioOptionLoader
     let events: AsyncStream<PlayerEvent>
 
     private let continuation: AsyncStream<PlayerEvent>.Continuation
@@ -34,9 +41,37 @@ import OroroCore
     private static let ownSeekExpiry: Duration = .seconds(2)
     private var legibleGroup: AVMediaSelectionGroup?
     private var selectedLanguage: String?
+    /// The current load's surround source (also while it starts, so `stop()` reaches it); `nil` plays original audio.
+    private var surroundSource: (any SurroundSource)?
+    /// Bumped by every load and by `stop()`; a surround start that finishes after its load was superseded is dropped,
+    /// and a surround failure reported for an earlier load is ignored.
+    private var loadGeneration = 0
+    /// The generation of the load in progress (from its start until it returns); a surround failure reported meanwhile
+    /// makes that load retry without surround instead of emitting `.surroundFailed`.
+    private var loadInFlight: Int?
+    /// The surround source of the load in progress reported a failure.
+    private var failedDuringLoad = false
+    /// Surround failed or was disabled: this engine plays original audio for the rest of its life.
+    private var surroundDisabled = false
+    /// Numbers each `observe(_:)`; `observedItem` is the live one (`nil` once silenced), so callbacks from an earlier or
+    /// silenced item are dropped even when already queued.
+    private var itemObservationCount = 0
+    private(set) var observedItem: Int?
+    /// The current item was given up for a surround failure: it reports nothing more (the session reloads).
+    private var silencedItem = false
+    /// A source reported `.slowDevice`: no engine plays surround again until the app is relaunched.
+    private static var surroundDisabledUntilRelaunch = false
 
-    init(subtitles: any SubtitleProvider = HLSInjectedSubtitles()) {
+    init(subtitles: any SubtitleProvider = HLSInjectedSubtitles(),
+         surround: SurroundPolicy = .disabled,
+         outputChannels: @escaping @MainActor () -> Int = AudioOutput.channelCount,
+         readyTimeout: Duration = AVPlayerEngine.readyTimeout,
+         audioOptions: @escaping AudioOptionLoader = { await AVPlayerEngine.loadAudioOptions(of: $0) }) {
         self.subtitles = subtitles
+        self.surround = surround
+        self.outputChannels = outputChannels
+        self.readyTimeout = readyTimeout
+        self.audioOptions = audioOptions
         (events, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
         player.appliesMediaSelectionCriteriaAutomatically = false
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
@@ -59,14 +94,57 @@ import OroroCore
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         tearDownItem()
         try? AVAudioSession.sharedInstance().setActive(true)
-        let asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage)
-        let item = AVPlayerItem(asset: asset)
+        loadGeneration += 1
+        let generation = loadGeneration
+        loadInFlight = generation
+        failedDuringLoad = false
+        defer { if loadInFlight == generation { loadInFlight = nil } }
+        let channels = outputChannels()
+        AudioOutput.lastObservedChannelCount = channels
+        let source = await startSurround(channels: channels, generation: generation)
+        var surroundInUse = false
+        // One line per load (never the stream URL): whether generated 5.1 actually reached the player.
+        defer { Self.logLoad(channels: channels, surround: surroundInUse) }
+        // `stop()` or a newer load ran while surround started: installing an item now would revive a stopped player
+        // or replace the newer load's item.
+        guard isCurrent(generation) else { throw CancellationError() }
+        var asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
+        var item = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: item)
-        try await Self.waitUntilReady(item)
+        do {
+            try await Self.waitUntilReady(item, timeout: readyTimeout)
+            if source != nil, failedDuringLoad { throw SurroundFailedWhileLoading() }
+            // The pre-flight declined: the item plays the original audio, so this is a plain stereo load.
+            if let source, !(await source.accepted), isCurrent(generation), surroundSource != nil {
+                surroundSource?.stop()
+                surroundSource = nil
+            }
+            surroundInUse = surroundSource != nil
+        } catch {
+            // A surround item that failed, timed out or lost its source: once, the same load with original audio.
+            guard source != nil, !(error is CancellationError), isCurrent(generation) else { throw error }
+            Self.log.notice("Surround load failed; retrying with original audio")
+            disableSurroundAfterFailure()
+            asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: nil)
+            item = AVPlayerItem(asset: asset)
+            player.replaceCurrentItem(with: item)
+            try await Self.waitUntilReady(item, timeout: readyTimeout)
+        }
         legibleGroup = try? await asset.loadMediaSelectionGroup(for: .legible)
         selectSubtitle(subtitleLanguage, in: item)
+        #if os(tvOS)
+        // iOS keeps the original audio (the default option).
+        await selectMultichannelAudio(of: asset, in: item, generation: generation)
+        #endif
+        guard isCurrent(generation) else { throw CancellationError() }
         if startAt > 0 { await seek(to: startAt) }
         observe(item)
+        loadInFlight = nil
+        // The source gave up after the item became ready: the session reloads, now with original audio.
+        if failedDuringLoad, surroundSource != nil, isCurrent(generation) { abandonSurroundItem() }
+        surroundInUse = surroundSource != nil
+        // The item failed after it became ready but before it was observed: KVO has no change left to report.
+        if item.status == .failed, let observation = observedItem { received(.failed, from: observation) }
     }
 
     func play() {
@@ -93,6 +171,7 @@ import OroroCore
         guard !isStopped else { return }
         isStopped = true
         tearDownItem()
+        loadGeneration += 1
         statusObservation?.invalidate()
         statusObservation = nil
         if let timeObserver { player.removeTimeObserver(timeObserver) }
@@ -137,22 +216,40 @@ import OroroCore
     }
 
     private func observe(_ item: AVPlayerItem) {
+        itemObservationCount += 1
+        let observation = itemObservationCount
+        observedItem = observation
+        // A callback already queued when the item is silenced or replaced must not reach the session.
         itemObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard item.status == .failed else { return }
-            Self.onMain { self?.continuation.yield(.failed) }
+            Self.onMain { self?.received(.failed, from: observation) }
         }
         let center = NotificationCenter.default
-        func on(_ name: Notification.Name, _ action: @escaping @MainActor (AVPlayerEngine) -> Void) -> any NSObjectProtocol {
+        func on(_ name: Notification.Name, _ signal: ItemSignal) -> any NSObjectProtocol {
             center.addObserver(forName: name, object: item, queue: .main) { [weak self] _ in
-                Self.onMain { if let self { action(self) } }
+                Self.onMain { self?.received(signal, from: observation) }
             }
         }
         itemNotificationTokens = [
-            on(AVPlayerItem.failedToPlayToEndTimeNotification) { $0.continuation.yield(.failed) },
-            on(AVPlayerItem.didPlayToEndTimeNotification) { $0.continuation.yield(.ended) },
-            on(AVPlayerItem.mediaSelectionDidChangeNotification) { $0.selectionChanged() },
-            on(AVPlayerItem.timeJumpedNotification) { $0.timeJumped() }
+            on(AVPlayerItem.failedToPlayToEndTimeNotification, .failed),
+            on(AVPlayerItem.didPlayToEndTimeNotification, .ended),
+            on(AVPlayerItem.mediaSelectionDidChangeNotification, .selectionChanged),
+            on(AVPlayerItem.timeJumpedNotification, .timeJumped)
         ]
+    }
+
+    enum ItemSignal: Sendable { case failed, ended, selectionChanged, timeJumped }
+
+    /// One observer callback of item observation `observation`. Dropped unless that observation is still live: a callback
+    /// already queued when its item was silenced or replaced must not reach the session.
+    func received(_ signal: ItemSignal, from observation: Int) {
+        guard observedItem == observation else { return }
+        switch signal {
+        case .failed: itemFailed()
+        case .ended: continuation.yield(.ended)
+        case .selectionChanged: selectionChanged()
+        case .timeJumped: timeJumped()
+        }
     }
 
     /// Runs `work` on the main actor: inline when already on the main thread (keeps KVO order), else hops.
@@ -165,18 +262,28 @@ import OroroCore
     }
 
     private func tearDownItem() {
-        itemObservation?.invalidate()
-        itemObservation = nil
-        itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
-        itemNotificationTokens = []
-        stopStallCounter()
+        surroundSource?.stop()
+        surroundSource = nil
+        silenceItem()
+        silencedItem = false
         legibleGroup = nil
         selectedLanguage = nil
         ownSeeks = []
     }
 
+    /// Removes the current item's observers and stall counter; while `silencedItem`, it reports no more time or stalls.
+    private func silenceItem() {
+        silencedItem = true
+        observedItem = nil
+        itemObservation?.invalidate()
+        itemObservation = nil
+        itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
+        itemNotificationTokens = []
+        stopStallCounter()
+    }
+
     private func emitTime() {
-        guard player.currentItem?.status == .readyToPlay else { return }
+        guard !silencedItem, player.currentItem?.status == .readyToPlay else { return }
         continuation.yield(.time(position: position, duration: duration))
     }
 
@@ -193,7 +300,7 @@ import OroroCore
     // MARK: - Stalls
 
     private func startStallCounter() {
-        guard stallTask == nil else { return }
+        guard stallTask == nil, !silencedItem else { return }
         stallTask = Task { [weak self] in
             var seconds: TimeInterval = 0
             while !Task.isCancelled {
@@ -262,6 +369,194 @@ import OroroCore
         }
     }
 
+}
+
+// MARK: - Surround
+
+extension AVPlayerEngine {
+    func disableSurround() {
+        surroundDisabled = true
+    }
+
+    /// Back from the background: a surround server that did not survive sleep is a surround failure.
+    func sceneBecameActive() async {
+        guard !isStopped, let source = surroundSource else { return }
+        let generation = loadGeneration
+        let serving = await source.ensureServing()
+        if !serving { surroundFailed(.format, generation: generation) }
+    }
+
+    /// The surround source of load `generation` gave up. Ignored for an earlier load, after `stop()`, or once the load
+    /// no longer plays surround.
+    func surroundFailed(_ failure: SurroundFailure, generation: Int) {
+        guard isCurrent(generation), surroundSource != nil else { return }
+        Self.log.notice("Surround failed: \(String(describing: failure), privacy: .public)")
+        surroundDisabled = true
+        if failure == .slowDevice { Self.surroundDisabledUntilRelaunch = true }
+        if loadInFlight == generation {
+            failedDuringLoad = true
+        } else {
+            abandonSurroundItem()
+        }
+    }
+
+    /// The current item failed. With an active surround source that is a surround failure: one `.surroundFailed`
+    /// (never also `.failed`), so the session reloads once with original audio and keeps its automatic recovery.
+    private func itemFailed() {
+        guard !isStopped else { return }
+        guard surroundSource != nil else {
+            continuation.yield(.failed)
+            return
+        }
+        Self.log.notice("Surround item failed")
+        abandonSurroundItem()
+    }
+
+    /// Drops the failed surround source and silences its item, then yields the one `.surroundFailed` the session
+    /// reloads on. The next load replaces the item.
+    private func abandonSurroundItem() {
+        disableSurroundAfterFailure()
+        silenceItem()
+        continuation.yield(.surroundFailed)
+    }
+
+    private struct SurroundFailedWhileLoading: Error {}
+
+    /// Load `generation` is still the latest and the engine runs.
+    private func isCurrent(_ generation: Int) -> Bool {
+        !isStopped && generation == loadGeneration
+    }
+
+    /// Stops the current source and plays original audio from now on.
+    private func disableSurroundAfterFailure() {
+        surroundDisabled = true
+        surroundSource?.stop()
+        surroundSource = nil
+    }
+
+    /// Decides whether load `generation` plays simulated 5.1 and starts its source; `nil` means original audio.
+    /// Order: a failed or disabled surround, output channels, then the preference, then the source start.
+    private func startSurround(channels: Int, generation: Int) async -> (any SurroundSource)? {
+        var source: (any SurroundSource)?
+        if !Self.surroundDisabledUntilRelaunch, !surroundDisabled, AudioOutput.supportsSurround(channels: channels),
+           await surround.isEnabled(), generation == loadGeneration {
+            let candidate = surround.makeSource { [weak self] failure in
+                Task { @MainActor in self?.surroundFailed(failure, generation: generation) }
+            }
+            surroundSource = candidate
+            do {
+                _ = try await candidate.start()
+                // A newer load or `stop()` has already stopped the candidate through `tearDownItem()`.
+                if generation == loadGeneration { source = candidate }
+            } catch {
+                if generation == loadGeneration {
+                    candidate.stop()
+                    surroundSource = nil
+                }
+            }
+        }
+        return source
+    }
+
+    /// `surround`: generated 5.1 is what the player was given (started, accepted by the pre-flight, not failed).
+    private static func logLoad(channels: Int, surround: Bool) {
+        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
+        log.notice(
+            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(surround, privacy: .public)"
+        )
+    }
+}
+
+// MARK: - Multichannel audio option
+
+extension AVPlayerEngine {
+    /// The audible group and each of its options' channel count (`nil` when unknown), or `nil` without a group.
+    typealias AudioOptionLoader = @MainActor (AVURLAsset) async -> (group: AVMediaSelectionGroup, channels: [Int?])?
+
+    /// The most `selectMultichannelAudio` may add to a load; past it the selection is left alone.
+    static let audioSelectionTimeout: Duration = .seconds(3)
+
+    static func loadAudioOptions(of asset: AVURLAsset) async -> (group: AVMediaSelectionGroup, channels: [Int?])? {
+        guard let group = try? await asset.loadMediaSelectionGroup(for: .audible) else { return nil }
+        let variants = (try? await asset.load(.variants)) ?? []
+        let channels = group.options.map { option in
+            variants.compactMap { $0.audioAttributes?.renditionSpecificAttributes(for: option)?.channelCount }.max()
+        }
+        return (group, channels)
+    }
+
+    /// On a surround output, selects the title's own audio option with the most channels (more than 2) in the current
+    /// option's language (see `AudioOptionChoice`); changes nothing when no such option is known, or when the options
+    /// take longer than `audioSelectionTimeout` to load. Runs before `observe(_:)`, so the selection emits no
+    /// `.subtitleChanged` or `.userInput`. Logs one line (never a URL).
+    private func selectMultichannelAudio(of asset: AVURLAsset, in item: AVPlayerItem, generation: Int) async {
+        guard AudioOutput.supportsSurround(channels: outputChannels()) else { return }
+        let loadOptions = audioOptions
+        let inTime = await Self.withinDeadline(Self.audioSelectionTimeout) { isWanted in
+            let loaded = await loadOptions(asset)
+            guard isWanted() else { return }
+            self.selectMultichannelAudio(loaded, in: item, generation: generation)
+        }
+        if !inTime { Self.log.notice("Audio option: timed out") }
+    }
+
+    private func selectMultichannelAudio(_ loaded: (group: AVMediaSelectionGroup, channels: [Int?])?, in item: AVPlayerItem,
+                                         generation: Int) {
+        guard isCurrent(generation), let loaded, loaded.channels.count == loaded.group.options.count else { return }
+        let group = loaded.group
+        let candidates = group.options.enumerated().map { index, option in
+            AudioOptionChoice.Candidate(index: index, language: Self.language(of: option), channels: loaded.channels[index])
+        }
+        let selected = item.currentMediaSelection.selectedMediaOption(in: group)
+        let current = selected.flatMap(group.options.firstIndex(of:)).map { candidates[$0] }
+        guard let best = AudioOptionChoice.best(among: candidates, current: current) else {
+            Self.log.notice("Audio option: no multichannel option")
+            return
+        }
+        let language = best.language ?? "unknown"
+        Self.log.notice(
+            "Audio option: \(best.channels ?? 0, privacy: .public) channels, language \(language, privacy: .public)"
+        )
+        if best != current { item.select(group.options[best.index], in: group) }
+    }
+
+    /// Runs `work`, waiting for it at most `limit`; returns whether it finished in time. Past the limit `work` is
+    /// cancelled and its `isWanted` check turns false, so it must change nothing after that check fails.
+    private static func withinDeadline(
+        _ limit: Duration, _ work: @escaping @MainActor (_ isWanted: @MainActor () -> Bool) async -> Void
+    ) async -> Bool {
+        let deadline = Deadline()
+        return await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+            deadline.continuation = continuation
+            let worker = Task { @MainActor in
+                await work { !deadline.isFinished }
+                deadline.finish(inTime: true)
+            }
+            let timer = Task { @MainActor in
+                try? await Task.sleep(for: limit)
+                guard !Task.isCancelled else { return }
+                worker.cancel()
+                deadline.finish(inTime: false)
+            }
+            deadline.timer = timer
+        }
+    }
+}
+
+/// One `withinDeadline` race: resumes its continuation exactly once.
+@MainActor private final class Deadline {
+    var continuation: CheckedContinuation<Bool, Never>?
+    var timer: Task<Void, Never>?
+    private(set) var isFinished = false
+
+    func finish(inTime: Bool) {
+        guard !isFinished else { return }
+        isFinished = true
+        timer?.cancel()
+        timer = nil
+        continuation?.resume(returning: inTime)
+        continuation = nil
+    }
 }
 
 /// One `waitUntilReady`: resumes its continuation exactly once (ready, failed, timed out or cancelled).

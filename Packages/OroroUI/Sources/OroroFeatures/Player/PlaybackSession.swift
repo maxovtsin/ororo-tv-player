@@ -169,9 +169,12 @@ import OroroCore
     }
 
     public func sceneBecameActive() async {
+        guard !dismissed else { return }
+        await engine.sceneBecameActive()
         guard !dismissed, phase == .playing, let playback,
               now().timeIntervalSince(playback.fetchedAt) > Self.urlLifetime else { return }
-        await streamFailed()
+        // An expired URL says nothing about surround: keep it.
+        await streamFailed(keepSurround: true)
     }
 }
 
@@ -203,6 +206,8 @@ extension PlaybackSession {
         case .stalled(let seconds):
             guard phase == .playing, seconds >= Self.stallTimeout else { return }
             await streamFailed()
+        case .surroundFailed:
+            await surroundFailed()
         }
     }
 
@@ -405,7 +410,8 @@ extension PlaybackSession {
     // MARK: - Failures
 
     /// Mid-stream or load failure, long stall, expired URL: one automatic refetch + reload, then `.failed(.stream)`.
-    private func streamFailed() async {
+    /// The automatic reload plays original audio unless `keepSurround` (the failure cannot be surround's).
+    private func streamFailed(keepSurround: Bool = false) async {
         guard !dismissed else { return }
         guard !autoRecoveryUsed else {
             phase = .failed(.stream)
@@ -413,7 +419,15 @@ extension PlaybackSession {
         }
         autoRecoveryUsed = true
         sinceRecovery = nil
+        if !keepSurround { engine.disableSurround() }
         await reloadStream(automatic: true)
+    }
+
+    /// Simulated surround gave up while playing: reload with original audio at the current position.
+    /// Not a stream failure, so the automatic recovery stays armed.
+    private func surroundFailed() async {
+        guard phase == .playing else { return }
+        await reloadStream(automatic: false)
     }
 
     private func reloadStream(automatic: Bool) async {

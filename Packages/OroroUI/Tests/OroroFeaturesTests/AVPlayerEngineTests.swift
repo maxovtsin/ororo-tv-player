@@ -1,12 +1,21 @@
 import AVFoundation
 import Foundation
+import OroroCore
 @testable import OroroFeatures
 import Testing
 
-/// `AVPlayerEngine.waitUntilReady` against real `AVPlayerItem`s (KVO-driven, never Combine `.values`).
-@Suite @MainActor struct AVPlayerEngineTests {
+/// `AVPlayerEngine.waitUntilReady` against real `AVPlayerItem`s (KVO-driven, never Combine `.values`), and the
+/// engine's per-load surround decision. Serialized: the tests share the process-global
+/// `AudioOutput.lastObservedChannelCount`.
+@Suite(.serialized) @MainActor struct AVPlayerEngineTests {
+    private static let playback = Playback(
+        streamURL: URL(string: "https://example.invalid/hls/stream.m3u8?wmsAuthSign=PLACEHOLDER")!,
+        subtitles: [Subtitle(lang: "en", url: URL(string: "https://example.invalid/subs/en.vtt")!)],
+        fetchedAt: Date(timeIntervalSince1970: 1_761_955_200)
+    )
+
     @Test func becomesReadyForAPlayableItem() async throws {
-        let item = AVPlayerItem(url: try Self.silentWAV())
+        let item = AVPlayerItem(url: try TestMedia.silentWAV())
         let player = AVPlayer(playerItem: item)
         try await AVPlayerEngine.waitUntilReady(item, timeout: .seconds(20))
         #expect(item.status == .readyToPlay)
@@ -40,19 +49,298 @@ import Testing
         await #expect(throws: CancellationError.self) { try await wait.value }
     }
 
-    /// A 0.5 s mono 8 kHz 16-bit silent WAV in the temporary directory.
-    private static func silentWAV() throws -> URL {
-        let sampleRate: UInt32 = 8_000, samples = 4_000
-        let dataSize = UInt32(samples * 2)
-        var data = Data()
-        func append<T: FixedWidthInteger>(_ value: T) { withUnsafeBytes(of: value.littleEndian) { data.append(contentsOf: $0) } }
-        data.append(contentsOf: Array("RIFF".utf8)); append(UInt32(36) + dataSize)
-        data.append(contentsOf: Array("WAVEfmt ".utf8)); append(UInt32(16)); append(UInt16(1)); append(UInt16(1))
-        append(sampleRate); append(sampleRate * 2); append(UInt16(2)); append(UInt16(16))
-        data.append(contentsOf: Array("data".utf8)); append(dataSize)
-        data.append(Data(count: Int(dataSize)))
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: "silence-\(UUID()).wav")
-        try data.write(to: url)
-        return url
+    // MARK: - Surround
+
+    private static func engine(_ subtitles: RecordingSubtitles, source: FakeSurroundSource, enabled: Bool = true,
+                               channels: Int = 6,
+                               audioOptions: AVPlayerEngine.AudioOptionLoader? = nil) -> AVPlayerEngine {
+        AVPlayerEngine(subtitles: subtitles,
+                       surround: SurroundPolicy(isEnabled: { enabled }, makeSource: { onFailure in source.adopt(onFailure) }),
+                       outputChannels: { channels }, readyTimeout: .seconds(5),
+                       audioOptions: audioOptions ?? { await AVPlayerEngine.loadAudioOptions(of: $0) })
+    }
+
+    @Test func loadUsesSurroundWhenEnabledOnASixChannelOutput() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true] && source.startCount == 1)
+        #expect(AudioOutput.lastObservedChannelCount == 6)
+        engine.stop()
+        #expect(source.stopCount == 1)
+    }
+
+    @Test(arguments: [(false, 6), (true, 2)])
+    func loadSkipsSurroundWhenDisabledOrStereo(enabled: Bool, channels: Int) async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: enabled, channels: channels)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false] && source.startCount == 0)
+        engine.stop()
+    }
+
+    @Test func loadPlaysOriginalAudioWhenTheSourceCannotStart() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startFails: true)
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false])
+        #expect(source.stopCount == 1)
+        engine.stop()
+    }
+
+    @Test func aSecondLoadStopsTheFirstSource() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(source.startCount == 2 && source.stopCount == 1 && subtitles.surroundFlags == [true, true])
+        engine.stop()
+    }
+
+    @Test func stopWhileSurroundStartsLeavesThePlayerEmpty() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startDelay: .milliseconds(300))
+        let engine = Self.engine(subtitles, source: source)
+        let load = Task { try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) }
+        try await Self.waitUntil { source.startCount == 1 }
+        engine.stop()
+        await #expect(throws: CancellationError.self) { try await load.value }
+        #expect(engine.player.currentItem == nil && subtitles.surroundFlags.isEmpty && source.stopCount == 1)
+    }
+
+    @Test func aLoadSupersededWhileSurroundStartsDoesNotReplaceTheNewerItem() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startDelay: .milliseconds(300))
+        let engine = Self.engine(subtitles, source: source)
+        let first = Task { try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) }
+        try await Self.waitUntil { source.startCount == 1 }
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        await #expect(throws: CancellationError.self) { try await first.value }
+        // Only the newer load built an asset, and its item is the one playing.
+        #expect(subtitles.surroundFlags == [true] && engine.player.currentItem?.status == .readyToPlay)
+        engine.stop()
+    }
+
+    // MARK: - Multichannel audio option
+
+    @Test(arguments: [(true, 2), (false, 2), (false, 6)])
+    func audioSelectionIsUntouchedWithoutAMultichannelOption(enabled: Bool, channels: Int) async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: enabled, channels: channels)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        let item = try #require(engine.player.currentItem)
+        if let group = try await item.asset.loadMediaSelectionGroup(for: .audible) {
+            #expect(item.currentMediaSelection.selectedMediaOption(in: group) == group.defaultOption)
+        }
+        engine.stop()
+        let received = await events.value
+        #expect(!received.contains(.userInput) && !received.contains { if case .subtitleChanged = $0 { true } else { false } })
+    }
+
+    #if os(tvOS)
+    @Test func aSlowAudioOptionLoadIsAbandonedAfterTheDeadline() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: false, audioOptions: { _ in
+            try? await Task.sleep(for: .seconds(30))
+            return nil
+        })
+        let events = Self.collect(engine)
+        let started = ContinuousClock.now
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        let elapsed = ContinuousClock.now - started
+        #expect(elapsed >= AVPlayerEngine.audioSelectionTimeout && elapsed < AVPlayerEngine.audioSelectionTimeout + .seconds(2))
+        let item = try #require(engine.player.currentItem)
+        #expect(item.status == .readyToPlay)
+        if let group = try await item.asset.loadMediaSelectionGroup(for: .audible) {
+            #expect(item.currentMediaSelection.selectedMediaOption(in: group) == group.defaultOption)
+        }
+        engine.stop()
+        let received = await events.value
+        #expect(!received.contains(.userInput) && !received.contains(.failed))
+    }
+    #endif
+
+    // MARK: - Declined surround
+
+    @Test func aDeclinedSourceIsDroppedAndTheLoadCountsAsStereo() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(declines: true)
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true] && source.startCount == 1 && source.stopCount == 1)
+        // A genuine item failure is a stream failure (the session's recovery), not a surround failure.
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        // Declining is not a failure: the next load offers surround again.
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true, true] && source.startCount == 2)
+        engine.stop()
+        let received = await events.value
+        #expect(received.contains(.failed) && !received.contains(.surroundFailed))
+    }
+
+    // MARK: - Surround failure
+
+    #if os(tvOS)
+    @Test func aSourceFailureAfterTheItemIsReadyEndsTheLoadWithOneSurroundFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        // The audio-option step runs after the item is ready and before `load` returns.
+        let engine = Self.engine(subtitles, source: source, audioOptions: { _ in
+            source.reportFailure(.format)
+            try? await Task.sleep(for: .milliseconds(100))
+            return nil
+        })
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) // no retry, no throw
+        #expect(subtitles.surroundFlags == [true] && source.stopCount == 1 && engine.observedItem == nil)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+    }
+    #endif
+
+    @Test func aFailureDuringPlaybackEmitsSurroundFailedAndDisablesSurround() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        var events = engine.events.makeAsyncIterator()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        source.reportFailure(.format)
+        while let event = await events.next(), event != .surroundFailed {}
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true, false] && source.startCount == 1)
+        engine.stop()
+    }
+
+    @Test func aFailureWhileLoadingRetriesTheSameLoadWithoutSurround() async throws {
+        // The surround asset can never become ready (missing file); the source fails 100 ms into the load.
+        let subtitles = RecordingSubtitles(surroundAssetURL: URL(fileURLWithPath: "/nonexistent-\(UUID()).mp4"))
+        let source = FakeSurroundSource(failsAfterStart: .milliseconds(100))
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) // returns normally, once
+        #expect(subtitles.surroundFlags == [true, false])
+        engine.stop()
+    }
+
+    @Test func aFailureFromAnEarlierLoadIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        let stale = source.onFailure
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        stale?(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true, true, true])
+        engine.stop()
+    }
+
+    @Test func aFailureAfterStopIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        engine.stop()
+        source.reportFailure(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(engine.player.currentItem == nil)
+    }
+
+    @Test func disableSurroundAppliesToTheNextLoad() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        engine.disableSurround()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false])
+        engine.stop()
+    }
+
+    @Test func aDeadServerOnReturnToTheForegroundIsASurroundFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(servesAfterWake: false)
+        let engine = Self.engine(subtitles, source: source)
+        var events = engine.events.makeAsyncIterator()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        await engine.sceneBecameActive()
+        while let event = await events.next(), event != .surroundFailed {}
+        engine.stop()
+    }
+
+    @Test func anItemFailureWithSurroundIsASurroundFailureOnly() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+        #expect(subtitles.surroundFlags == [true, false] && source.startCount == 1 && source.stopCount == 1)
+    }
+
+    @Test func aSourceFailureThenAnItemFailureYieldOneSurroundFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        source.reportFailure(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+    }
+
+    @Test func aQueuedSecondFailureSignalFromTheAbandonedItemIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        // The item's status KVO fired off the main thread, so its callback hops; the failure notification wins the race.
+        let observation = try #require(engine.observedItem)
+        Self.failCurrentItem(engine)
+        engine.received(.failed, from: observation)
+        engine.received(.ended, from: observation)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+        #expect(!received.contains(.ended))
+    }
+
+    @Test func anItemFailureWithoutSurroundIsAFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: false)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        Self.failCurrentItem(engine)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.contains(.failed) && !received.contains(.surroundFailed))
+    }
+
+    /// Every event `engine` yields until it stops.
+    private static func collect(_ engine: AVPlayerEngine) -> Task<[PlayerEvent], Never> {
+        let events = engine.events
+        return Task { @MainActor in
+            var received: [PlayerEvent] = []
+            for await event in events { received.append(event) }
+            return received
+        }
+    }
+
+    /// Reports the current item as failed mid-playback, as AVFoundation does.
+    private static func failCurrentItem(_ engine: AVPlayerEngine) {
+        NotificationCenter.default.post(name: AVPlayerItem.failedToPlayToEndTimeNotification,
+                                        object: engine.player.currentItem)
+    }
+
+    /// Polls `condition` on the main actor every 10 ms, for at most 5 s.
+    private static func waitUntil(_ condition: () -> Bool) async throws {
+        for _ in 0..<500 where !condition() {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(condition())
     }
 }

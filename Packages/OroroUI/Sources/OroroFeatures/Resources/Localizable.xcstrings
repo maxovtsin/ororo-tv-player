@@ -3169,6 +3169,40 @@
         }
       }
     },
+    "settings.simulatedSurround" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simulated surround"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Имитация объёмного звука"
+          }
+        }
+      }
+    },
+    "settings.simulatedSurroundStereoOutput" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The current audio output is stereo, so the original sound is used."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Текущий аудиовыход — стерео, поэтому используется исходный звук."
+          }
+        }
+      }
+    },
     "settings.storage" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

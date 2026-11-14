@@ -19,7 +19,7 @@ import Testing
         let usage: Usage
     }
 
-    private func makeRig(library: Library = Library()) -> Rig {
+    private func makeRig(library: Library = Library(), lastOutputChannels: @escaping @MainActor () -> Int? = { nil }) -> Rig {
         let store = InMemoryLibraryStore(library)
         let catalog = FakeCatalog(current: Samples.catalog)
         let credentials = InMemoryCredentialStore(Credentials(email: "viewer@example.com", password: "hunter2"))
@@ -33,7 +33,8 @@ import Testing
             environment: environment,
             session: session,
             clearImages: { usage.clearCalls += 1; usage.bytes = 0 },
-            imageUsage: { usage.bytes }
+            imageUsage: { usage.bytes },
+            lastOutputChannels: lastOutputChannels
         )
         return Rig(model: model, library: store, catalog: catalog, credentials: credentials, session: session, usage: usage)
     }
@@ -62,6 +63,27 @@ import Testing
         await rig.model.setSubtitleLanguage(nil)
         #expect(rig.model.subtitleLanguage == nil)
         #expect(await rig.library.snapshot().preferences.subtitleLanguage == nil)
+    }
+
+    @Test func surroundSettingLoadsAndPersists() async {
+        var library = Library()
+        library.preferences = Preferences(subtitleLanguage: "ru", autoplayNext: false)
+        let rig = makeRig(library: library)
+        await rig.model.load()
+        #expect(rig.model.simulatedSurround == true)
+        await rig.model.setSimulatedSurround(false)
+        #expect(rig.model.simulatedSurround == false)
+        let preferences = await rig.library.snapshot().preferences
+        #expect(preferences.simulatedSurround == false)
+        #expect(preferences.subtitleLanguage == "ru")
+        #expect(preferences.autoplayNext == false)
+    }
+
+    @Test(arguments: [(nil as Int?, false), (2, true), (6, false)])
+    func stereoHintFollowsTheLastPlaybackOutput(channels: Int?, expected: Bool) async {
+        let rig = makeRig(lastOutputChannels: { channels })
+        await rig.model.load()
+        #expect(rig.model.outputIsStereo == expected)
     }
 
     @Test func setAutoplayPersists() async {

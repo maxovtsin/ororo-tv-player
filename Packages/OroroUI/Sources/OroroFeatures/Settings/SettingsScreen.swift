@@ -9,6 +9,19 @@ public struct SettingsScreen: View {
     @State private var model: SettingsViewModel?
     @State private var confirmErase = false
     @State private var confirmSignOut = false
+    #if DEBUG && os(tvOS)
+    @AppStorage(SurroundDebug.defaultsKey) private var surroundSignal = ""
+    #endif
+
+    #if DEBUG && os(tvOS)
+    private var surroundSignalName: String {
+        switch surroundSignal {
+        case SurroundDebugSignal.speakerTest.rawValue: "Speaker test"
+        case SurroundDebugSignal.steadyTone.rawValue: "Steady tone"
+        default: "Off"
+        }
+    }
+    #endif
 
     public init() {}
 
@@ -43,7 +56,7 @@ public struct SettingsScreen: View {
                     confirmSignOut = true
                 }
             }
-            Section(String(localized: "settings.playback", defaultValue: "Playback", bundle: .module)) {
+            Section {
                 Picker(
                     String(localized: "settings.subtitleLanguage", defaultValue: "Subtitle language", bundle: .module),
                     selection: Binding(get: { model.subtitleLanguage }, set: { code in Task { await model.setSubtitleLanguage(code) } })
@@ -57,6 +70,24 @@ public struct SettingsScreen: View {
                     String(localized: "settings.autoplayNext", defaultValue: "Autoplay next episode", bundle: .module),
                     isOn: Binding(get: { model.autoplayNext }, set: { enabled in Task { await model.setAutoplay(enabled) } })
                 )
+                #if os(tvOS)
+                Toggle(
+                    String(localized: "settings.simulatedSurround", defaultValue: "Simulated surround", bundle: .module),
+                    isOn: Binding(get: { model.simulatedSurround }, set: { enabled in Task { await model.setSimulatedSurround(enabled) } })
+                )
+                #endif
+            } header: {
+                Text(String(localized: "settings.playback", defaultValue: "Playback", bundle: .module))
+            } footer: {
+                #if os(tvOS)
+                if model.outputIsStereo {
+                    Text(String(
+                        localized: "settings.simulatedSurroundStereoOutput",
+                        defaultValue: "The current audio output is stereo, so the original sound is used.",
+                        bundle: .module
+                    ))
+                }
+                #endif
             }
             Section(String(localized: "settings.catalog", defaultValue: "Catalog", bundle: .module)) {
                 LabeledContent(String(localized: "settings.lastUpdated", defaultValue: "Last updated", bundle: .module)) {
@@ -94,6 +125,22 @@ public struct SettingsScreen: View {
             Section {
                 LabeledContent(String(localized: "settings.version", defaultValue: "Version", bundle: .module), value: model.version)
             }
+            #if DEBUG && os(tvOS)
+            Section {
+                // A Picker row opens an empty view on a real Apple TV; one button cycles instead.
+                Button {
+                    switch surroundSignal {
+                    case "": surroundSignal = SurroundDebugSignal.speakerTest.rawValue
+                    case SurroundDebugSignal.speakerTest.rawValue: surroundSignal = SurroundDebugSignal.steadyTone.rawValue
+                    default: surroundSignal = ""
+                    }
+                } label: {
+                    Text(verbatim: "Surround test signal: \(surroundSignalName)")
+                }
+            } header: {
+                Text(verbatim: "Debug")
+            }
+            #endif
         }
         .confirmationDialog(
             String(localized: "settings.eraseConfirmTitle", defaultValue: "Erase My List and watch history?", bundle: .module),

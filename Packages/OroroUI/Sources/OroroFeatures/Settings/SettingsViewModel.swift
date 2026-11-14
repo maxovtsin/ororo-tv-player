@@ -8,6 +8,9 @@ import OroroDesign
     /// Nil = Off.
     public private(set) var subtitleLanguage: String?
     public private(set) var autoplayNext = true
+    public private(set) var simulatedSurround = true
+    /// True when the last playback output had fewer than 6 channels (surround is not in use there).
+    public private(set) var outputIsStereo = false
     public private(set) var lastUpdated: Date?
     public private(set) var imageCacheBytes = 0
     public private(set) var isRefreshing = false
@@ -19,17 +22,20 @@ import OroroDesign
     private let session: AppSession
     private let clearImages: () async -> Void
     private let imageUsage: () async -> Int
+    private let lastOutputChannels: @MainActor () -> Int?
 
     public init(
         environment: AppEnvironment,
         session: AppSession,
         clearImages: @escaping () async -> Void = ImageCache.clear,
-        imageUsage: @escaping () async -> Int = ImageCache.diskUsage
+        imageUsage: @escaping () async -> Int = ImageCache.diskUsage,
+        lastOutputChannels: @escaping @MainActor () -> Int? = { AudioOutput.lastObservedChannelCount }
     ) {
         self.environment = environment
         self.session = session
         self.clearImages = clearImages
         self.imageUsage = imageUsage
+        self.lastOutputChannels = lastOutputChannels
         let info = Bundle.main.infoDictionary
         let short = info?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = info?["CFBundleVersion"] as? String ?? "1"
@@ -41,6 +47,8 @@ import OroroDesign
         let preferences = await environment.library.snapshot().preferences
         subtitleLanguage = preferences.subtitleLanguage
         autoplayNext = preferences.autoplayNext
+        simulatedSurround = preferences.simulatedSurround
+        outputIsStereo = lastOutputChannels().map { !AudioOutput.supportsSurround(channels: $0) } ?? false
         lastUpdated = await environment.catalog.lastUpdated()
         imageCacheBytes = await imageUsage()
     }
@@ -53,6 +61,11 @@ import OroroDesign
     public func setAutoplay(_ enabled: Bool) async {
         autoplayNext = enabled
         await environment.library.update { $0.preferences.autoplayNext = enabled }
+    }
+
+    public func setSimulatedSurround(_ enabled: Bool) async {
+        simulatedSurround = enabled
+        await environment.library.update { $0.preferences.simulatedSurround = enabled }
     }
 
     public func refreshCatalog() async {
