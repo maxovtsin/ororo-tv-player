@@ -9,6 +9,7 @@ import Testing
         #expect(Display.runtime(minutes: 155, locale: gb) == "2h 35m")
         #expect(Display.runtime(minutes: 45, locale: gb) == "45m")
         #expect(Display.runtime(minutes: 120, locale: gb) == "2h")
+        #expect(Display.runtime(minutes: 0, locale: gb) == "0m")
     }
 
     @Test func runtimeInRussianIsLocalised() {
@@ -46,8 +47,14 @@ import Testing
     }
 
     @Test func airdateFormat() {
-        let date = Date(timeIntervalSince1970: 1_743_336_000) // 2025-03-30 12:00 UTC
-        #expect(Display.airdate(date, locale: gb) == "30 Mar 2025")
+        let midnightUTC = Date(timeIntervalSince1970: 1_743_292_800) // 2025-03-30T00:00:00Z
+        #expect(Display.airdate(midnightUTC, locale: gb) == "30 Mar 2025")
+        // Last second of the same UTC day; in America/New_York both instants fall on 29 Mar,
+        // so equal output proves the result does not follow TimeZone.current.
+        let endOfDayUTC = Date(timeIntervalSince1970: 1_743_379_199)
+        #expect(Display.airdate(endOfDayUTC, locale: gb) == "30 Mar 2025")
+        let nextMidnight = Date(timeIntervalSince1970: 1_743_379_200)
+        #expect(Display.airdate(nextMidnight, locale: gb) == "31 Mar 2025")
     }
 
     @Test func newEpisodeAgoWithinFourteenDays() {
@@ -73,6 +80,8 @@ import Testing
     @Test func timecodeHandlesNaNAndNegative() {
         #expect(Display.timecode(.nan) == "0:00")
         #expect(Display.timecode(-30) == "0:00")
+        #expect(Display.timecode(.infinity) == "0:00")
+        #expect(!Display.timecode(Double.greatestFiniteMagnitude).isEmpty) // must not trap
     }
 
     @Test func seasonCountPluralises() {

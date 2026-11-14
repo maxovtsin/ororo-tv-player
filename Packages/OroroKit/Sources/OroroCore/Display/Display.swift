@@ -46,7 +46,8 @@ public enum Display {
     /// en: "30 Mar 2025"
     public static func airdate(_ date: Date, locale: Locale) -> String {
         date.formatted(
-            Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale)
+            // Airdates are UTC-midnight calendar dates; never depend on TimeZone.current.
+            Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale, timeZone: .gmt)
         )
     }
 
@@ -65,7 +66,7 @@ public enum Display {
     /// "23:14", "1:02:03"
     public static func timecode(_ seconds: TimeInterval) -> String {
         guard seconds.isFinite, seconds > 0 else { return "0:00" }
-        let total = Int(seconds)
+        let total = Int(min(seconds, 359_999 * 3600)) // clamp so huge values cannot trap
         let (hours, minutes, secs) = (total / 3600, total % 3600 / 60, total % 60)
         if hours > 0 {
             return String(format: "%d:%02d:%02d", hours, minutes, secs)
