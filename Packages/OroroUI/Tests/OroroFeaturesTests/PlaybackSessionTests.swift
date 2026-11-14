@@ -229,23 +229,37 @@ import Testing
         #expect(harness.session.phase == .finished)
     }
 
-    @Test func thirdAutoplayAsksStillWatching() async {
+    /// Spec: "After three consecutive autoplays with no remote input, ask Still watching?" (before the 4th).
+    @Test func threeAutoplaysAskStillWatching() async {
         let harness = Harness(.episode(id: Self.s1e1, showID: 101))
         await harness.session.start()
         #expect(await harness.autoplay(to: Self.s1e2))
         #expect(await harness.autoplay(to: Self.s1e3))
+        #expect(await harness.autoplay(to: Self.s1e4))
 
         await harness.session.handle(.ended)
         #expect(harness.session.phase == .stillWatching)
-        #expect(harness.engine.loads.count == 3)
+        #expect(harness.engine.loads.count == 4)
 
         await harness.session.confirmStillWatching(true)
         #expect(harness.session.phase == .playing)
-        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e4))
+        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e5))
 
         // The confirmation counts as input: the next end counts down again.
         await harness.session.handle(.ended)
-        #expect(harness.session.phase == .countdown(next: EpisodeRef(episodeID: Self.s1e5, season: 1, number: 5), secondsLeft: 5))
+        #expect(harness.session.phase == .countdown(next: EpisodeRef(episodeID: Self.s2e1, season: 2, number: 1), secondsLeft: 5))
+    }
+
+    @Test func declinedStillWatchingFinishes() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.session.start()
+        #expect(await harness.autoplay(to: Self.s1e2))
+        #expect(await harness.autoplay(to: Self.s1e3))
+        #expect(await harness.autoplay(to: Self.s1e4))
+        await harness.session.handle(.ended)
+        await harness.session.confirmStillWatching(false)
+        #expect(harness.session.phase == .finished)
+        #expect(harness.engine.loads.count == 4)
     }
 
     @Test func userInputResetsAutoplayCount() async {
@@ -253,10 +267,11 @@ import Testing
         await harness.session.start()
         #expect(await harness.autoplay(to: Self.s1e2))
         #expect(await harness.autoplay(to: Self.s1e3))
+        #expect(await harness.autoplay(to: Self.s1e4))
         await harness.session.handle(.userInput)
 
         await harness.session.handle(.ended)
-        #expect(harness.session.phase == .countdown(next: EpisodeRef(episodeID: Self.s1e4, season: 1, number: 4), secondsLeft: 5))
+        #expect(harness.session.phase == .countdown(next: EpisodeRef(episodeID: Self.s1e5, season: 1, number: 5), secondsLeft: 5))
     }
 
     @Test func lastEpisodeFinishes() async {
@@ -294,6 +309,46 @@ extension PlaybackSessionTests {
         #expect(harness.session.phase == .playing)
         #expect(harness.engine.loads.map(\.startAt) == [0, 300, 300])
         #expect(await harness.details.episodePlaybackCalls == 3)
+    }
+
+    @Test func automaticRecoveryRearmsAfter10sOfPlayback() async {
+        let harness = Harness(.movie(1001))
+        await harness.session.start()
+        await harness.session.handle(.time(position: 300, duration: 1000))
+        await harness.session.handle(.failed)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300])
+
+        // 10 s of clock time playing after the recovery: the next failure gets its own automatic attempt.
+        await harness.clock.advance(by: .seconds(10))
+        await harness.session.handle(.time(position: 310, duration: 1000))
+        await harness.session.handle(.failed)
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300, 310])
+
+        // Less than 10 s after that recovery: no further automatic attempt.
+        await harness.clock.advance(by: .seconds(9))
+        await harness.session.handle(.time(position: 319, duration: 1000))
+        await harness.session.handle(.failed)
+        #expect(harness.session.phase == .failed(.stream))
+        #expect(harness.engine.loads.count == 3)
+        #expect(await harness.details.moviePlaybackCalls == 3)
+    }
+
+    @Test func loadFailureRetriesOnceThenFails() async {
+        let once = Harness(.movie(1001), library: Self.movieProgress(120, of: 1000))
+        once.engine.loadErrors = [APIError.server(status: 403)]
+        await once.session.start()
+        await once.session.chooseResume(true)
+        #expect(once.session.phase == .playing)
+        #expect(once.engine.loads.map(\.startAt) == [120, 120])
+        #expect(await once.details.moviePlaybackCalls == 2)
+
+        let twice = Harness(.movie(1001))
+        twice.engine.loadErrors = [APIError.server(status: 403), APIError.server(status: 403)]
+        await twice.session.start()
+        #expect(twice.session.phase == .failed(.stream))
+        #expect(twice.engine.loads.count == 2)
+        #expect(twice.engine.playCount == 0)
     }
 
     @Test func stallOf30sIsAFailure() async {
@@ -381,6 +436,20 @@ extension PlaybackSessionTests {
         #expect(library.isWatched(Self.movie) == false)
     }
 
+    @Test func nonFiniteDurationIsIgnored() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.session.start()
+        await harness.clock.advance(by: .seconds(10))
+        await harness.session.handle(.time(position: 990, duration: .nan))
+        await harness.session.handle(.time(position: .infinity, duration: .infinity))
+        #expect(harness.session.showsNextEpisodeAction == false)
+        #expect(await harness.library.updateCount == 0)
+        await harness.session.handle(.ended)
+        let library = await harness.library.library
+        #expect(library.watchedEpisodes.isEmpty)
+        #expect(library.progress.isEmpty)
+    }
+
     @Test func willDismissRecordsAndFlushes() async {
         let harness = Harness(.movie(1001))
         await harness.session.start()
@@ -401,6 +470,73 @@ extension PlaybackSessionTests {
         var library = Library()
         library.recordProgress(movie, show: nil, position: position, duration: duration, now: Samples.now)
         return library
+    }
+}
+
+// MARK: - Dismissal and show ids
+
+extension PlaybackSessionTests {
+    @Test func dismissDuringNextEpisodeFetchStartsNothing() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.session.start()
+        await harness.session.handle(.ended)
+        await harness.details.configure { $0.delay = .milliseconds(100) }
+        await harness.clock.advance(by: .seconds(5))
+        #expect(await eventually { await harness.details.episodePlaybackCalls == 2 })
+
+        let phase = harness.session.phase
+        let played = await harness.session.willDismiss()
+        #expect(played == PlayableID(kind: .episode, id: Self.s1e1))
+        try? await Task.sleep(for: .milliseconds(300)) // let the in-flight fetch return
+        await settle()
+
+        #expect(harness.engine.loads.count == 1)
+        #expect(harness.engine.playCount == 1)
+        #expect(harness.session.phase == phase)
+        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e1))
+        await harness.session.playNextNow()
+        await harness.session.retry()
+        #expect(harness.engine.loads.count == 1)
+    }
+
+    @Test func nextEpisodeFetchFailureKeepsCurrent() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.session.start()
+        await harness.details.configure { $0.error = .offline }
+        await harness.session.playNextNow()
+        #expect(harness.session.phase == .failed(.fetch))
+        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e1))
+
+        await harness.details.configure { $0.error = nil }
+        await harness.session.retry()
+        #expect(harness.session.phase == .playing)
+        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e2))
+    }
+
+    /// `EpisodeDetail.episode.showID` is unreliable (0 when unknown): the show id always comes from the request.
+    @Test func showIDComesFromTargetNotEpisodeDetail() async {
+        // An episode the show detail does not list, whose detail claims another show.
+        let episodeID = 1_010_109
+        let harness = Harness(.episode(id: episodeID, showID: 101))
+        var detail = Samples.episodeDetail(episodeID, withPlayback: true)!
+        detail.episode = Episode(id: episodeID, showID: 555, name: "Episode 9", season: 1, number: 9)
+        let override = detail
+        await harness.details.configure { $0.episodeResults[episodeID] = .success(override) }
+        await harness.session.start()
+        #expect(harness.session.phase == .playing)
+
+        await harness.clock.advance(by: .seconds(10))
+        await harness.session.handle(.time(position: 120, duration: 1000))
+        let entry = await harness.library.library.progress.first
+        #expect(entry?.showID == 101)
+        #expect(entry?.season == 1)
+        #expect(entry?.number == 9)
+
+        await harness.session.handle(.time(position: 990, duration: 1000))
+        let library = await harness.library.library
+        #expect(library.watchedEpisodes == [episodeID])
+        #expect(library.followed[101]?.started == true)
+        #expect(library.followed[555] == nil)
     }
 }
 
@@ -458,8 +594,12 @@ extension PlaybackSessionTests {
         continuation.yield(event)
     }
 
+    /// Consumed one per `load`; a non-nil entry makes that load throw (after recording it).
+    var loadErrors: [(any Error)?] = []
+
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         loads.append(Load(playback: playback, startAt: startAt, subtitleLanguage: subtitleLanguage))
+        if !loadErrors.isEmpty, let error = loadErrors.removeFirst() { throw error }
         position = startAt
     }
 

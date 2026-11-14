@@ -5,7 +5,8 @@ import OroroCore
 /// The player's state machine: resolve what to play, resume, progress saving, next episode, autoplay, failures.
 ///
 /// Engine events arrive through `engine.events`; `PlayerScreen` drives the public methods.
-/// All timing goes through the injected `clock` (progress tick, countdown) and `now` (URL expiry, library dates).
+/// All timing goes through the injected `clock` (progress tick, countdown, recovery) and `now` (URL expiry, library dates).
+/// After `willDismiss()` nothing touches the engine, `phase` or `current` again.
 @MainActor @Observable public final class PlaybackSession {
     public enum Phase: Equatable {
         case preparing, askResume(position: TimeInterval), playing, countdown(next: EpisodeRef, secondsLeft: Int),
@@ -20,11 +21,13 @@ import OroroCore
     public private(set) var showsNextEpisodeAction = false
 
     // Spec constants.
-    static let progressTick: Duration = .seconds(10), countdownSeconds = 5, stillWatchingAfter = 3
+    static let progressTick: Duration = .seconds(10), countdownSeconds = 5
+    /// "Still watching?" is asked instead of the autoplay that would follow this many consecutive ones.
+    static let stillWatchingAfter = 3
     static let nextActionWindow: TimeInterval = 40, stallTimeout: TimeInterval = 30
     static let urlLifetime: TimeInterval = 30 * 3600
-    /// Playback this far past an automatic recovery counts as recovered (re-arms the next automatic attempt).
-    static let recoveredAfter: TimeInterval = 10
+    /// Clock time spent playing after an automatic recovery that re-arms the next automatic attempt.
+    static let recoveredAfter: Duration = .seconds(10)
 
     private let request: PlayRequest
     private let environment: AppEnvironment
@@ -33,31 +36,34 @@ import OroroCore
     private let clock: any Clock<Duration>
     private let now: () -> Date
 
-    /// The current item's context (nil for movies).
+    /// The current item's show context (nil for movies).
     private struct ShowState {
         let showID: Int
         var newestVideo: Date?
         var episodes: [Episode]
     }
 
-    private var show: ShowState?
-    private var currentEpisode: Episode?
-    private var playback: Playback?
-    private var position: TimeInterval = 0
-    private var duration: TimeInterval = 0
+    @ObservationIgnored private var show: ShowState?
+    @ObservationIgnored private var currentEpisode: Episode?
+    @ObservationIgnored private var playback: Playback?
+    @ObservationIgnored private var position: TimeInterval = 0
+    @ObservationIgnored private var duration: TimeInterval = 0
     /// True once the current item crossed the watched threshold (finish recorded; progress no longer written).
-    private var finishedCurrent = false
-    private var consecutiveAutoplays = 0
+    @ObservationIgnored private var finishedCurrent = false
+    @ObservationIgnored private var consecutiveAutoplays = 0
     /// The one automatic recovery for the current failure was used.
-    private var autoRecoveryUsed = false
-    /// Where the last automatic recovery resumed; playback past it re-arms automatic recovery.
-    private var recoveryPosition: TimeInterval?
+    @ObservationIgnored private var autoRecoveryUsed = false
+    /// Clock time since the last automatic recovery succeeded; nil when none is pending re-arm.
+    @ObservationIgnored private var sinceRecovery: (() -> Duration)?
     /// Elapsed clock time since progress was last written to the library.
-    private var sinceProgressWrite: () -> Duration = { .zero }
-    /// The next episode being loaded, or nil when the request itself is (what `retry` repeats after a fetch failure).
-    private var nextLoad: Episode?
-    private var eventTask: Task<Void, Never>?
-    private var countdownTask: Task<Void, Never>?
+    @ObservationIgnored private var sinceProgressWrite: () -> Duration = { .zero }
+    /// The next episode last asked for, or nil when the request itself is (what `retry` repeats after a fetch failure).
+    @ObservationIgnored private var nextLoad: Episode?
+    /// A next-episode play is in flight (countdown and `playNextNow` never overlap).
+    @ObservationIgnored private var loadingNext = false
+    @ObservationIgnored private var dismissed = false
+    @ObservationIgnored private var eventTask: Task<Void, Never>?
+    @ObservationIgnored private var countdownTask: Task<Void, Never>?
 
     public init(request: PlayRequest, environment: AppEnvironment, session: AppSession, engine: any PlayerEngine,
                 clock: any Clock<Duration> = ContinuousClock(), now: @escaping () -> Date = Date.init) {
@@ -77,18 +83,25 @@ import OroroCore
     // MARK: - Public API
 
     public func start() async {
+        guard !dismissed else { return }
         listenToEngine()
         cancelCountdownTask()
         phase = .preparing
         resetItemState()
         nextLoad = nil
 
-        guard let target = await resolveTarget() else { return }
+        guard let target = await resolveTarget(), !dismissed else { return }
         current = target
-        guard let fetched = await fetchPlayback(for: target) else { return }
-        playback = fetched
+        guard let fetched = await fetchPlayback(for: target), !dismissed else { return }
+        if currentEpisode == nil, let episode = fetched.episode {
+            // Not in the show detail: keep the fetched episode's season/number, never its showID.
+            currentEpisode = episode
+        }
+        playback = fetched.playback
 
-        if !request.startOver, let resume = await environment.library.snapshot().resumePosition(target) {
+        let resume = request.startOver ? nil : await environment.library.snapshot().resumePosition(target)
+        guard !dismissed else { return }
+        if let resume {
             phase = .askResume(position: resume)
         } else {
             await load(at: 0)
@@ -96,12 +109,12 @@ import OroroCore
     }
 
     public func chooseResume(_ resume: Bool) async {
-        guard case .askResume(let position) = phase else { return }
+        guard !dismissed, case .askResume(let position) = phase else { return }
         await load(at: resume ? position : 0)
     }
 
     public func playNextNow() async {
-        guard let nextEpisode else { return }
+        guard !dismissed, !loadingNext, let nextEpisode else { return }
         consecutiveAutoplays = 0
         cancelCountdownTask()
         await recordProgressNow()
@@ -115,7 +128,7 @@ import OroroCore
     }
 
     public func confirmStillWatching(_ yes: Bool) async {
-        guard phase == .stillWatching else { return }
+        guard !dismissed, phase == .stillWatching else { return }
         guard yes, let nextEpisode else {
             phase = .finished
             return
@@ -125,7 +138,7 @@ import OroroCore
     }
 
     public func retry() async {
-        guard case .failed(let failure) = phase else { return }
+        guard !dismissed, case .failed(let failure) = phase else { return }
         switch failure {
         case .fetch, .notPlayable:
             if let nextLoad {
@@ -136,7 +149,7 @@ import OroroCore
             }
         case .stream:
             autoRecoveryUsed = false
-            recoveryPosition = nil
+            sinceRecovery = nil
             await reloadStream(automatic: false)
         }
     }
@@ -144,27 +157,28 @@ import OroroCore
     /// Records + flushes; returns what the caller stores in `launcher.lastPlayed`.
     @discardableResult
     public func willDismiss() async -> PlayableID? {
+        dismissed = true
         cancelCountdownTask()
         eventTask?.cancel()
         eventTask = nil
+        let played = current
         await recordProgressNow()
         await environment.library.flush()
-        return current
+        return played
     }
 
     public func sceneBecameActive() async {
-        guard phase == .playing, let playback,
+        guard !dismissed, phase == .playing, let playback,
               now().timeIntervalSince(playback.fetchedAt) > Self.urlLifetime else { return }
         await streamFailed()
     }
-
 }
 
 // MARK: - Events
 
 extension PlaybackSession {
-
     func handle(_ event: PlayerEvent) async {
+        guard !dismissed else { return }
         switch event {
         case .userInput:
             consecutiveAutoplays = 0
@@ -207,14 +221,13 @@ extension PlaybackSession {
         if duration.isFinite { self.duration = max(duration, 0) }
         showsNextEpisodeAction = nextEpisode != nil && self.duration > 0
             && self.duration - self.position <= Self.nextActionWindow
-        if let recoveryPosition, self.position > recoveryPosition + Self.recoveredAfter {
+        if let sinceRecovery, sinceRecovery() >= Self.recoveredAfter {
             // Playback recovered: a later failure gets its own automatic attempt.
-            self.recoveryPosition = nil
+            self.sinceRecovery = nil
             autoRecoveryUsed = false
         }
         guard !finishedCurrent else { return }
-        // `shouldMarkWatched` reads only its arguments; no need to snapshot the store on every tick.
-        if Library().shouldMarkWatched(position: self.position, duration: self.duration) {
+        if Self.shouldMarkWatched(position: self.position, duration: self.duration) {
             await finishCurrent()
         } else if sinceProgressWrite() >= Self.progressTick {
             await recordProgressNow()
@@ -224,11 +237,13 @@ extension PlaybackSession {
     private func ended() async {
         if !finishedCurrent, duration > 0 { await finishCurrent() }
         showsNextEpisodeAction = false
-        guard let nextEpisode, await environment.library.snapshot().preferences.autoplayNext else {
+        let autoplay = await environment.library.snapshot().preferences.autoplayNext
+        guard !dismissed else { return }
+        guard let nextEpisode, autoplay else {
             phase = .finished
             return
         }
-        if consecutiveAutoplays >= Self.stillWatchingAfter - 1 {
+        if consecutiveAutoplays >= Self.stillWatchingAfter {
             phase = .stillWatching
         } else {
             startCountdown(to: nextEpisode)
@@ -241,14 +256,14 @@ extension PlaybackSession {
         let ref = Self.ref(episode)
         phase = .countdown(next: ref, secondsLeft: Self.countdownSeconds)
         countdownTask?.cancel()
+        // The task stays referenced until its play completes, so `willDismiss` can cancel it.
         countdownTask = Task { [weak self, clock] in
             for secondsLeft in (0..<Self.countdownSeconds).reversed() {
                 do { try await clock.sleep(for: .seconds(1)) } catch { return }
-                guard let self, !Task.isCancelled else { return }
+                guard let self, !Task.isCancelled, !self.dismissed else { return }
                 if secondsLeft > 0 {
                     self.phase = .countdown(next: ref, secondsLeft: secondsLeft)
                 } else {
-                    self.countdownTask = nil
                     self.consecutiveAutoplays += 1
                     await self.play(episode)
                 }
@@ -260,13 +275,11 @@ extension PlaybackSession {
         countdownTask?.cancel()
         countdownTask = nil
     }
-
 }
 
 // MARK: - Loading
 
 extension PlaybackSession {
-
     /// Movie or episode to play; loads show context for episodes. Nil after setting a failed phase.
     private func resolveTarget() async -> PlayableID? {
         switch request.target {
@@ -287,14 +300,14 @@ extension PlaybackSession {
                 detail = try await environment.details.show(id: showID)
             } catch {
                 guard resume != nil else {
-                    fail(.fetch, error: error)
+                    if !dismissed { fail(.fetch, error: error) }
                     return nil
                 }
                 detail = nil
             }
             show = ShowState(showID: showID, newestVideo: detail?.title.newestVideo, episodes: detail?.episodes ?? [])
             guard let episodeID = resume?.episodeID ?? detail.flatMap({ EpisodeOrdering.first(in: $0.episodes) })?.id else {
-                phase = .failed(.notPlayable)
+                if !dismissed { phase = .failed(.notPlayable) }
                 return nil
             }
             setEpisodeContext(id: episodeID)
@@ -308,49 +321,51 @@ extension PlaybackSession {
         nextEpisode = EpisodeOrdering.next(after: id, in: episodes)
     }
 
-    /// Always a network fetch; nil when the response has no URL.
-    private func requestPlayback(for target: PlayableID) async throws -> Playback? {
+    /// Always a network fetch; `playback` is nil when the response has no URL. `episode` only for episodes.
+    private func requestPlayback(for target: PlayableID) async throws -> (playback: Playback?, episode: Episode?) {
         switch target.kind {
         case .movie:
-            return try await environment.details.moviePlayback(id: target.id).playback
+            return (try await environment.details.moviePlayback(id: target.id).playback, nil)
         case .episode:
             let detail = try await environment.details.episodePlayback(id: target.id)
-            if currentEpisode == nil {
-                // Not in the show detail: keep the fetched episode's season/number, never its showID.
-                currentEpisode = detail.episode
-            }
-            return detail.playback
+            return (detail.playback, detail.episode)
         }
     }
 
-    /// Nil after setting `.failed(.fetch)` / `.failed(.notPlayable)`.
-    private func fetchPlayback(for target: PlayableID) async -> Playback? {
-        let fetched: Playback?
+    /// Nil after setting `.failed(.fetch)` / `.failed(.notPlayable)`, or once dismissed.
+    private func fetchPlayback(for target: PlayableID) async -> (playback: Playback, episode: Episode?)? {
+        let fetched: (playback: Playback?, episode: Episode?)
         do {
             fetched = try await requestPlayback(for: target)
         } catch {
-            fail(.fetch, error: error)
+            if !dismissed { fail(.fetch, error: error) }
             return nil
         }
-        guard let fetched else {
+        guard !dismissed else { return nil }
+        guard let playback = fetched.playback else {
             phase = .failed(.notPlayable)
             return nil
         }
-        return fetched
+        return (playback, fetched.episode)
     }
 
     private func load(at start: TimeInterval) async {
-        guard let playback else { return }
+        guard let playback, !dismissed else { return }
         phase = .preparing
         let preferred = await environment.library.snapshot().preferences.subtitleLanguage
+        guard !dismissed else { return }
         let available = Set(playback.subtitles.map(\.lang))
         let language = preferred.flatMap { available.contains($0) ? $0 : nil }
         do {
             try await engine.load(playback, startAt: start, subtitleLanguage: language)
         } catch {
-            phase = .failed(.stream)
+            guard !dismissed else { return }
+            session.report(error)
+            position = start
+            await streamFailed() // recover like a mid-stream failure
             return
         }
+        guard !dismissed else { return }
         position = start
         restartProgressStopwatch()
         engine.play()
@@ -358,16 +373,21 @@ extension PlaybackSession {
     }
 
     /// Loads `episode` as the new current item with fresh playback, from the start.
+    /// `current` and the item state move only once its playback is fetched.
     private func play(_ episode: Episode) async {
-        cancelCountdownTask()
+        guard !dismissed, !loadingNext else { return }
+        loadingNext = true
+        defer { loadingNext = false }
         phase = .preparing
-        resetItemState()
+        showsNextEpisodeAction = false
         nextLoad = episode
-        current = PlayableID(kind: .episode, id: episode.id)
+        let target = PlayableID(kind: .episode, id: episode.id)
+        guard let fetched = await fetchPlayback(for: target) else { return }
+        resetItemState()
+        current = target
         setEpisodeContext(id: episode.id)
         if currentEpisode == nil { currentEpisode = episode }
-        guard let target = current, let fetched = await fetchPlayback(for: target) else { return }
-        playback = fetched
+        playback = fetched.playback
         await load(at: 0)
     }
 
@@ -377,54 +397,56 @@ extension PlaybackSession {
         duration = 0
         finishedCurrent = false
         autoRecoveryUsed = false
-        recoveryPosition = nil
+        sinceRecovery = nil
         showsNextEpisodeAction = false
     }
 
     // MARK: - Failures
 
-    /// Mid-stream failure, long stall or expired URL: one automatic refetch + reload, then `.failed(.stream)`.
+    /// Mid-stream or load failure, long stall, expired URL: one automatic refetch + reload, then `.failed(.stream)`.
     private func streamFailed() async {
+        guard !dismissed else { return }
         guard !autoRecoveryUsed else {
             phase = .failed(.stream)
             return
         }
         autoRecoveryUsed = true
+        sinceRecovery = nil
         await reloadStream(automatic: true)
     }
 
     private func reloadStream(automatic: Bool) async {
-        guard let target = current else { return }
+        guard let target = current, !dismissed else { return }
         phase = .preparing
         let resumeAt = position
         let fetched: Playback?
         do {
-            fetched = try await requestPlayback(for: target)
+            fetched = try await requestPlayback(for: target).playback
         } catch {
+            guard !dismissed else { return }
             session.report(error)
             phase = .failed(.stream)
             return
         }
+        guard !dismissed else { return }
         guard let fetched else {
             phase = .failed(.notPlayable)
             return
         }
         playback = fetched
         await load(at: resumeAt)
-        if automatic, phase == .playing { recoveryPosition = resumeAt }
+        if automatic, !dismissed, phase == .playing, autoRecoveryUsed { sinceRecovery = clock.stopwatch() }
     }
 
     private func fail(_ failure: Failure, error: any Error) {
         session.report(error)
         phase = .failed(failure)
     }
-
 }
 
 // MARK: - Library
 
 extension PlaybackSession {
-
     private var showContext: ShowContext? {
         guard let show, let episode = currentEpisode else { return nil }
         return ShowContext(showID: show.showID, season: episode.season, number: episode.number ?? 0,
@@ -449,6 +471,13 @@ extension PlaybackSession {
 
     private func restartProgressStopwatch() {
         sinceProgressWrite = clock.stopwatch()
+    }
+
+    /// Same rule as `Library.shouldMarkWatched` (finite position, finite duration > 0, fraction >= 0.95)
+    /// without building a `Library` per tick.
+    private static func shouldMarkWatched(position: TimeInterval, duration: TimeInterval) -> Bool {
+        guard position.isFinite, duration.isFinite, duration > 0 else { return false }
+        return min(max(position, 0) / duration, 1) >= Library.watchedThreshold
     }
 
     private static func ref(_ episode: Episode) -> EpisodeRef {
