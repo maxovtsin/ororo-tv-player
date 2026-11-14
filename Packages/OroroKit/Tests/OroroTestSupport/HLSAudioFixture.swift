@@ -17,7 +17,7 @@ public struct HLSAudioFixture: Sendable {
     public static func make(seconds: Double, channels: Int = 2, sampleRate: Double = 48_000) async throws -> HLSAudioFixture {
         let (left, right) = signal(frames: Int(seconds * sampleRate), sampleRate: sampleRate)
         let source = channels == 1 ? [left] : [left, right]
-        let collector = try await write(source, sampleRate: sampleRate)
+        let collector = try await WriterQueue.shared.run { try await write(source, sampleRate: sampleRate) }
         let output = collector.output.withLock { $0 }
         guard let initSegment = output.initSegment, !output.segments.isEmpty else { throw FixtureError.noSegments }
         return HLSAudioFixture(initSegment: initSegment, segments: output.segments, left: left, right: right)
@@ -136,6 +136,23 @@ private enum FixtureError: Error {
 }
 
 /// Receives the writer's segments, which arrive on a queue of its choosing.
+/// One `AVAssetWriter` at a time: concurrent fragmented-MP4 writers in one test process occasionally crashed inside
+/// MediaToolbox (`figMovieWriter_Flush` → `tfbGetTrackRunAtIndex`, EXC_BAD_ACCESS) while tests ran in parallel.
+private actor WriterQueue {
+    static let shared = WriterQueue()
+    private var tail: Task<Void, Never>?
+
+    func run<T: Sendable>(_ work: @escaping @Sendable () async throws -> T) async throws -> T {
+        let previous = tail
+        let task = Task { () async throws -> T in
+            await previous?.value
+            return try await work()
+        }
+        tail = Task { _ = try? await task.value }
+        return try await task.value
+    }
+}
+
 private final class SegmentCollector: NSObject, AVAssetWriterDelegate, Sendable {
     struct Output {
         var initSegment: Data?

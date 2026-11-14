@@ -54,6 +54,42 @@ import Testing
         }
     }
 
+    /// Per-segment transcoding (with the source's pre/post-roll neighbours) against one continuous transcode of the same
+    /// packets, both decoded the same way. Unlike the test above, the fixture's own noise bursts largely cancel out.
+    ///
+    /// Measured on this fixture (per-1024-frame RMS difference): before the first join the two are bit-identical (0);
+    /// after it the encoders' states differ, which leaves a uniform coding-noise floor everywhere (mean ≈ 0.006–0.007
+    /// on L/C/R, ≈ 0.0024 on Ls/Rs, ≈ 0.0001 on LFE), not only at joins. At the join blocks (±2) the mean is
+    /// 0.95–1.13× the mean elsewhere; the worst single join block is 0.0324 (L, block 283, where a join coincides with
+    /// one of the left channel's noise bursts; bursts away from joins reach 0.0156). A tighter absolute bound (≤ 1e-3) is
+    /// unreachable: the AAC encoder's state, not the upmix, sets the floor.
+    @Test func joinsMatchOneContinuousTranscode() async throws {
+        let pieces = try await Self.transcodeBySegment(seconds: 8)
+        let whole = try SurroundTranscoder().transcode(previous: [], current: pieces.fragments.flatMap(\.packets), next: [],
+                                                       startFrame: 0)
+        let joined = try SurroundProbe.decode(packets: pieces.output.flatMap { $0 }, channels: 6)
+        let continuous = try SurroundProbe.decode(packets: whole, channels: 6)
+
+        var joins: Set<Int> = [], block = 0
+        for fragment in pieces.fragments.dropLast() {
+            block += fragment.packets.count
+            joins.formUnion(block - 2...block + 2)
+        }
+        #expect(joins.count >= 10)
+        let firstJoin = joins.min() ?? 0
+        func mean(_ values: [Float]) -> Float { values.reduce(0, +) / Float(max(values.count, 1)) }
+        for channel in 0..<6 {
+            let errors = SurroundProbe.packetErrors(joined[channel], continuous[channel])
+            // The same encode up to the first join: proves the two decodes are aligned and comparable.
+            #expect((errors.prefix(firstJoin).max() ?? 1) <= 1e-6)
+            let near = joins.filter(errors.indices.contains).map { errors[$0] }
+            let away = errors.indices.filter { $0 > firstJoin && !joins.contains($0) }.map { errors[$0] }
+            // A defect of 0.026 RMS in a single join block lifts that channel's join mean by ≈ 0.0017 (> 25 % on L/C/R).
+            #expect(mean(near) <= 1.25 * mean(away))
+            #expect((near.max() ?? 0) <= 0.04)
+        }
+    }
+
     @Test func outputLagsTheSourceByExactlyTheEncoderRemainder() async throws {
         let pieces = try await Self.transcodeBySegment(seconds: 4)
         let stereo = try SurroundProbe.decode(packets: pieces.fragments.flatMap(\.packets), channels: 2)
