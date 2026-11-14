@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import OroroCore
 @testable import OroroFeatures
 import OroroTestSupport
@@ -107,6 +108,44 @@ import Testing
         await harness.session.retry()
         #expect(harness.session.phase == .playing)
         #expect(harness.engine.loads.count == 1)
+    }
+
+    @Test func unauthorizedFetchFailsAsUnauthorizedAndReports() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.appSession.start()
+        #expect(harness.appSession.state == .ready)
+        await harness.details.configure { $0.error = .unauthorized }
+        await harness.session.start()
+        #expect(harness.session.phase == .failed(.unauthorized))
+        #expect(harness.engine.loads.isEmpty)
+        #expect(harness.appSession.needsReauth)
+    }
+
+    @Test func unauthorizedReloadFailsAsUnauthorizedAndReports() async {
+        let harness = Harness(.movie(1001))
+        await harness.appSession.start()
+        await harness.session.start()
+        #expect(harness.session.phase == .playing)
+        await harness.details.configure { $0.error = .unauthorized }
+        await harness.session.handle(.failed)
+        #expect(harness.session.phase == .failed(.unauthorized))
+        #expect(harness.appSession.needsReauth)
+    }
+
+    /// `PlayerScreen` mirrors `current` into `launcher.lastPlayed` as it changes, so a system dismissal
+    /// (Menu / swipe) never reads a stale value.
+    @Test func currentChangeIsObservableBeforeDismissal() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        await harness.session.start()
+        let changed = Mutex(false)
+        withObservationTracking {
+            _ = harness.session.current
+        } onChange: {
+            changed.withLock { $0 = true }
+        }
+        #expect(await harness.autoplay(to: Self.s1e2))
+        #expect(changed.withLock { $0 })
+        #expect(harness.session.current == PlayableID(kind: .episode, id: Self.s1e2))
     }
 
     // MARK: - Progress
@@ -554,6 +593,7 @@ extension PlaybackSessionTests {
     let clock = TestClock()
     let now = NowBox(Samples.now)
     let session: PlaybackSession
+    let appSession: AppSession
     /// Present when built with `gated: true`; wraps `details` and can park `episodePlayback`.
     let gate: GatedDetails?
 
@@ -564,8 +604,9 @@ extension PlaybackSessionTests {
                                          details: gate ?? details, credentials: InMemoryCredentialStore(Samples.credentials),
                                          newEpisodes: FakeNewEpisodes())
         let now = now
+        appSession = AppSession(environment: environment)
         session = PlaybackSession(request: PlayRequest(target: target, startOver: startOver), environment: environment,
-                                  session: AppSession(environment: environment), engine: engine, clock: clock,
+                                  session: appSession, engine: engine, clock: clock,
                                   now: { now.value })
     }
 

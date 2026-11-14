@@ -13,7 +13,8 @@ import OroroCore
              stillWatching, failed(Failure), finished
     }
 
-    public enum Failure: Equatable { case fetch, notPlayable, stream }
+    /// `.unauthorized`: the credentials were rejected; the player closes so the app can ask to sign in again.
+    public enum Failure: Equatable { case fetch, notPlayable, stream, unauthorized }
 
     public private(set) var phase: Phase = .preparing
     public private(set) var current: PlayableID?
@@ -140,7 +141,7 @@ import OroroCore
     public func retry() async {
         guard !dismissed, case .failed(let failure) = phase else { return }
         switch failure {
-        case .fetch, .notPlayable:
+        case .fetch, .notPlayable, .unauthorized:
             if let nextLoad {
                 // A failed next-episode load: retry that episode, not the original request.
                 await play(nextLoad)
@@ -227,7 +228,7 @@ extension PlaybackSession {
             autoRecoveryUsed = false
         }
         guard !finishedCurrent else { return }
-        if Self.shouldMarkWatched(position: self.position, duration: self.duration) {
+        if Library.shouldMarkWatched(position: self.position, duration: self.duration) {
             await finishCurrent()
         } else if sinceProgressWrite() >= Self.progressTick {
             await recordProgressNow()
@@ -424,8 +425,7 @@ extension PlaybackSession {
             fetched = try await requestPlayback(for: target).playback
         } catch {
             guard !dismissed else { return }
-            session.report(error)
-            phase = .failed(.stream)
+            fail(.stream, error: error)
             return
         }
         guard !dismissed else { return }
@@ -438,9 +438,11 @@ extension PlaybackSession {
         if automatic, !dismissed, phase == .playing, autoRecoveryUsed { sinceRecovery = clock.stopwatch() }
     }
 
+    /// Reports `error`; a 401 always becomes `.unauthorized` (Retry would only repeat it).
     private func fail(_ failure: Failure, error: any Error) {
         session.report(error)
-        phase = .failed(failure)
+        let unauthorized = (error as? APIError) == .unauthorized
+        phase = .failed(unauthorized ? .unauthorized : failure)
     }
 }
 
@@ -471,13 +473,6 @@ extension PlaybackSession {
 
     private func restartProgressStopwatch() {
         sinceProgressWrite = clock.stopwatch()
-    }
-
-    /// Same rule as `Library.shouldMarkWatched` (finite position, finite duration > 0, fraction >= 0.95)
-    /// without building a `Library` per tick.
-    private static func shouldMarkWatched(position: TimeInterval, duration: TimeInterval) -> Bool {
-        guard position.isFinite, duration.isFinite, duration > 0 else { return false }
-        return min(max(position, 0) / duration, 1) >= Library.watchedThreshold
     }
 
     private static func ref(_ episode: Episode) -> EpisodeRef {

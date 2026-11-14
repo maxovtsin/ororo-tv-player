@@ -189,6 +189,17 @@ import Testing
         #expect(lib.resumePosition(movie) == 5699)
     }
 
+    @Test func staticWatchedRuleMatchesInstanceRule() {
+        let lib = Library()
+        let cases: [(TimeInterval, TimeInterval)] = [(95, 100), (94.9, 100), (120, 100), (.nan, 100), (50, -10),
+                                                     (50, .infinity), (500, 0), (500, .nan), (-5, 100)]
+        for (position, duration) in cases {
+            #expect(Library.shouldMarkWatched(position: position, duration: duration)
+                == lib.shouldMarkWatched(position: position, duration: duration))
+        }
+        #expect(Library.shouldMarkWatched(position: 95, duration: 100))
+    }
+
     @Test func shouldMarkWatchedAtThreshold() {
         let lib = Library()
         #expect(lib.shouldMarkWatched(position: 95, duration: 100))

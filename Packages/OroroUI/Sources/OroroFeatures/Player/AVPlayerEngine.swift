@@ -5,7 +5,10 @@ import OroroCore
 /// `PlayerEngine` over `AVPlayer`. Maps AVFoundation state to `PlayerEvent`s for `PlaybackSession`.
 /// Never logs or stores the stream URL.
 @MainActor final class AVPlayerEngine: PlayerEngine {
-    enum Failure: Error { case itemFailed }
+    enum Failure: Error { case itemFailed, readyTimedOut }
+
+    /// An item that never becomes ready fails like a long stall (the session recovers once, then shows the error).
+    static let readyTimeout: Duration = .seconds(30)
 
     let player = AVPlayer()
     let subtitles: any SubtitleProvider
@@ -227,14 +230,33 @@ import OroroCore
         return seconds.isFinite ? max(seconds, 0) : 0
     }
 
-    private static func waitUntilReady(_ item: AVPlayerItem) async throws {
-        for await status in item.publisher(for: \.status).values {
-            switch status {
-            case .readyToPlay: return
-            case .failed: throw Failure.itemFailed
-            default: continue
+    /// Waits for `.readyToPlay`; throws `Failure.readyTimedOut` after `timeout`, `CancellationError` when cancelled.
+    private static func waitUntilReady(_ item: AVPlayerItem, timeout: Duration = readyTimeout) async throws {
+        let wait = Task { @MainActor in
+            for await status in item.publisher(for: \.status).values {
+                switch status {
+                case .readyToPlay: return
+                case .failed: throw Failure.itemFailed
+                default: continue
+                }
             }
+            throw CancellationError()
         }
-        throw CancellationError()
+        let timer = Task {
+            try await Task.sleep(for: timeout)
+            wait.cancel()
+        }
+        defer { timer.cancel() }
+        do {
+            try await withTaskCancellationHandler {
+                try await wait.value
+            } onCancel: {
+                wait.cancel()
+            }
+        } catch is CancellationError {
+            // The wait was cancelled either by the caller or by the timer.
+            if Task.isCancelled { throw CancellationError() }
+            throw Failure.readyTimedOut
+        }
     }
 }

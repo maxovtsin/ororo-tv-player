@@ -180,6 +180,14 @@ import Testing
         #expect(harness.session.state == .ready)
     }
 
+    /// The sign-in sheet waits for the player cover to go away (it can't present over it).
+    @Test func reauthSheetWaitsForThePlayerToClose() {
+        #expect(ReauthGate.presents(needsReauth: true, playerActive: false))
+        #expect(!ReauthGate.presents(needsReauth: true, playerActive: true))
+        #expect(!ReauthGate.presents(needsReauth: false, playerActive: false))
+        #expect(!ReauthGate.presents(needsReauth: false, playerActive: true))
+    }
+
     // MARK: - refresh
 
     @Test func refreshBumpsCatalogVersionOnlyWhenChanged() async {

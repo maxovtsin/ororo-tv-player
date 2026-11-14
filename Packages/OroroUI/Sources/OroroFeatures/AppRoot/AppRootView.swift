@@ -30,6 +30,8 @@ private struct AppRootContent: View {
     @State private var session: AppSession
     @State private var launcher = PlaybackLauncher()
     @State private var tabs = TabsModel()
+    /// Drives the sign-in sheet; see `ReauthGate`.
+    @State private var presentsReauth = false
     @Environment(\.scenePhase) private var scenePhase
 
     init(environment: AppEnvironment) {
@@ -63,7 +65,7 @@ private struct AppRootContent: View {
         .environment(session)
         .environment(launcher)
         .environment(\.appEnvironment, environment)
-        .fullScreenCover(item: $launcher.active) { request in
+        .fullScreenCover(item: $launcher.active, onDismiss: updateReauth) { request in
             PlayerScreen(request: request)
                 .environment(session)
                 .environment(launcher)
@@ -71,11 +73,12 @@ private struct AppRootContent: View {
                 .environment(\.appEnvironment, environment)
                 .environment(\.selectTab, SelectTabAction { [tabs] tab in tabs.selected = tab })
         }
-        .sheet(isPresented: $session.needsReauth) {
+        .sheet(isPresented: $presentsReauth, onDismiss: { session.needsReauth = false }) {
             ReauthSheet(email: session.storedEmail)
                 .environment(session)
                 .environment(\.appEnvironment, environment)
         }
+        .onChange(of: session.needsReauth, initial: true) { updateReauth() }
         .task {
             if session.state == .launching { await session.start() }
         }
@@ -93,6 +96,20 @@ private struct AppRootContent: View {
                 break
             }
         }
+    }
+}
+
+extension AppRootContent {
+    private func updateReauth() {
+        presentsReauth = ReauthGate.presents(needsReauth: session.needsReauth, playerActive: launcher.active != nil)
+    }
+}
+
+/// The sign-in sheet can't present over the player cover, so it waits until the player is gone
+/// (re-evaluated when `needsReauth` changes and after the cover finishes dismissing).
+enum ReauthGate {
+    static func presents(needsReauth: Bool, playerActive: Bool) -> Bool {
+        needsReauth && !playerActive
     }
 }
 

@@ -35,6 +35,11 @@ public struct PlayerScreen: View {
                 overlays(for: model.session)
                     .motion(Motion.quick, value: model.session.phase)
             }
+            loadingIndicator
+                .motion(Motion.quick, value: isLoading)
+            #if os(iOS)
+            closeButton
+            #endif
         }
         .motion(Motion.quick, value: showsVideo)
         #if os(iOS)
@@ -46,8 +51,14 @@ public struct PlayerScreen: View {
             switch phase {
             case .playing: showsVideo = true
             case .finished: Task { await close(dismiss: true) }
+            // Close first: the root's sign-in sheet can only present once the player cover is gone.
+            case .failed(.unauthorized): Task { await close(dismiss: true) }
             default: break
             }
+        }
+        .onChange(of: model?.session.current) { _, current in
+            // Kept current before any dismissal: Menu / swipe clear `launcher.active` before `close` runs.
+            if let current { launcher.lastPlayed = current }
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, let session = model?.session else { return }
@@ -101,6 +112,45 @@ public struct PlayerScreen: View {
     }
 
     // MARK: - Overlays
+
+    /// Preparing the first item, the next one, or reloading after a failure.
+    private var isLoading: Bool {
+        model?.session.phase == .preparing
+    }
+
+    @ViewBuilder private var loadingIndicator: some View {
+        if isLoading {
+            ProgressView()
+                .controlSize(.large)
+                .tint(.white)
+                .accessibilityLabel(Text(String(localized: "player.loading", defaultValue: "Loading", bundle: .module)))
+                .transition(.opacity)
+        }
+    }
+
+    #if os(iOS)
+    /// AVPlayerViewController shown inline has no Done button on iOS.
+    private var closeButton: some View {
+        VStack {
+            HStack {
+                Button {
+                    Task { await close(dismiss: true) }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(.black.opacity(0.5), in: Circle())
+                }
+                .accessibilityLabel(Text(String(localized: "player.close", defaultValue: "Close", bundle: .module)))
+                Spacer()
+            }
+            Spacer()
+        }
+        .padding(.top, 8)
+        .padding(.horizontal, 16)
+    }
+    #endif
 
     @ViewBuilder
     private func overlays(for session: PlaybackSession) -> some View {
@@ -180,7 +230,7 @@ public struct PlayerScreen: View {
         switch failure {
         case .notPlayable:
             Text(String(localized: "player.failure.notPlayable.title", defaultValue: "Can't play this title.", bundle: .module))
-        case .fetch:
+        case .fetch, .unauthorized:
             Text(String(localized: "player.failure.fetch.title", defaultValue: "Couldn't load this title.", bundle: .module))
         case .stream, nil:
             Text(String(localized: "player.failure.stream.title", defaultValue: "Playback stopped.", bundle: .module))
@@ -191,7 +241,7 @@ public struct PlayerScreen: View {
         switch failure {
         case .notPlayable:
             String(localized: "player.failure.notPlayable.message", defaultValue: "Check your ororo.tv subscription.", bundle: .module)
-        case .fetch:
+        case .fetch, .unauthorized:
             String(localized: "player.failure.fetch.message", defaultValue: "Check your connection and try again.", bundle: .module)
         case .stream, nil:
             String(localized: "player.failure.stream.message",
@@ -232,8 +282,9 @@ private extension PlaybackSession.Phase {
         self == .stillWatching
     }
 
+    /// `.unauthorized` closes the player instead of showing an alert.
     var isFailed: Bool {
-        if case .failed = self { true } else { false }
+        if case .failed(let failure) = self { failure != .unauthorized } else { false }
     }
 }
 

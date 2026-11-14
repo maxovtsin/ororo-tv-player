@@ -2283,6 +2283,23 @@
         }
       }
     },
+    "player.close" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
     "player.countdown.cancel" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {
@@ -2553,6 +2570,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Воспроизведение остановлено."
+          }
+        }
+      }
+    },
+    "player.loading" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка"
           }
         }
       }

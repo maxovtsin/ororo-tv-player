@@ -141,8 +141,14 @@ public extension Library {
     }
 
     func shouldMarkWatched(position: TimeInterval, duration: TimeInterval) -> Bool {
-        guard position.isFinite, let fraction = Self.fraction(position: position, duration: duration) else { return false }
-        return fraction >= Self.watchedThreshold
+        Self.shouldMarkWatched(position: position, duration: duration)
+    }
+
+    /// The watched rule (finite position, finite duration > 0, fraction >= 0.95); the one source of truth,
+    /// also used by the player each tick without building a `Library`.
+    static func shouldMarkWatched(position: TimeInterval, duration: TimeInterval) -> Bool {
+        guard position.isFinite, let fraction = fraction(position: position, duration: duration) else { return false }
+        return fraction >= watchedThreshold
     }
 }
 
