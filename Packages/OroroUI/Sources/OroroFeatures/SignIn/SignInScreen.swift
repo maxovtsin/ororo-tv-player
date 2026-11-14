@@ -15,32 +15,34 @@ public struct SignInScreen: View {
 }
 
 private struct SignInForm: View {
-    @Environment(AppSession.self) private var session
-    @State private var model: SignInViewModel?
-    let prefilledEmail: String?
+    private enum Field { case email, password }
 
-    var body: some View {
-        Group {
-            if let model {
-                content(model)
-            } else {
-                Color.clear
-            }
-        }
-        .task {
-            if model == nil {
-                let session = session
-                model = SignInViewModel(email: prefilledEmail ?? "") { email, password in
-                    try await session.signIn(email: email, password: password)
-                }
-            }
-        }
+    @Environment(AppSession.self) private var session
+    @State private var model: SignInViewModel
+    @FocusState private var focus: Field?
+    private let prefilled: Bool
+
+    init(prefilledEmail: String?) {
+        // Placeholder closure; replaced in `onAppear` once the environment's session is readable.
+        _model = State(initialValue: SignInViewModel(email: prefilledEmail ?? "") { _, _ in })
+        prefilled = !(prefilledEmail ?? "").isEmpty
     }
 
-    private func content(_ model: SignInViewModel) -> some View {
+    var body: some View {
+        content
+            .onAppear {
+                model.rebind { [session] email, password in
+                    try await session.signIn(email: email, password: password)
+                }
+                focus = prefilled ? .password : .email
+            }
+    }
+
+    private var content: some View {
         @Bindable var model = model
         return VStack(spacing: Spacing.m) {
-            Text("Sign in", bundle: .module).font(Typography.heroTitle)
+            Text(String(localized: "signin.title", defaultValue: "Sign in", bundle: .module))
+                .font(Typography.heroTitle)
             TextField(String(localized: "signin.email", defaultValue: "Email", bundle: .module), text: $model.email)
                 .textContentType(.username)
                 #if os(iOS)
@@ -48,9 +50,12 @@ private struct SignInForm: View {
                 .textInputAutocapitalization(.never)
                 #endif
                 .autocorrectionDisabled()
+                .focused($focus, equals: .email)
             SecureField(String(localized: "signin.password", defaultValue: "Password", bundle: .module), text: $model.password)
                 .textContentType(.password)
+                .focused($focus, equals: .password)
             if let message = model.error {
+                // No error token in `Palette`; system red is kept deliberately.
                 Text(Self.text(for: message))
                     .font(Typography.body)
                     .foregroundStyle(.red)
@@ -66,6 +71,11 @@ private struct SignInForm: View {
         }
         .frame(maxWidth: 800)
         .padding(Spacing.screenEdge)
+        .onChange(of: model.error) { _, message in
+            guard let message else { return }
+            focus = .password
+            AccessibilityNotification.Announcement(Self.text(for: message)).post()
+        }
     }
 
     private static func text(for message: SignInViewModel.Message) -> String {
@@ -82,4 +92,5 @@ private struct SignInForm: View {
 
 #Preview {
     SignInScreen(prefilledEmail: "me@example.com")
+        .environment(AppSession(environment: .preview()))
 }

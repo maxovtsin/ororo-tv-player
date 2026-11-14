@@ -43,6 +43,28 @@ import Testing
         #expect(model.error == nil)
     }
 
+    @Test func successClearsPassword() async {
+        let model = make()
+        await model.submit()
+        #expect(model.password.isEmpty)
+    }
+
+    @Test func failureKeepsPasswordAndClearsErrorAtStart() async {
+        var fail = true
+        var errorDuringSecond: SignInViewModel.Message?
+        var ref: SignInViewModel?
+        let model = make { _, _ in
+            if fail { throw APIError.offline }
+            errorDuringSecond = ref?.error
+        }
+        ref = model
+        await model.submit()
+        #expect(model.password == "pw")
+        fail = false
+        await model.submit()
+        #expect(errorDuringSecond == nil)
+    }
+
     @Test func mapsUnauthorized() async {
         let model = make { _, _ in throw APIError.unauthorized }
         await model.submit()

@@ -11,12 +11,14 @@ public final class SignInViewModel {
     public private(set) var isWorking = false
     public private(set) var error: Message?
 
-    private let signIn: (String, String) async throws -> Void
+    @ObservationIgnored private var signIn: (String, String) async throws -> Void
 
     public init(email: String = "", signIn: @escaping (String, String) async throws -> Void) {
         self.email = email
         self.signIn = signIn
     }
+
+    func rebind(_ signIn: @escaping (String, String) async throws -> Void) { self.signIn = signIn }
 
     public var canSubmit: Bool {
         let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -26,10 +28,11 @@ public final class SignInViewModel {
     public func submit() async {
         guard canSubmit, !isWorking else { return }
         isWorking = true
+        error = nil
         defer { isWorking = false }
         do {
             try await signIn(email.trimmingCharacters(in: .whitespacesAndNewlines), password)
-            error = nil
+            password = ""
         } catch is CancellationError {
             // Benign overlap; stay idle, show nothing.
         } catch let apiError as APIError {
