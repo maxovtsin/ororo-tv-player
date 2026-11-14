@@ -485,6 +485,16 @@ extension PlaybackSessionTests {
         #expect(harness.engine.loads.isEmpty)
     }
 
+    @Test func aSurroundFailureYieldedAsTheLoadReturnsIsHandled() async {
+        let harness = Harness(.movie(1001))
+        harness.engine.eventsAtLoadEnd = [[.surroundFailed]]
+        await harness.session.start()
+        #expect(await eventually { harness.engine.loads.count == 2 })
+        await settle()
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.disableSurroundCount == 0)
+    }
+
     @Test func oneSurroundFailureFromTheEngineReloadsOnceAndKeepsRecovery() async {
         let harness = Harness(.movie(1001))
         await harness.session.start()
@@ -733,12 +743,16 @@ extension PlaybackSessionTests {
 
     /// Consumed one per `load`; a non-nil entry makes that load throw (after recording it).
     var loadErrors: [(any Error)?] = []
+    /// Consumed one per `load`: events yielded just before that load returns (as the real engine's end-of-load
+    /// `.surroundFailed`).
+    var eventsAtLoadEnd: [[PlayerEvent]] = []
 
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         loads.append(Load(playback: playback, startAt: startAt, subtitleLanguage: subtitleLanguage,
                           disableSurroundCountAtLoad: disableSurroundCount))
         if !loadErrors.isEmpty, let error = loadErrors.removeFirst() { throw error }
         position = startAt
+        if !eventsAtLoadEnd.isEmpty { eventsAtLoadEnd.removeFirst().forEach(send) }
     }
 
     func disableSurround() { disableSurroundCount += 1 }

@@ -20,6 +20,7 @@ import os
     let surround: SurroundPolicy
     private let outputChannels: @MainActor () -> Int
     private let readyTimeout: Duration
+    private let audioOptions: AudioOptionLoader
     let events: AsyncStream<PlayerEvent>
 
     private let continuation: AsyncStream<PlayerEvent>.Continuation
@@ -64,11 +65,13 @@ import os
     init(subtitles: any SubtitleProvider = HLSInjectedSubtitles(),
          surround: SurroundPolicy = .disabled,
          outputChannels: @escaping @MainActor () -> Int = AudioOutput.channelCount,
-         readyTimeout: Duration = AVPlayerEngine.readyTimeout) {
+         readyTimeout: Duration = AVPlayerEngine.readyTimeout,
+         audioOptions: @escaping AudioOptionLoader = { await AVPlayerEngine.loadAudioOptions(of: $0) }) {
         self.subtitles = subtitles
         self.surround = surround
         self.outputChannels = outputChannels
         self.readyTimeout = readyTimeout
+        self.audioOptions = audioOptions
         (events, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
         player.appliesMediaSelectionCriteriaAutomatically = false
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
@@ -96,7 +99,12 @@ import os
         loadInFlight = generation
         failedDuringLoad = false
         defer { if loadInFlight == generation { loadInFlight = nil } }
-        let source = await startSurround(generation: generation)
+        let channels = outputChannels()
+        AudioOutput.lastObservedChannelCount = channels
+        let source = await startSurround(channels: channels, generation: generation)
+        var surroundInUse = false
+        // One line per load (never the stream URL): whether generated 5.1 actually reached the player.
+        defer { Self.logLoad(channels: channels, surround: surroundInUse) }
         // `stop()` or a newer load ran while surround started: installing an item now would revive a stopped player
         // or replace the newer load's item.
         guard isCurrent(generation) else { throw CancellationError() }
@@ -106,6 +114,12 @@ import os
         do {
             try await Self.waitUntilReady(item, timeout: readyTimeout)
             if source != nil, failedDuringLoad { throw SurroundFailedWhileLoading() }
+            // The pre-flight declined: the item plays the original audio, so this is a plain stereo load.
+            if let source, !(await source.accepted), isCurrent(generation), surroundSource != nil {
+                surroundSource?.stop()
+                surroundSource = nil
+            }
+            surroundInUse = surroundSource != nil
         } catch {
             // A surround item that failed, timed out or lost its source: once, the same load with original audio.
             guard source != nil, !(error is CancellationError), isCurrent(generation) else { throw error }
@@ -118,13 +132,19 @@ import os
         }
         legibleGroup = try? await asset.loadMediaSelectionGroup(for: .legible)
         selectSubtitle(subtitleLanguage, in: item)
+        #if os(tvOS)
+        // iOS keeps the original audio (the default option).
         await selectMultichannelAudio(of: asset, in: item, generation: generation)
+        #endif
         guard isCurrent(generation) else { throw CancellationError() }
         if startAt > 0 { await seek(to: startAt) }
         observe(item)
         loadInFlight = nil
         // The source gave up after the item became ready: the session reloads, now with original audio.
         if failedDuringLoad, surroundSource != nil, isCurrent(generation) { abandonSurroundItem() }
+        surroundInUse = surroundSource != nil
+        // The item failed after it became ready but before it was observed: KVO has no change left to report.
+        if item.status == .failed, let observation = observedItem { received(.failed, from: observation) }
     }
 
     func play() {
@@ -416,10 +436,7 @@ extension AVPlayerEngine {
 
     /// Decides whether load `generation` plays simulated 5.1 and starts its source; `nil` means original audio.
     /// Order: a failed or disabled surround, output channels, then the preference, then the source start.
-    /// Logs one line (never the stream URL).
-    private func startSurround(generation: Int) async -> (any SurroundSource)? {
-        let channels = outputChannels()
-        AudioOutput.lastObservedChannelCount = channels
+    private func startSurround(channels: Int, generation: Int) async -> (any SurroundSource)? {
         var source: (any SurroundSource)?
         if !Self.surroundDisabledUntilRelaunch, !surroundDisabled, AudioOutput.supportsSurround(channels: channels),
            await surround.isEnabled(), generation == loadGeneration {
@@ -438,30 +455,57 @@ extension AVPlayerEngine {
                 }
             }
         }
-        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
-        Self.log.notice(
-            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
-        )
         return source
+    }
+
+    /// `surround`: generated 5.1 is what the player was given (started, accepted by the pre-flight, not failed).
+    private static func logLoad(channels: Int, surround: Bool) {
+        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
+        log.notice(
+            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(surround, privacy: .public)"
+        )
     }
 }
 
 // MARK: - Multichannel audio option
 
 extension AVPlayerEngine {
-    /// On a surround output, selects the title's own audio option with the most channels (more than 2), preferring the
-    /// current option's language; changes nothing when no option is known to be multichannel. Runs before `observe(_:)`,
-    /// so the selection emits no `.subtitleChanged` or `.userInput`. Logs one line (never a URL).
+    /// The audible group and each of its options' channel count (`nil` when unknown), or `nil` without a group.
+    typealias AudioOptionLoader = @MainActor (AVURLAsset) async -> (group: AVMediaSelectionGroup, channels: [Int?])?
+
+    /// The most `selectMultichannelAudio` may add to a load; past it the selection is left alone.
+    static let audioSelectionTimeout: Duration = .seconds(3)
+
+    static func loadAudioOptions(of asset: AVURLAsset) async -> (group: AVMediaSelectionGroup, channels: [Int?])? {
+        guard let group = try? await asset.loadMediaSelectionGroup(for: .audible) else { return nil }
+        let variants = (try? await asset.load(.variants)) ?? []
+        let channels = group.options.map { option in
+            variants.compactMap { $0.audioAttributes?.renditionSpecificAttributes(for: option)?.channelCount }.max()
+        }
+        return (group, channels)
+    }
+
+    /// On a surround output, selects the title's own audio option with the most channels (more than 2) in the current
+    /// option's language (see `AudioOptionChoice`); changes nothing when no such option is known, or when the options
+    /// take longer than `audioSelectionTimeout` to load. Runs before `observe(_:)`, so the selection emits no
+    /// `.subtitleChanged` or `.userInput`. Logs one line (never a URL).
     private func selectMultichannelAudio(of asset: AVURLAsset, in item: AVPlayerItem, generation: Int) async {
         guard AudioOutput.supportsSurround(channels: outputChannels()) else { return }
-        let group = try? await asset.loadMediaSelectionGroup(for: .audible)
-        let variants = (try? await asset.load(.variants)) ?? []
-        guard isCurrent(generation), let group else { return }
+        let loadOptions = audioOptions
+        let inTime = await Self.withinDeadline(Self.audioSelectionTimeout) { isWanted in
+            let loaded = await loadOptions(asset)
+            guard isWanted() else { return }
+            self.selectMultichannelAudio(loaded, in: item, generation: generation)
+        }
+        if !inTime { Self.log.notice("Audio option: timed out") }
+    }
+
+    private func selectMultichannelAudio(_ loaded: (group: AVMediaSelectionGroup, channels: [Int?])?, in item: AVPlayerItem,
+                                         generation: Int) {
+        guard isCurrent(generation), let loaded, loaded.channels.count == loaded.group.options.count else { return }
+        let group = loaded.group
         let candidates = group.options.enumerated().map { index, option in
-            AudioOptionChoice.Candidate(
-                index: index, language: Self.language(of: option),
-                channels: variants.compactMap { $0.audioAttributes?.renditionSpecificAttributes(for: option)?.channelCount }.max()
-            )
+            AudioOptionChoice.Candidate(index: index, language: Self.language(of: option), channels: loaded.channels[index])
         }
         let selected = item.currentMediaSelection.selectedMediaOption(in: group)
         let current = selected.flatMap(group.options.firstIndex(of:)).map { candidates[$0] }
@@ -474,6 +518,44 @@ extension AVPlayerEngine {
             "Audio option: \(best.channels ?? 0, privacy: .public) channels, language \(language, privacy: .public)"
         )
         if best != current { item.select(group.options[best.index], in: group) }
+    }
+
+    /// Runs `work`, waiting for it at most `limit`; returns whether it finished in time. Past the limit `work` is
+    /// cancelled and its `isWanted` check turns false, so it must change nothing after that check fails.
+    private static func withinDeadline(
+        _ limit: Duration, _ work: @escaping @MainActor (_ isWanted: @MainActor () -> Bool) async -> Void
+    ) async -> Bool {
+        let deadline = Deadline()
+        return await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+            deadline.continuation = continuation
+            let worker = Task { @MainActor in
+                await work { !deadline.isFinished }
+                deadline.finish(inTime: true)
+            }
+            let timer = Task { @MainActor in
+                try? await Task.sleep(for: limit)
+                guard !Task.isCancelled else { return }
+                worker.cancel()
+                deadline.finish(inTime: false)
+            }
+            deadline.timer = timer
+        }
+    }
+}
+
+/// One `withinDeadline` race: resumes its continuation exactly once.
+@MainActor private final class Deadline {
+    var continuation: CheckedContinuation<Bool, Never>?
+    var timer: Task<Void, Never>?
+    private(set) var isFinished = false
+
+    func finish(inTime: Bool) {
+        guard !isFinished else { return }
+        isFinished = true
+        timer?.cancel()
+        timer = nil
+        continuation?.resume(returning: inTime)
+        continuation = nil
     }
 }
 
