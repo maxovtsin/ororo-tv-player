@@ -1,4 +1,5 @@
 import AVFoundation
+import OroroCore
 
 /// What the current audio route can play.
 public enum AudioOutput {
@@ -18,6 +19,19 @@ public enum AudioOutput {
     @MainActor public static var lastObservedChannelCount: Int?
 }
 
+/// Debug-only test signal that replaces the upmix. Always off in release builds.
+enum SurroundDebug {
+    static let defaultsKey = "debug.surroundSignal"
+
+    static func signal(in defaults: UserDefaults = .standard) -> SurroundDebugSignal? {
+        #if DEBUG
+        defaults.string(forKey: defaultsKey).flatMap(SurroundDebugSignal.init(rawValue:))
+        #else
+        nil
+        #endif
+    }
+}
+
 /// Whether, and with which source, the player plays simulated 5.1 for a title.
 struct SurroundPolicy: Sendable {
     /// The user's preference.
@@ -31,7 +45,11 @@ struct SurroundPolicy: Sendable {
     /// Generates 5.1 with `SurroundAudioSource` when `isEnabled` says so. tvOS only: elsewhere it is `.disabled`.
     static func live(isEnabled: @escaping @MainActor @Sendable () async -> Bool) -> SurroundPolicy {
         #if os(tvOS)
-        SurroundPolicy(isEnabled: isEnabled, makeSource: { onFailure in SurroundAudioSource(onFailure: onFailure) })
+        SurroundPolicy(isEnabled: isEnabled, makeSource: { onFailure in SurroundAudioSource(
+                transcode: SurroundAudioSource.liveTranscode(signal: SurroundDebug.signal()),
+                onFailure: onFailure
+            )
+        })
         #else
         .disabled
         #endif

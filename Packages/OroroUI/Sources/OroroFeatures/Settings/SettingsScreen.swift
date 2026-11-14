@@ -9,6 +9,9 @@ public struct SettingsScreen: View {
     @State private var model: SettingsViewModel?
     @State private var confirmErase = false
     @State private var confirmSignOut = false
+    #if DEBUG && os(tvOS)
+    @AppStorage(SurroundDebug.defaultsKey) private var surroundSignal = ""
+    #endif
 
     public init() {}
 
@@ -94,6 +97,19 @@ public struct SettingsScreen: View {
             Section {
                 LabeledContent(String(localized: "settings.version", defaultValue: "Version", bundle: .module), value: model.version)
             }
+            #if DEBUG && os(tvOS)
+            Section {
+                Picker(selection: $surroundSignal) {
+                    Text(verbatim: "Off").tag("")
+                    Text(verbatim: "Speaker test").tag(SurroundDebugSignal.speakerTest.rawValue)
+                    Text(verbatim: "Steady tone").tag(SurroundDebugSignal.steadyTone.rawValue)
+                } label: {
+                    Text(verbatim: "Surround test signal")
+                }
+            } header: {
+                Text(verbatim: "Debug")
+            }
+            #endif
         }
         .confirmationDialog(
             String(localized: "settings.eraseConfirmTitle", defaultValue: "Erase My List and watch history?", bundle: .module),
