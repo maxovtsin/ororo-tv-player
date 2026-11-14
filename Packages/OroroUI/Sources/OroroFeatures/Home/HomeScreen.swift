@@ -144,7 +144,7 @@ private struct HomeContentView: View {
         let updates = await environment.library.updates()
         await model.appear(catalog: session.catalog, newEpisodeInfo: session.newEpisodeInfo)
         for await library in updates {
-            model.libraryChanged(library)
+            model.libraryChanged(library, catalog: session.catalog, newEpisodeInfo: session.newEpisodeInfo)
         }
     }
 

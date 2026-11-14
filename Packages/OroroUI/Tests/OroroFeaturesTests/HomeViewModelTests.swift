@@ -110,6 +110,33 @@ import Testing
         #expect(harness.model.library == library)
     }
 
+    @Test func libraryChangeOverSnapshotSplicesPersonalRowsWhenCatalogAvailable() async throws {
+        let snapshot = HomeContent(
+            hero: [HeroItem(title: title(.movie, 1001), action: .playMovie)],
+            shelves: [Shelf(id: "popularShows", kind: .popularShows, items: [ShelfItem(title: title(.show, 101))], totalCount: 1)]
+        )
+        let harness = await makeHarness(snapshot: snapshot)
+        await harness.model.appear(catalog: nil, newEpisodeInfo: [:])
+        #expect(harness.model.content == snapshot)
+
+        var library = Library()
+        library.recordProgress(PlayableID(kind: .movie, id: 1001), show: nil, position: 1_500, duration: 6_000, now: Samples.now)
+        harness.model.libraryChanged(library, catalog: Samples.catalog, newEpisodeInfo: [:])
+
+        let shelves = harness.model.content?.shelves ?? []
+        let continueWatching = try #require(shelves.first)
+        #expect(continueWatching.id == "continueWatching")
+        #expect(continueWatching.items.map(\.title.id) == [TitleID(kind: .movie, id: 1001)])
+        #expect(catalogShelves(harness.model.content) == snapshot.shelves)
+        #expect(harness.model.content?.hero.map(\.title) == snapshot.hero.map(\.title))
+
+        // Without a catalog only the hero actions can follow.
+        let bare = await makeHarness(snapshot: snapshot)
+        await bare.model.appear(catalog: nil, newEpisodeInfo: [:])
+        bare.model.libraryChanged(library)
+        #expect(bare.model.content?.shelves == snapshot.shelves)
+    }
+
     @Test func newCatalogAppliedOnlyOnNextAppear() async {
         let harness = await makeHarness()
         let first = Samples.catalog

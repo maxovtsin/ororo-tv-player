@@ -75,16 +75,19 @@ import OroroCore
     }
 
     /// Updates personal rows + hero actions only; catalog rows keep their order.
-    func libraryChanged(_ library: Library) {
+    /// Over a snapshot the personal rows follow too when the session already has a `catalog` (they change after
+    /// the user's own action, so that is not reshuffling under focus); without one only the hero actions do.
+    func libraryChanged(_ library: Library, catalog: Catalog? = nil, newEpisodeInfo: [Int: NewEpisodeInfo] = [:]) {
         self.library = library
         guard content != nil else { return }
-        guard let built else {
+        let source = built ?? catalog.map { ($0, newEpisodeInfo) }
+        guard let source else {
             refreshHeroActions()
             return
         }
         var updated = content ?? HomeContent(hero: [], shelves: [])
         updated.hero = heroItems(updated.hero.map(\.title))
-        updated.shelves = splicePersonalShelves(into: updated.shelves, catalog: built.catalog, newEpisodeInfo: built.newEpisodeInfo)
+        updated.shelves = splicePersonalShelves(into: updated.shelves, catalog: source.0, newEpisodeInfo: source.1)
         if updated != content { content = updated }
     }
 
