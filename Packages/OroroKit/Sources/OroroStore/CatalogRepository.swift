@@ -2,7 +2,11 @@ import Foundation
 import OroroAPI
 import OroroCore
 
-// STUB (T3) — implemented by Task ST3. `staleness` and `cachesDirectory()` are final.
+/// The full show and movie lists, cached on disk as the raw API bytes.
+///
+/// Files in `directory`: `shows.json`, `movies.json` (raw list responses, which carry no playback URLs),
+/// `meta.json` (`fetchedAt` and the lists' etags) and `home-snapshot.json`. Every write goes to a temp file
+/// first and then replaces the destination, so a crash never leaves a half-written cache.
 public actor CatalogRepository: CatalogProviding {
     public static let staleness: TimeInterval = 6 * 3600
 
@@ -12,6 +16,9 @@ public actor CatalogRepository: CatalogProviding {
     private let decodeShows: @Sendable (Data) throws -> [Title]
     private let decodeMovies: @Sendable (Data) throws -> [Title]
     private let useETag: Bool
+
+    private var catalog: Catalog?
+    private var meta: Meta?
 
     public init(api: any OroroAPI, credentials: any CredentialStoring, directory: URL,
                 decodeShows: @escaping @Sendable (Data) throws -> [Title] = Decoders.shows,
@@ -31,30 +38,162 @@ public actor CatalogRepository: CatalogProviding {
     }
 
     public func current() async -> Catalog? {
-        nil
+        catalog
     }
 
     public func lastUpdated() async -> Date? {
-        nil
+        catalog?.fetchedAt
     }
 
     public func signIn(_ c: Credentials, progress: (@Sendable (Double) -> Void)?) async throws -> Catalog {
-        throw APIError.decoding
+        // Shows first: a 401 here means bad credentials, and nothing has been stored yet.
+        let shows = try await api.shows(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0))
+        let movies = try await api.movies(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0.5))
+        guard case .fresh(let showList) = shows, case .fresh(let movieList) = movies else { throw APIError.decoding }
+
+        let newMeta = Meta(fetchedAt: Date(), showsETag: showList.etag, moviesETag: movieList.etag)
+        try write([Files.shows: showList.rawData, Files.movies: movieList.rawData, Files.meta: try Self.encode(newMeta)])
+        try credentials.save(c)
+
+        let newCatalog = Catalog(shows: showList.titles, movies: movieList.titles, fetchedAt: newMeta.fetchedAt)
+        catalog = newCatalog
+        meta = newMeta
+        return newCatalog
     }
 
     public func loadCached() async -> Catalog? {
-        nil
+        guard let loaded = await Self.readCache(in: directory, decodeShows: decodeShows, decodeMovies: decodeMovies) else {
+            return nil
+        }
+        catalog = loaded.catalog
+        meta = loaded.meta
+        return loaded.catalog
     }
 
     public func refresh(force: Bool, now: Date) async throws -> Bool {
-        false
+        if catalog == nil { _ = await loadCached() }
+        if !force, let fetchedAt = catalog?.fetchedAt, now.timeIntervalSince(fetchedAt) < Self.staleness {
+            return false
+        }
+        guard let c = credentials.load() else { throw APIError.unauthorized }
+
+        // Only offer an etag for a list we can actually keep on 304.
+        let old = catalog
+        let showsETag = useETag && old != nil ? meta?.showsETag : nil
+        let moviesETag = useETag && old != nil ? meta?.moviesETag : nil
+        let shows = try await api.shows(c, ifNoneMatch: showsETag, progress: nil)
+        let movies = try await api.movies(c, ifNoneMatch: moviesETag, progress: nil)
+
+        var files: [String: Data] = [:]
+        var newMeta = Meta(fetchedAt: now, showsETag: showsETag, moviesETag: moviesETag)
+        var newShows = old?.shows ?? []
+        var newMovies = old?.movies ?? []
+        switch shows {
+        case .notModified:
+            guard old != nil else { throw APIError.decoding }
+        case .fresh(let list):
+            files[Files.shows] = list.rawData
+            newMeta.showsETag = list.etag
+            newShows = list.titles
+        }
+        switch movies {
+        case .notModified:
+            guard old != nil else { throw APIError.decoding }
+        case .fresh(let list):
+            files[Files.movies] = list.rawData
+            newMeta.moviesETag = list.etag
+            newMovies = list.titles
+        }
+        let changed = !files.isEmpty
+        files[Files.meta] = try Self.encode(newMeta)
+        try write(files)
+
+        catalog = Catalog(shows: newShows, movies: newMovies, fetchedAt: now)
+        meta = newMeta
+        return changed
     }
 
     public func homeSnapshot() async -> HomeContent? {
-        nil
+        guard let data = try? Data(contentsOf: url(Files.homeSnapshot)) else { return nil }
+        return try? JSONDecoder().decode(HomeContent.self, from: data)
     }
 
-    public func saveHomeSnapshot(_ content: HomeContent) async {}
+    public func saveHomeSnapshot(_ content: HomeContent) async {
+        guard let data = try? Self.encode(content) else { return }
+        try? write([Files.homeSnapshot: data])
+    }
 
-    public func clear() async {}
+    public func clear() async {
+        try? FileManager.default.removeItem(at: directory)
+        catalog = nil
+        meta = nil
+    }
+
+    // MARK: - Files
+
+    private enum Files {
+        static let shows = "shows.json"
+        static let movies = "movies.json"
+        static let meta = "meta.json"
+        static let homeSnapshot = "home-snapshot.json"
+    }
+
+    private struct Meta: Codable {
+        var fetchedAt: Date
+        var showsETag: String?
+        var moviesETag: String?
+    }
+
+    /// Maps one download's 0...1 onto its half of the overall progress (the mean of the two downloads).
+    private static func half(of progress: (@Sendable (Double) -> Void)?, offset: Double) -> (@Sendable (Double) -> Void)? {
+        guard let progress else { return nil }
+        return { @Sendable value in progress(offset + value / 2) }
+    }
+
+    private func url(_ name: String) -> URL {
+        directory.appending(path: name)
+    }
+
+    private static func encode(_ value: some Encodable) throws -> Data {
+        try JSONEncoder().encode(value)
+    }
+
+    /// Stages every file as a temp file, then replaces the destinations. A failure while staging leaves the old
+    /// files untouched; each replacement is itself atomic.
+    private func write(_ files: [String: Data]) throws {
+        let fileManager = FileManager.default
+        try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        var staged: [(temp: URL, destination: URL)] = []
+        defer { for item in staged { try? fileManager.removeItem(at: item.temp) } }
+        for (name, data) in files.sorted(by: { $0.key < $1.key }) {
+            let temp = url(".\(name).\(UUID().uuidString).tmp")
+            staged.append((temp, url(name)))
+            try data.write(to: temp)
+        }
+        for item in staged {
+            if fileManager.fileExists(atPath: item.destination.path) {
+                _ = try fileManager.replaceItemAt(item.destination, withItemAt: item.temp)
+            } else {
+                try fileManager.moveItem(at: item.temp, to: item.destination)
+            }
+        }
+    }
+
+    /// Reads and decodes the cache off the repository's executor. Nil if either list is missing or undecodable.
+    @concurrent
+    private static func readCache(in directory: URL,
+                                  decodeShows: @Sendable (Data) throws -> [Title],
+                                  decodeMovies: @Sendable (Data) throws -> [Title]) async -> (catalog: Catalog, meta: Meta)? {
+        do {
+            let shows = try decodeShows(Data(contentsOf: directory.appending(path: Files.shows)))
+            let movies = try decodeMovies(Data(contentsOf: directory.appending(path: Files.movies)))
+            // Without meta the cache is treated as stale and refreshed in full.
+            let meta = (try? Data(contentsOf: directory.appending(path: Files.meta)))
+                .flatMap { try? JSONDecoder().decode(Meta.self, from: $0) }
+                ?? Meta(fetchedAt: .distantPast, showsETag: nil, moviesETag: nil)
+            return (Catalog(shows: shows, movies: movies, fetchedAt: meta.fetchedAt), meta)
+        } catch {
+            return nil
+        }
+    }
 }
