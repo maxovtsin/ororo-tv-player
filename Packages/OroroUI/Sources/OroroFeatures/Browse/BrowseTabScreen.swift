@@ -69,6 +69,7 @@ public struct BrowseTabScreen: View {
             restoreVerticalPosition()
         }
         .onChange(of: session.catalogVersion) { _, version in
+            // Needed because the catalog can arrive while the skeleton is showing and no appear follows.
             // Later versions rebuild on the next appearance, never under the user's focus;
             // only the skeleton is replaced as soon as the first catalog arrives.
             if model.shelves == nil { model.appear(catalog: session.catalog, version: version) }
@@ -78,6 +79,7 @@ public struct BrowseTabScreen: View {
         }
         .task {
             library = await environment.library.snapshot()
+            for await updated in await environment.library.updates() { library = updated }
         }
     }
 
@@ -145,8 +147,18 @@ public struct BrowseTabScreen: View {
             String(localized: "browse.shelf.recentlyUpdated", defaultValue: "Recently Updated", bundle: .module)
         case .genre(let name):
             name
-        default:
-            shelf.id
+        case .continueWatching:
+            String(localized: "browse.shelf.continueWatching", defaultValue: "Continue Watching", bundle: .module)
+        case .newEpisodes:
+            String(localized: "browse.shelf.newEpisodes", defaultValue: "New Episodes", bundle: .module)
+        case .popularShows:
+            String(localized: "browse.shelf.popularShows", defaultValue: "Popular Shows", bundle: .module)
+        case .topRatedMovies:
+            String(localized: "browse.shelf.topRatedMovies", defaultValue: "Top Rated Movies", bundle: .module)
+        case .recentlyUpdatedMovies:
+            String(localized: "browse.shelf.recentlyUpdatedMovies", defaultValue: "Recently Updated Movies", bundle: .module)
+        case .myList:
+            String(localized: "browse.shelf.myList", defaultValue: "My List", bundle: .module)
         }
     }
 }

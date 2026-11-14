@@ -74,4 +74,19 @@ import Testing
         model.select(item, in: shelf, router: router)
         #expect(router.zoomSourceID == "\(shelf.id)/\(item.id)")
     }
+
+    @Test func seeAllWithoutQueryIsNoOp() {
+        let shelf = Shelf(id: "x", kind: .myList, items: [], totalCount: 0, seeAll: nil)
+        let router = TabRouter()
+        BrowseTabViewModel(kind: .show).seeAll(shelf, router: router)
+        #expect(router.path.isEmpty)
+    }
+
+    @Test func appearWithNilCatalogKeepsExistingShelves() throws {
+        let model = BrowseTabViewModel(kind: .show)
+        model.appear(catalog: Samples.catalog, version: 1)
+        let first = try #require(model.shelves)
+        model.appear(catalog: nil, version: 2)
+        #expect(model.shelves == first)
+    }
 }
