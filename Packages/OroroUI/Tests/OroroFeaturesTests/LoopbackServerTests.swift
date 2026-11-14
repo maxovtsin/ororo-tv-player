@@ -1,0 +1,75 @@
+import Foundation
+@testable import OroroFeatures
+import Testing
+
+@Suite struct LoopbackServerTests {
+    static func get(_ url: URL) async throws -> (status: Int, body: Data) {
+        let (data, response) = try await URLSession(configuration: .ephemeral).data(from: url)
+        return ((response as? HTTPURLResponse)?.statusCode ?? 0, data)
+    }
+
+    private static let playlist = LoopbackResponse(
+        status: 200, contentType: "application/vnd.apple.mpegurl", body: Data("#EXTM3U".utf8)
+    )
+
+    @Test func servesTheHandlerResponseUnderTheTokenPrefix() async throws {
+        let server = LoopbackServer { $0 == "audio/0.m3u8" ? Self.playlist : .notFound }
+        let base = try await server.start()
+        defer { server.stop() }
+        #expect(base.host() == "127.0.0.1" && base.absoluteString.hasSuffix("/"))
+        let hit = try await Self.get(base.appending(path: "audio/0.m3u8"))
+        #expect(hit.status == 200 && hit.body == Data("#EXTM3U".utf8))
+        #expect(try await Self.get(base.appending(path: "nope")).status == 404)
+    }
+
+    @Test func rejectsRequestsWithoutTheToken() async throws {
+        let server = LoopbackServer { _ in Self.playlist }
+        let base = try await server.start()
+        defer { server.stop() }
+        let bare = try await Self.get(URL(string: "http://127.0.0.1:\(base.port!)/audio/0.m3u8")!)
+        #expect(bare.status == 404 && bare.body.isEmpty)
+    }
+
+    @Test func servesLargeBodiesAndConcurrentRequests() async throws {
+        let payload = Data((0..<600_000).map { UInt8(truncatingIfNeeded: $0) })
+        let server = LoopbackServer { _ in LoopbackResponse(status: 200, contentType: "audio/mp4", body: payload) }
+        let base = try await server.start()
+        defer { server.stop() }
+        try await withThrowingTaskGroup(of: Data.self) { group in
+            for index in 0..<8 { group.addTask { try await Self.get(base.appending(path: "audio/0/\(index).m4s")).body } }
+            for try await body in group { #expect(body == payload) }
+        }
+    }
+
+    @Test func cancelsTheHandlerWhenTheClientGoesAway() async throws {
+        let cancelled = AsyncStream<Void>.makeStream()
+        let started = AsyncStream<Void>.makeStream()
+        let server = LoopbackServer { _ in
+            started.continuation.yield()
+            do { try await Task.sleep(for: .seconds(30)) } catch { cancelled.continuation.yield() }
+            return .notFound
+        }
+        let base = try await server.start()
+        defer { server.stop() }
+        let request = Task { try await Self.get(base.appending(path: "audio/0/0.m4s")) }
+        var startedIterator = started.stream.makeAsyncIterator()
+        await startedIterator.next()
+        request.cancel()
+        var iterator = cancelled.stream.makeAsyncIterator()
+        await iterator.next() // the test times out if the handler is never cancelled
+    }
+
+    @Test func stopsListeningAndStaysStopped() async throws {
+        let server = LoopbackServer { _ in .notFound }
+        let base = try await server.start()
+        #expect(await server.ensureListening())
+        server.stop()
+        var refused = false
+        for _ in 0..<20 where !refused {
+            do { _ = try await Self.get(base.appending(path: "x")) } catch { refused = true }
+            if !refused { try await Task.sleep(for: .milliseconds(50)) }
+        }
+        #expect(refused)
+        #expect(await server.ensureListening() == false)
+    }
+}
