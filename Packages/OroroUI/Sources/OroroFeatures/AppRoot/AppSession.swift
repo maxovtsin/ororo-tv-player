@@ -272,7 +272,8 @@ import Synchronization
     private func resolveNewEpisodes() async {
         guard let catalog else { return }
         let library = await environment.library.snapshot()
-        let shows = LibraryQueries.showsWithNewEpisodes(library, catalog: catalog)
+        // Only the shows the New Episodes row shows (Continue Watching ones are excluded there).
+        let shows = LibraryQueries.newEpisodes(library, catalog: catalog, resolved: [:]).map(\.title)
         let resolved = await environment.newEpisodes.resolve(shows: shows, library: library)
         guard !Task.isCancelled, state == .ready else { return }
         newEpisodeInfo = resolved

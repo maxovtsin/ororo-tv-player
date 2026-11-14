@@ -158,4 +158,43 @@ import Testing
         #expect(await resolver.cached().isEmpty)
         #expect(await details.showCalls < 3)
     }
+
+    @Test func runsRotateAcrossMoreThanMaxShows() async {
+        let details = FakeDetails()
+        let resolver = NewEpisodeResolver(details: details, maxPerRun: 10)
+        let all = shows(1...25)
+        let lib = library(watched: all.map { id($0.id.id - 100, 1, 1) })
+        _ = await resolver.resolve(shows: all, library: lib)
+        _ = await resolver.resolve(shows: all, library: lib)
+        let third = await resolver.resolve(shows: all, library: lib)
+        let requested = await details.requestedShowIDs
+        #expect(requested.count == 30)
+        // Runs 1–2 fetch the uncached shows 1–20, run 3 the uncached 21–25 then the oldest-refreshed 1–5.
+        #expect(Array(requested.prefix(20)) == (1...20).map(sid))
+        #expect(Array(requested.suffix(10)) == ((21...25).map(sid) + (1...5).map(sid)))
+        #expect(Set(third.keys) == Set(all.map(\.id.id)))
+    }
+
+    @Test func uncachedShowsAreFetchedFirst() async {
+        let details = FakeDetails()
+        let resolver = NewEpisodeResolver(details: details, maxPerRun: 2)
+        let lib = library(watched: (1...4).map { id($0, 1, 1) })
+        _ = await resolver.resolve(shows: shows(1...2), library: lib)
+        // Shows 1 and 2 are cached and listed first; the new shows 3 and 4 still go first.
+        _ = await resolver.resolve(shows: shows(1...4), library: lib)
+        #expect(Array(await details.requestedShowIDs.suffix(2)) == [sid(3), sid(4)])
+    }
+
+    @Test func orderedRefsFollowEpisodeOrdering() async {
+        // Episodes listed out of order: the resolver's play order is EpisodeOrdering's.
+        let episodes = Samples.episodes(showID: sid(1), seasons: [1: 3, 2: 2]).reversed()
+        let show = ShowDetail(title: Samples.show(sid(1)), seasonCount: 2, episodes: Array(episodes))
+        let details = FakeDetails()
+        await details.configure { $0.showResults[sid(1)] = .success(show) }
+        let resolver = NewEpisodeResolver(details: details)
+        let result = await resolver.resolve(shows: shows(1...1), library: library(watched: [id(1, 1, 3)]))
+        let next = EpisodeOrdering.next(after: id(1, 1, 3), in: Array(episodes))
+        #expect(result[sid(1)]?.first.episodeID == next?.id)
+        #expect(result[sid(1)]?.count == 2)
+    }
 }
