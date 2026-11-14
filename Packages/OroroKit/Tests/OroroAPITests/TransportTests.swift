@@ -169,6 +169,12 @@ final class ProgressBox: @unchecked Sendable {
         #expect(box.values.isEmpty)
     }
 
+    @Test func defaultSessionNeverCaches() {
+        let configuration = Transport().sessionConfiguration
+        #expect(configuration.urlCache == nil)
+        #expect(configuration.requestCachePolicy == .reloadIgnoringLocalCacheData)
+    }
+
     @Test func endpointPaths() {
         #expect(Endpoint.shows.path == "/shows")
         #expect(Endpoint.movies.path == "/movies")

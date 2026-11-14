@@ -32,10 +32,21 @@ public struct Transport: Sendable {
     private let baseURL: URL
     private let session: URLSession
 
-    public init(baseURL: URL = URL(string: "https://ororo.tv/api/v2")!, session: URLSession = .shared) {
+    public init(baseURL: URL = URL(string: "https://ororo.tv/api/v2")!, session: URLSession = Transport.uncachedSession) {
         self.baseURL = baseURL
         self.session = session
     }
+
+    /// Default session: ephemeral and cache-free. Episode/movie bodies carry signed playback URLs and requests
+    /// carry Basic auth, so nothing may land in a URLCache (never persist a playback URL).
+    public static let uncachedSession: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.urlCache = nil
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        return URLSession(configuration: configuration)
+    }()
+
+    var sessionConfiguration: URLSessionConfiguration { session.configuration }
 
     public func send(_ endpoint: Endpoint, credentials: Credentials, ifNoneMatch: String? = nil,
                      progress: (@Sendable (Double) -> Void)? = nil) async throws -> RawResponse {
