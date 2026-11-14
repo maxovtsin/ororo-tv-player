@@ -42,8 +42,18 @@ import os
     private var selectedLanguage: String?
     /// The current load's surround source (also while it starts, so `stop()` reaches it); `nil` plays original audio.
     private var surroundSource: (any SurroundSource)?
-    /// Bumped by every load and by `stop()`; a surround start that finishes after its load was superseded is dropped.
+    /// Bumped by every load and by `stop()`; a surround start that finishes after its load was superseded is dropped,
+    /// and a surround failure reported for an earlier load is ignored.
     private var loadGeneration = 0
+    /// The generation of the load in progress (from its start until it returns); a surround failure reported meanwhile
+    /// makes that load retry without surround instead of emitting `.surroundFailed`.
+    private var loadInFlight: Int?
+    /// The surround source of the load in progress reported a failure.
+    private var failedDuringLoad = false
+    /// Surround failed or was disabled: this engine plays original audio for the rest of its life.
+    private var surroundDisabled = false
+    /// A source reported `.slowDevice`: no engine plays surround again until the app is relaunched.
+    private static var surroundDisabledUntilRelaunch = false
 
     init(subtitles: any SubtitleProvider = HLSInjectedSubtitles(),
          surround: SurroundPolicy = .disabled,
@@ -75,18 +85,38 @@ import os
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         tearDownItem()
         try? AVAudioSession.sharedInstance().setActive(true)
-        let (source, generation) = await startSurround()
+        loadGeneration += 1
+        let generation = loadGeneration
+        loadInFlight = generation
+        failedDuringLoad = false
+        defer { if loadInFlight == generation { loadInFlight = nil } }
+        let source = await startSurround(generation: generation)
         // `stop()` or a newer load ran while surround started: installing an item now would revive a stopped player
         // or replace the newer load's item.
-        guard !isStopped, generation == loadGeneration else { throw CancellationError() }
-        let asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
-        let item = AVPlayerItem(asset: asset)
+        guard isCurrent(generation) else { throw CancellationError() }
+        var asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
+        var item = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: item)
-        try await Self.waitUntilReady(item, timeout: readyTimeout)
+        do {
+            try await Self.waitUntilReady(item, timeout: readyTimeout)
+            if source != nil, failedDuringLoad { throw SurroundFailedWhileLoading() }
+        } catch {
+            // A surround item that failed, timed out or lost its source: once, the same load with original audio.
+            guard source != nil, !(error is CancellationError), isCurrent(generation) else { throw error }
+            Self.log.notice("Surround load failed; retrying with original audio")
+            disableSurroundAfterFailure()
+            asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: nil)
+            item = AVPlayerItem(asset: asset)
+            player.replaceCurrentItem(with: item)
+            try await Self.waitUntilReady(item, timeout: readyTimeout)
+        }
         legibleGroup = try? await asset.loadMediaSelectionGroup(for: .legible)
         selectSubtitle(subtitleLanguage, in: item)
         if startAt > 0 { await seek(to: startAt) }
         observe(item)
+        loadInFlight = nil
+        // The source gave up after the item became ready: the session reloads, now with original audio.
+        if failedDuringLoad, surroundSource != nil, isCurrent(generation) { continuation.yield(.surroundFailed) }
     }
 
     func play() {
@@ -233,39 +263,6 @@ import os
         stallTask = nil
     }
 
-    // MARK: - Surround
-
-    /// Decides whether this load plays simulated 5.1 and starts its source; a `nil` source means original audio.
-    /// Order: output channels, then the preference, then the source start. Logs one line (never the stream URL).
-    /// Returns the load's generation so the caller can tell whether the load was superseded meanwhile.
-    private func startSurround() async -> (source: (any SurroundSource)?, generation: Int) {
-        loadGeneration += 1
-        let generation = loadGeneration
-        let channels = outputChannels()
-        AudioOutput.lastObservedChannelCount = channels
-        var source: (any SurroundSource)?
-        if AudioOutput.supportsSurround(channels: channels), await surround.isEnabled(), generation == loadGeneration {
-            // Task 8 replaces this with the fallback to original audio.
-            let candidate = surround.makeSource { _ in }
-            surroundSource = candidate
-            do {
-                _ = try await candidate.start()
-                // A newer load or `stop()` has already stopped the candidate through `tearDownItem()`.
-                if generation == loadGeneration { source = candidate }
-            } catch {
-                if generation == loadGeneration {
-                    candidate.stop()
-                    surroundSource = nil
-                }
-            }
-        }
-        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
-        Self.log.notice(
-            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
-        )
-        return (source, generation)
-    }
-
     // MARK: - Subtitles
 
     private func selectSubtitle(_ language: String?, in item: AVPlayerItem) {
@@ -318,6 +315,82 @@ import os
         }
     }
 
+}
+
+// MARK: - Surround
+
+extension AVPlayerEngine {
+    func disableSurround() {
+        surroundDisabled = true
+    }
+
+    /// Back from the background: a surround server that did not survive sleep is a surround failure.
+    func sceneBecameActive() async {
+        guard !isStopped, let source = surroundSource else { return }
+        let generation = loadGeneration
+        let serving = await source.ensureServing()
+        if !serving { surroundFailed(.format, generation: generation) }
+    }
+
+    /// The surround source of load `generation` gave up. Ignored for an earlier load, after `stop()`, or once the load
+    /// no longer plays surround.
+    func surroundFailed(_ failure: SurroundFailure, generation: Int) {
+        guard isCurrent(generation), surroundSource != nil else { return }
+        Self.log.notice("Surround failed: \(String(describing: failure), privacy: .public)")
+        surroundDisabled = true
+        if failure == .slowDevice { Self.surroundDisabledUntilRelaunch = true }
+        if loadInFlight == generation {
+            failedDuringLoad = true
+        } else {
+            // The session reloads; the next load tears down this item and source.
+            continuation.yield(.surroundFailed)
+        }
+    }
+
+    private struct SurroundFailedWhileLoading: Error {}
+
+    /// Load `generation` is still the latest and the engine runs.
+    private func isCurrent(_ generation: Int) -> Bool {
+        !isStopped && generation == loadGeneration
+    }
+
+    /// Stops the current source and plays original audio from now on.
+    private func disableSurroundAfterFailure() {
+        surroundDisabled = true
+        surroundSource?.stop()
+        surroundSource = nil
+    }
+
+    /// Decides whether load `generation` plays simulated 5.1 and starts its source; `nil` means original audio.
+    /// Order: a failed or disabled surround, output channels, then the preference, then the source start.
+    /// Logs one line (never the stream URL).
+    private func startSurround(generation: Int) async -> (any SurroundSource)? {
+        let channels = outputChannels()
+        AudioOutput.lastObservedChannelCount = channels
+        var source: (any SurroundSource)?
+        if !Self.surroundDisabledUntilRelaunch, !surroundDisabled, AudioOutput.supportsSurround(channels: channels),
+           await surround.isEnabled(), generation == loadGeneration {
+            let candidate = surround.makeSource { [weak self] failure in
+                Task { @MainActor in self?.surroundFailed(failure, generation: generation) }
+            }
+            surroundSource = candidate
+            do {
+                _ = try await candidate.start()
+                // A newer load or `stop()` has already stopped the candidate through `tearDownItem()`.
+                if generation == loadGeneration { source = candidate }
+            } catch {
+                if generation == loadGeneration {
+                    candidate.stop()
+                    surroundSource = nil
+                }
+            }
+        }
+        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
+        Self.log.notice(
+            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
+        )
+        return source
+    }
 }
 
 /// One `waitUntilReady`: resumes its continuation exactly once (ready, failed, timed out or cancelled).

@@ -420,6 +420,79 @@ extension PlaybackSessionTests {
         #expect(await harness.details.moviePlaybackCalls == 2)
     }
 
+    // MARK: - Surround failure
+
+    @Test func surroundFailureReloadsAtTheCurrentPositionWithoutSpendingRecovery() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101), gated: true)
+        let gate = harness.gate!
+        await harness.session.start()
+        await harness.session.handle(.time(position: 300, duration: 1000))
+
+        await gate.arm()
+        let reload = Task { await harness.session.handle(.surroundFailed) }
+        #expect(await eventually { await gate.parked == 1 })
+        #expect(harness.session.phase == .preparing)
+        await gate.release()
+        await reload.value
+        #expect(harness.session.phase == .playing)
+        #expect(await harness.details.episodePlaybackCalls == 2)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300])
+        #expect(harness.engine.disableSurroundCount == 0)
+
+        // The automatic recovery is still available.
+        await harness.session.handle(.failed)
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300, 300])
+        #expect(await harness.details.episodePlaybackCalls == 3)
+    }
+
+    @Test func automaticRecoveryDisablesSurroundFirst() async {
+        let harness = Harness(.movie(1001))
+        await harness.session.start()
+        await harness.session.handle(.time(position: 300, duration: 1000))
+        #expect(harness.engine.disableSurroundCount == 0)
+
+        await harness.session.handle(.failed)
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.disableSurroundCount == 1)
+        // Disabled before the reload's load call.
+        #expect(harness.engine.loads.map(\.disableSurroundCountAtLoad) == [0, 1])
+    }
+
+    @Test func expiredURLRecoveryKeepsSurround() async {
+        let harness = Harness(.movie(1001))
+        await harness.session.start()
+        await harness.session.handle(.time(position: 500, duration: 1000))
+
+        harness.now.set(Samples.now.addingTimeInterval(PlaybackSession.urlLifetime + 1))
+        await harness.session.sceneBecameActive()
+        #expect(harness.session.phase == .playing)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 500])
+        #expect(harness.engine.disableSurroundCount == 0)
+        #expect(harness.engine.sceneActivations == 1)
+    }
+
+    @Test func surroundFailureIsIgnoredWhileNotPlaying() async {
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101), gated: true)
+        let gate = harness.gate!
+        await harness.session.start()
+        await harness.session.handle(.time(position: 300, duration: 1000))
+
+        // A failure's reload is fetching: the session is preparing.
+        await gate.arm()
+        let reload = Task { await harness.session.handle(.failed) }
+        #expect(await eventually { await gate.parked == 1 })
+        #expect(harness.session.phase == .preparing)
+        await harness.session.handle(.surroundFailed)
+        await gate.release()
+        await reload.value
+        await settle()
+
+        #expect(harness.session.phase == .playing)
+        #expect(await harness.details.episodePlaybackCalls == 2)
+        #expect(harness.engine.loads.map(\.startAt) == [0, 300])
+    }
+
     // MARK: - Subtitles
 
     @Test func preferredSubtitleOnlyWhenAvailable() async {
@@ -626,12 +699,15 @@ extension PlaybackSessionTests {
         let playback: Playback
         let startAt: TimeInterval
         let subtitleLanguage: String?
+        /// `disableSurroundCount` when this load was made.
+        let disableSurroundCountAtLoad: Int
     }
 
     let events: AsyncStream<PlayerEvent>
     private let continuation: AsyncStream<PlayerEvent>.Continuation
     private(set) var loads: [Load] = []
     private(set) var playCount = 0, pauseCount = 0
+    private(set) var disableSurroundCount = 0, sceneActivations = 0
     var position: TimeInterval = 0
     var duration: TimeInterval = 0
 
@@ -647,11 +723,14 @@ extension PlaybackSessionTests {
     var loadErrors: [(any Error)?] = []
 
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
-        loads.append(Load(playback: playback, startAt: startAt, subtitleLanguage: subtitleLanguage))
+        loads.append(Load(playback: playback, startAt: startAt, subtitleLanguage: subtitleLanguage,
+                          disableSurroundCountAtLoad: disableSurroundCount))
         if !loadErrors.isEmpty, let error = loadErrors.removeFirst() { throw error }
         position = startAt
     }
 
+    func disableSurround() { disableSurroundCount += 1 }
+    func sceneBecameActive() async { sceneActivations += 1 }
     func play() { playCount += 1 }
     func pause() { pauseCount += 1 }
     func seek(to: TimeInterval) async { position = to }

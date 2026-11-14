@@ -117,6 +117,72 @@ import Testing
         engine.stop()
     }
 
+    // MARK: - Surround failure
+
+    @Test func aFailureDuringPlaybackEmitsSurroundFailedAndDisablesSurround() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        var events = engine.events.makeAsyncIterator()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        source.reportFailure(.format)
+        while let event = await events.next(), event != .surroundFailed {}
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true, false] && source.startCount == 1)
+        engine.stop()
+    }
+
+    @Test func aFailureWhileLoadingRetriesTheSameLoadWithoutSurround() async throws {
+        // The surround asset can never become ready (missing file); the source fails 100 ms into the load.
+        let subtitles = RecordingSubtitles(surroundAssetURL: URL(fileURLWithPath: "/nonexistent-\(UUID()).mp4"))
+        let source = FakeSurroundSource(failsAfterStart: .milliseconds(100))
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) // returns normally, once
+        #expect(subtitles.surroundFlags == [true, false])
+        engine.stop()
+    }
+
+    @Test func aFailureFromAnEarlierLoadIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        let stale = source.onFailure
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        stale?(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true, true, true])
+        engine.stop()
+    }
+
+    @Test func aFailureAfterStopIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        engine.stop()
+        source.reportFailure(.format)
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(engine.player.currentItem == nil)
+    }
+
+    @Test func disableSurroundAppliesToTheNextLoad() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        engine.disableSurround()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false])
+        engine.stop()
+    }
+
+    @Test func aDeadServerOnReturnToTheForegroundIsASurroundFailure() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(servesAfterWake: false)
+        let engine = Self.engine(subtitles, source: source)
+        var events = engine.events.makeAsyncIterator()
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        await engine.sceneBecameActive()
+        while let event = await events.next(), event != .surroundFailed {}
+        engine.stop()
+    }
+
     /// Polls `condition` on the main actor every 10 ms, for at most 5 s.
     private static func waitUntil(_ condition: () -> Bool) async throws {
         for _ in 0..<500 where !condition() {
