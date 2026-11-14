@@ -209,6 +209,17 @@ final class LoopbackServer: Sendable {
         if let end = path.firstIndex(where: { $0 == "?" || $0 == "#" }) { path = String(path[..<end]) }
         return .handle(path.removingPercentEncoding ?? path)
     }
+
+    /// A fixed ASCII reason phrase: never `HTTPURLResponse.localizedString`, which follows the device language.
+    static func reasonPhrase(for status: Int) -> String {
+        switch status {
+        case 200: "OK"
+        case 404: "Not Found"
+        case 405: "Method Not Allowed"
+        case 502: "Bad Gateway"
+        default: "Status"
+        }
+    }
 }
 
 /// One accepted connection: reads a request head, runs the handler, writes the response and closes.
@@ -315,7 +326,7 @@ private final class ClientConnection: Sendable {
     }
 
     private func send(_ response: LoopbackResponse) {
-        var head = "HTTP/1.1 \(response.status) \(HTTPURLResponse.localizedString(forStatusCode: response.status))\r\n"
+        var head = "HTTP/1.1 \(response.status) \(LoopbackServer.reasonPhrase(for: response.status))\r\n"
         head += "Content-Type: \(response.contentType)\r\nContent-Length: \(response.body.count)\r\nConnection: close\r\n\r\n"
         var payload = Data(head.utf8)
         payload.append(response.body)

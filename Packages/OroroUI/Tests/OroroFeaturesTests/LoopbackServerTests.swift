@@ -97,6 +97,41 @@ import Testing
         #expect(try await Self.get(base.appending(path: "x")).status == 200)
     }
 
+    /// Sends one raw request and returns the response's status line, byte for byte.
+    private static func rawStatusLine(_ url: URL) async -> Data {
+        let connection = NWConnection(host: "127.0.0.1", port: NWEndpoint.Port(rawValue: UInt16(url.port!))!, using: .tcp)
+        connection.start(queue: .global())
+        defer { connection.cancel() }
+        await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+            connection.send(content: Data("GET \(url.path()) HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n".utf8),
+                            completion: .contentProcessed { _ in done.resume() })
+        }
+        var received = Data()
+        while received.range(of: Data("\r\n".utf8)) == nil {
+            let chunk: Data? = await withCheckedContinuation { done in
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, isComplete, error in
+                    done.resume(returning: data.flatMap { $0.isEmpty ? nil : $0 } ?? (isComplete || error != nil ? nil : Data()))
+                }
+            }
+            guard let chunk else { break }
+            received.append(chunk)
+        }
+        guard let end = received.range(of: Data("\r\n".utf8)) else { return received }
+        return received[..<end.lowerBound]
+    }
+
+    @Test func statusLinesUseFixedASCIIReasonPhrases() async throws {
+        let server = LoopbackServer { $0 == "audio/0.m3u8" ? Self.playlist : .notFound }
+        let base = try await server.start()
+        defer { server.stop() }
+        #expect(await Self.rawStatusLine(base.appending(path: "audio/0.m3u8")) == Data("HTTP/1.1 200 OK".utf8))
+        #expect(await Self.rawStatusLine(base.appending(path: "nope")) == Data("HTTP/1.1 404 Not Found".utf8))
+        #expect(LoopbackServer.reasonPhrase(for: 502) == "Bad Gateway")
+        #expect(LoopbackServer.reasonPhrase(for: 405) == "Method Not Allowed")
+        let fallback = LoopbackServer.reasonPhrase(for: 500)
+        #expect(fallback.allSatisfy { $0.isASCII })
+    }
+
     @Test func closesConnectionsWhoseHeadExceedsTheLimitAcrossChunks() async throws {
         let calls = Mutex(0)
         let server = LoopbackServer { _ in
