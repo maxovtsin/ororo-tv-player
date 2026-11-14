@@ -4,6 +4,7 @@ public enum BrowseEngine {
     public static func apply(_ query: BrowseQuery, to catalog: Catalog) -> [Title] {
         let source = query.kind == .show ? catalog.shows : catalog.movies
         let filtered = source.filter { matches($0, query) }
+        if query.sort == .topPicks { return TopPicks.ordered(filtered, now: catalog.fetchedAt) }
         return filtered.sorted { precedes($0, $1, by: query.sort) }
     }
 
@@ -52,6 +53,8 @@ public enum BrowseEngine {
     private static func precedes(_ lhs: Title, _ rhs: Title, by sort: BrowseQuery.Sort) -> Bool {
         let order: ComparisonResult
         switch sort {
+        case .topPicks:
+            order = descending(lhs.imdbRating, rhs.imdbRating) // `apply` orders Top Picks with `TopPicks`
         case .popular:
             if (lhs.popularity == 0) != (rhs.popularity == 0) { return rhs.popularity == 0 }
             if lhs.popularity == 0 {

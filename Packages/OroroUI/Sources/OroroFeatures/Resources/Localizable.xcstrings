@@ -734,6 +734,23 @@
         }
       }
     },
+    "browse.sort.topPicks" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top Picks"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучшее"
+          }
+        }
+      }
+    },
     "browse.sort.year" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

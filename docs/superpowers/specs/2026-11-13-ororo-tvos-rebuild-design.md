@@ -339,7 +339,10 @@ shows at most 30 items.
 5. Top Rated Movies (`imdb_rating` desc, minimum year left to builder)
 6. Recently Updated Movies (`updated_at` desc)
 7. My List — hidden if empty
-8. Four genre rows (largest genres)
+8. Four genre rows (largest genres), each in Top Picks order: highest IMDb rating
+   first among shows with `user_popularity` > 0 / movies from the last 15 years, then
+   the remaining rated titles by rating, unrated last. "See All" opens the grid with
+   the Top Picks sort (also offered in the Sort menu).
 
 Rows 1 and 2 follow the *Continue Watching rules* and *New Episodes rules* under
 My List. Select on a tile in either row plays the episode or movie directly.

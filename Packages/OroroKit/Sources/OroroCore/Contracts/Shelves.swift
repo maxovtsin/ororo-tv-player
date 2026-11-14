@@ -69,7 +69,7 @@ public struct HomeContent: Hashable, Codable, Sendable {
 
 public struct BrowseQuery: Hashable, Codable, Sendable {
     public enum Status: String, Hashable, Codable, Sendable { case ongoing, ended }
-    public enum Sort: String, CaseIterable, Hashable, Codable, Sendable { case popular, rating, year, recentlyUpdated, alphabetical }
+    public enum Sort: String, CaseIterable, Hashable, Codable, Sendable { case topPicks, popular, rating, year, recentlyUpdated, alphabetical }
 
     public var kind: TitleKind
     public var genre: String?

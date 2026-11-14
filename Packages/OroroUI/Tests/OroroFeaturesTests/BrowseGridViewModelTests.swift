@@ -70,14 +70,14 @@ import Testing
 
     @Test func movieQueryHidesPopularSortAndStatus() async {
         let movies = model(.default(.movie))
-        #expect(movies.availableSorts == [.rating, .year, .recentlyUpdated, .alphabetical])
+        #expect(movies.availableSorts == [.topPicks, .rating, .year, .recentlyUpdated, .alphabetical])
         #expect(!movies.showsStatusFilter)
         movies.setStatus(.ended)
         movies.setSort(.popular)
         #expect(movies.query == .default(.movie))
 
         let shows = model(.default(.show))
-        #expect(shows.availableSorts == [.popular, .rating, .year, .recentlyUpdated, .alphabetical])
+        #expect(shows.availableSorts == [.topPicks, .popular, .rating, .year, .recentlyUpdated, .alphabetical])
         #expect(shows.showsStatusFilter)
 
         // A malformed route is normalised.

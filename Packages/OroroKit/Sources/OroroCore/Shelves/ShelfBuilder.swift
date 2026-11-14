@@ -44,7 +44,7 @@ public enum ShelfBuilder {
             let moviesInGenre = catalog.movies.filter { $0.genres.contains(entry.genre) }
             // A BrowseQuery is single-kind, so the row follows the kind with more titles in the genre.
             let kind: TitleKind = showsInGenre.count >= moviesInGenre.count ? .show : .movie
-            add(genreShelf(entry.genre, kind: kind, titles: kind == .show ? showsInGenre : moviesInGenre))
+            add(genreShelf(entry.genre, kind: kind, titles: kind == .show ? showsInGenre : moviesInGenre, now: now))
         }
         return HomeContent(hero: hero, shelves: shelves)
     }
@@ -69,7 +69,8 @@ public enum ShelfBuilder {
                       .init(kind: .movie, sort: .rating)))
         }
         for entry in genresByCount(titles) {
-            add(genreShelf(entry.genre, kind: kind, titles: titles.filter { $0.genres.contains(entry.genre) }))
+            add(genreShelf(entry.genre, kind: kind, titles: titles.filter { $0.genres.contains(entry.genre) },
+                           now: catalog.fetchedAt))
         }
         return shelves
     }
@@ -154,11 +155,12 @@ public enum ShelfBuilder {
               totalCount: titles.count, seeAll: seeAll)
     }
 
-    private static func genreShelf(_ genre: String, kind: TitleKind, titles: [Title]) -> Shelf {
+    /// Top Picks order; "See All" opens the grid with the same sort.
+    private static func genreShelf(_ genre: String, kind: TitleKind, titles: [Title], now: Date) -> Shelf {
         var query = BrowseQuery.default(kind)
         query.genre = genre
-        let ordered = kind == .show ? popular(titles) : newestFirst(titles, \.updatedAt)
-        return shelf("genre-\(genre)", .genre(genre), ordered, query)
+        query.sort = .topPicks
+        return shelf("genre-\(genre)", .genre(genre), TopPicks.ordered(titles, now: now), query)
     }
 
     private static func year(of date: Date) -> Int {

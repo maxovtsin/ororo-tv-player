@@ -140,6 +140,7 @@ struct FilterBar: View {
 
     static func sortLabel(_ sort: BrowseQuery.Sort) -> String {
         switch sort {
+        case .topPicks: String(localized: "browse.sort.topPicks", defaultValue: "Top Picks", bundle: .module)
         case .popular: String(localized: "browse.sort.popular", defaultValue: "Popular", bundle: .module)
         case .rating: String(localized: "browse.sort.rating", defaultValue: "Rating", bundle: .module)
         case .year: String(localized: "browse.sort.year", defaultValue: "Year", bundle: .module)
