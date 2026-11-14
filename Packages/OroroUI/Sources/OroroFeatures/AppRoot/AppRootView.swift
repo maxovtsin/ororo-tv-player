@@ -73,11 +73,11 @@ private struct AppRootContent: View {
                 .environment(\.appEnvironment, environment)
                 .environment(\.selectTab, SelectTabAction { [tabs] tab in tabs.selected = tab })
         }
-        .sheet(isPresented: $presentsReauth, onDismiss: { session.needsReauth = false }) {
+        .sheet(isPresented: $presentsReauth, onDismiss: { session.needsReauth = false }, content: {
             ReauthSheet(email: session.storedEmail)
                 .environment(session)
                 .environment(\.appEnvironment, environment)
-        }
+        })
         .onChange(of: session.needsReauth, initial: true) { updateReauth() }
         .task {
             if session.state == .launching { await session.start() }

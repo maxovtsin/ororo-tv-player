@@ -181,14 +181,6 @@ import Testing
         #expect(harness.session.state == .ready)
     }
 
-    /// The sign-in sheet waits for the player cover to go away (it can't present over it).
-    @Test func reauthSheetWaitsForThePlayerToClose() {
-        #expect(ReauthGate.presents(needsReauth: true, playerActive: false))
-        #expect(!ReauthGate.presents(needsReauth: true, playerActive: true))
-        #expect(!ReauthGate.presents(needsReauth: false, playerActive: false))
-        #expect(!ReauthGate.presents(needsReauth: false, playerActive: true))
-    }
-
     // MARK: - refresh
 
     @Test func refreshBumpsCatalogVersionOnlyWhenChanged() async {
@@ -223,24 +215,6 @@ import Testing
         await harness.session.refresh(force: true)
         #expect(harness.session.newEpisodeInfo == [show.id.id: info])
         #expect(await harness.newEpisodes.lastShows.map(\.id) == [show.id])
-    }
-
-    @Test func newEpisodeResolutionSkipsContinueWatchingShows() async throws {
-        let candidates = Samples.catalog.shows.filter { $0.newestVideo != nil }
-        let inProgress = try #require(candidates.first), followedOnly = try #require(candidates.dropFirst().first)
-        var library = Library(followed: [
-            inProgress.id.id: FollowState(seenNewestVideo: .distantPast, started: true),
-            followedOnly.id.id: FollowState(seenNewestVideo: .distantPast, started: true)
-        ])
-        library.recordProgress(PlayableID(kind: .episode, id: inProgress.id.id * 10_000 + 102),
-                               show: ShowContext(showID: inProgress.id.id, season: 1, number: 2, episodeName: nil, newestVideo: nil),
-                               position: 300, duration: 2_400, now: Samples.now)
-        let harness = Harness(cached: Samples.catalog, library: library)
-        await harness.session.start()
-        #expect(await eventually { await harness.catalog.refreshCalls == 1 })
-
-        await harness.session.refresh(force: true)
-        #expect(await harness.newEpisodes.lastShows.map(\.id) == [followedOnly.id])
     }
 
     @Test func failedBackgroundRefreshKeepsReady() async {
@@ -379,6 +353,36 @@ import Testing
             api: FakeAPI(), catalog: catalog, library: InMemoryLibraryStore(), details: FakeDetails(),
             credentials: credentials, newEpisodes: FakeNewEpisodes()
         ), now: now)
+    }
+}
+
+// MARK: - Final-review fixes
+
+extension AppSessionTests {
+    /// The sign-in sheet waits for the player cover to go away (it can't present over it).
+    @Test func reauthSheetWaitsForThePlayerToClose() {
+        #expect(ReauthGate.presents(needsReauth: true, playerActive: false))
+        #expect(!ReauthGate.presents(needsReauth: true, playerActive: true))
+        #expect(!ReauthGate.presents(needsReauth: false, playerActive: false))
+        #expect(!ReauthGate.presents(needsReauth: false, playerActive: true))
+    }
+
+    @Test func newEpisodeResolutionSkipsContinueWatchingShows() async throws {
+        let candidates = Samples.catalog.shows.filter { $0.newestVideo != nil }
+        let inProgress = try #require(candidates.first), followedOnly = try #require(candidates.dropFirst().first)
+        var library = Library(followed: [
+            inProgress.id.id: FollowState(seenNewestVideo: .distantPast, started: true),
+            followedOnly.id.id: FollowState(seenNewestVideo: .distantPast, started: true)
+        ])
+        library.recordProgress(PlayableID(kind: .episode, id: inProgress.id.id * 10_000 + 102),
+                               show: ShowContext(showID: inProgress.id.id, season: 1, number: 2, episodeName: nil, newestVideo: nil),
+                               position: 300, duration: 2_400, now: Samples.now)
+        let harness = Harness(cached: Samples.catalog, library: library)
+        await harness.session.start()
+        #expect(await eventually { await harness.catalog.refreshCalls == 1 })
+
+        await harness.session.refresh(force: true)
+        #expect(await harness.newEpisodes.lastShows.map(\.id) == [followedOnly.id])
     }
 }
 
