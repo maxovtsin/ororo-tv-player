@@ -263,6 +263,69 @@ import Testing
         #expect(await makeRepository(api: FakeAPI()).loadCached() == signedIn)
     }
 
+    struct SimulatedCrash: Error {}
+
+    @Test func metaIsReplacedLastSoACrashLeavesOldMeta() async throws {
+        let repository = makeRepository()
+        let signedIn = try await repository.signIn(Samples.credentials, progress: nil)
+        await api.configure {
+            $0.showsResult = .success(Self.showsV2Response)
+            $0.moviesResult = .success(Self.moviesV2Response)
+        }
+        let replaced = Mutex<[String]>([])
+        await repository.setBeforeReplace { name in
+            replaced.withLock { $0.append(name) }
+            if name == "meta.json" { throw SimulatedCrash() }
+        }
+
+        await #expect(throws: SimulatedCrash.self) {
+            _ = try await repository.refresh(force: true, now: signedIn.fetchedAt.addingTimeInterval(60))
+        }
+
+        #expect(replaced.withLock { $0 } == ["shows.json", "movies.json", "meta.json"])
+        #expect(await repository.current() == signedIn)
+        // On disk: new lists next to the OLD meta, so the next refresh sends the old etags (server answers 200).
+        let relaunchedAPI = FakeAPI()
+        let relaunched = makeRepository(api: relaunchedAPI)
+        let cached = try #require(await relaunched.loadCached())
+        #expect(cached.shows == Self.showsV2)
+        #expect(await relaunched.lastUpdated() == signedIn.fetchedAt)
+        _ = try await relaunched.refresh(force: true, now: signedIn.fetchedAt.addingTimeInterval(120))
+        #expect(await relaunchedAPI.showsIfNoneMatch == ["\"shows-1\""])
+        #expect(await relaunchedAPI.moviesIfNoneMatch == ["\"movies-1\""])
+    }
+
+    @Test func loadCachedWithoutMetaHasNoLastUpdatedAndIsStale() async throws {
+        _ = try await makeRepository().signIn(Samples.credentials, progress: nil)
+        try FileManager.default.removeItem(at: directory.appending(path: "meta.json"))
+        let relaunchedAPI = FakeAPI()
+        let relaunched = makeRepository(api: relaunchedAPI)
+
+        #expect(await relaunched.loadCached()?.shows == Samples.catalog.shows)
+        #expect(await relaunched.lastUpdated() == nil)
+        #expect(try await relaunched.refresh(force: false, now: Date()))
+        #expect(await relaunchedAPI.showsIfNoneMatch == [nil])
+    }
+
+    @Test func clearDuringRefreshIsNotUndone() async throws {
+        let repository = makeRepository()
+        let signedIn = try await repository.signIn(Samples.credentials, progress: nil)
+        await api.configure {
+            $0.showsResult = .success(Self.showsV2Response)
+            $0.moviesResult = .success(Self.moviesV2Response)
+            $0.delay = .milliseconds(100)
+        }
+
+        let refresh = Task { try await repository.refresh(force: true, now: signedIn.fetchedAt.addingTimeInterval(60)) }
+        while await api.showsCalls < 2 { await Task.yield() }
+        await repository.clear()
+
+        #expect(try await refresh.value == false)
+        #expect(await repository.current() == nil)
+        #expect(await repository.lastUpdated() == nil)
+        #expect(!FileManager.default.fileExists(atPath: directory.path))
+    }
+
     @Test func useETagFalseNeverSendsIfNoneMatch() async throws {
         let repository = makeRepository(useETag: false)
         let signedIn = try await repository.signIn(Samples.credentials, progress: nil)

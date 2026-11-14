@@ -18,7 +18,14 @@ public actor CatalogRepository: CatalogProviding {
     private let useETag: Bool
 
     private var catalog: Catalog?
+    /// Nil when there is no `meta.json` (then `lastUpdated()` is nil and the cache counts as stale).
     private var meta: Meta?
+    /// Bumped by `clear`, `signIn` and every install of a new catalog. An operation that suspended and finds the
+    /// generation changed writes nothing and installs nothing, so `clear` can't be undone by an in-flight call and
+    /// `loadCached` can't roll back a newer catalog.
+    private var generation = 0
+    /// Test seam: called with each file name right before that file replaces its destination.
+    private var beforeReplace: (@Sendable (String) throws -> Void)?
 
     public init(api: any OroroAPI, credentials: any CredentialStoring, directory: URL,
                 decodeShows: @escaping @Sendable (Data) throws -> [Title] = Decoders.shows,
@@ -42,31 +49,35 @@ public actor CatalogRepository: CatalogProviding {
     }
 
     public func lastUpdated() async -> Date? {
-        catalog?.fetchedAt
+        meta?.fetchedAt
     }
 
     public func signIn(_ c: Credentials, progress: (@Sendable (Double) -> Void)?) async throws -> Catalog {
+        generation += 1
+        let started = generation
         // Shows first: a 401 here means bad credentials, and nothing has been stored yet.
         let shows = try await api.shows(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0))
         let movies = try await api.movies(c, ifNoneMatch: nil, progress: Self.half(of: progress, offset: 0.5))
         guard case .fresh(let showList) = shows, case .fresh(let movieList) = movies else { throw APIError.decoding }
+        // Superseded by `clear` or another sign-in while downloading.
+        guard generation == started else { throw CancellationError() }
 
         let newMeta = Meta(fetchedAt: Date(), showsETag: showList.etag, moviesETag: movieList.etag)
-        try write([Files.shows: showList.rawData, Files.movies: movieList.rawData, Files.meta: try Self.encode(newMeta)])
+        try write(lists: [(Files.shows, showList.rawData), (Files.movies, movieList.rawData)], meta: newMeta)
         try credentials.save(c)
 
         let newCatalog = Catalog(shows: showList.titles, movies: movieList.titles, fetchedAt: newMeta.fetchedAt)
-        catalog = newCatalog
-        meta = newMeta
+        install(newCatalog, meta: newMeta)
         return newCatalog
     }
 
     public func loadCached() async -> Catalog? {
-        guard let loaded = await Self.readCache(in: directory, decodeShows: decodeShows, decodeMovies: decodeMovies) else {
-            return nil
-        }
-        catalog = loaded.catalog
-        meta = loaded.meta
+        let started = generation
+        let loaded = await Self.readCache(in: directory, decodeShows: decodeShows, decodeMovies: decodeMovies)
+        // Something newer (or `clear`) happened while reading: keep it.
+        guard generation == started else { return catalog }
+        guard let loaded else { return nil }
+        install(loaded.catalog, meta: loaded.meta)
         return loaded.catalog
     }
 
@@ -76,6 +87,7 @@ public actor CatalogRepository: CatalogProviding {
             return false
         }
         guard let c = credentials.load() else { throw APIError.unauthorized }
+        let started = generation
 
         // Only offer an etag for a list we can actually keep on 304.
         let old = catalog
@@ -83,8 +95,10 @@ public actor CatalogRepository: CatalogProviding {
         let moviesETag = useETag && old != nil ? meta?.moviesETag : nil
         let shows = try await api.shows(c, ifNoneMatch: showsETag, progress: nil)
         let movies = try await api.movies(c, ifNoneMatch: moviesETag, progress: nil)
+        // Superseded by `clear`, `signIn` or another refresh while downloading.
+        guard generation == started else { return false }
 
-        var files: [String: Data] = [:]
+        var lists: [(String, Data)] = []
         var newMeta = Meta(fetchedAt: now, showsETag: showsETag, moviesETag: moviesETag)
         var newShows = old?.shows ?? []
         var newMovies = old?.movies ?? []
@@ -92,7 +106,7 @@ public actor CatalogRepository: CatalogProviding {
         case .notModified:
             guard old != nil else { throw APIError.decoding }
         case .fresh(let list):
-            files[Files.shows] = list.rawData
+            lists.append((Files.shows, list.rawData))
             newMeta.showsETag = list.etag
             newShows = list.titles
         }
@@ -100,17 +114,14 @@ public actor CatalogRepository: CatalogProviding {
         case .notModified:
             guard old != nil else { throw APIError.decoding }
         case .fresh(let list):
-            files[Files.movies] = list.rawData
+            lists.append((Files.movies, list.rawData))
             newMeta.moviesETag = list.etag
             newMovies = list.titles
         }
-        let changed = !files.isEmpty
-        files[Files.meta] = try Self.encode(newMeta)
-        try write(files)
+        try write(lists: lists, meta: newMeta)
 
-        catalog = Catalog(shows: newShows, movies: newMovies, fetchedAt: now)
-        meta = newMeta
-        return changed
+        install(Catalog(shows: newShows, movies: newMovies, fetchedAt: now), meta: newMeta)
+        return !lists.isEmpty
     }
 
     public func homeSnapshot() async -> HomeContent? {
@@ -120,10 +131,11 @@ public actor CatalogRepository: CatalogProviding {
 
     public func saveHomeSnapshot(_ content: HomeContent) async {
         guard let data = try? Self.encode(content) else { return }
-        try? write([Files.homeSnapshot: data])
+        try? write([(Files.homeSnapshot, data)])
     }
 
     public func clear() async {
+        generation += 1
         try? FileManager.default.removeItem(at: directory)
         catalog = nil
         meta = nil
@@ -158,23 +170,43 @@ public actor CatalogRepository: CatalogProviding {
         try JSONEncoder().encode(value)
     }
 
-    /// Stages every file as a temp file, then replaces the destinations. A failure while staging leaves the old
-    /// files untouched; each replacement is itself atomic.
-    private func write(_ files: [String: Data]) throws {
+    private func install(_ newCatalog: Catalog, meta newMeta: Meta?) {
+        generation += 1
+        catalog = newCatalog
+        meta = newMeta
+    }
+
+    func setBeforeReplace(_ hook: (@Sendable (String) throws -> Void)?) {
+        beforeReplace = hook
+    }
+
+    /// Writes the changed lists, then `meta.json`. Order matters: meta must be replaced LAST. If a crash lands
+    /// between replacements, the disk can only hold new list bytes next to the OLD meta — old etag (→ the server
+    /// answers 200 and we refetch) and old `fetchedAt` (→ stale, refreshed soon). Replacing meta first could pair a
+    /// fresh `fetchedAt` and new etags with old list bytes, which a 304 would then keep forever.
+    private func write(lists: [(String, Data)], meta newMeta: Meta) throws {
+        try write(lists + [(Files.meta, try Self.encode(newMeta))])
+    }
+
+    /// Stages every file as a temp file, then replaces the destinations in the given order. A failure while staging
+    /// leaves the old files untouched; each replacement is itself atomic.
+    private func write(_ files: [(name: String, data: Data)]) throws {
         let fileManager = FileManager.default
         try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
-        var staged: [(temp: URL, destination: URL)] = []
+        var staged: [(name: String, temp: URL)] = []
         defer { for item in staged { try? fileManager.removeItem(at: item.temp) } }
-        for (name, data) in files.sorted(by: { $0.key < $1.key }) {
+        for (name, data) in files {
             let temp = url(".\(name).\(UUID().uuidString).tmp")
-            staged.append((temp, url(name)))
+            staged.append((name, temp))
             try data.write(to: temp)
         }
         for item in staged {
-            if fileManager.fileExists(atPath: item.destination.path) {
-                _ = try fileManager.replaceItemAt(item.destination, withItemAt: item.temp)
+            try beforeReplace?(item.name)
+            let destination = url(item.name)
+            if fileManager.fileExists(atPath: destination.path) {
+                _ = try fileManager.replaceItemAt(destination, withItemAt: item.temp)
             } else {
-                try fileManager.moveItem(at: item.temp, to: item.destination)
+                try fileManager.moveItem(at: item.temp, to: destination)
             }
         }
     }
@@ -183,15 +215,14 @@ public actor CatalogRepository: CatalogProviding {
     @concurrent
     private static func readCache(in directory: URL,
                                   decodeShows: @Sendable (Data) throws -> [Title],
-                                  decodeMovies: @Sendable (Data) throws -> [Title]) async -> (catalog: Catalog, meta: Meta)? {
+                                  decodeMovies: @Sendable (Data) throws -> [Title]) async -> (catalog: Catalog, meta: Meta?)? {
         do {
             let shows = try decodeShows(Data(contentsOf: directory.appending(path: Files.shows)))
             let movies = try decodeMovies(Data(contentsOf: directory.appending(path: Files.movies)))
-            // Without meta the cache is treated as stale and refreshed in full.
+            // Without meta: no etags, no `lastUpdated`, and the catalog counts as stale (refreshed in full).
             let meta = (try? Data(contentsOf: directory.appending(path: Files.meta)))
                 .flatMap { try? JSONDecoder().decode(Meta.self, from: $0) }
-                ?? Meta(fetchedAt: .distantPast, showsETag: nil, moviesETag: nil)
-            return (Catalog(shows: shows, movies: movies, fetchedAt: meta.fetchedAt), meta)
+            return (Catalog(shows: shows, movies: movies, fetchedAt: meta?.fetchedAt ?? .distantPast), meta)
         } catch {
             return nil
         }
