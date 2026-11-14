@@ -24,6 +24,7 @@ final class LoopbackServer: Sendable {
         var port: NWEndpoint.Port?
         var token = ""
         var isStopped = false
+        var relisten: Task<Bool, Never>?
         var connections: [ObjectIdentifier: ClientConnection] = [:]
     }
 
@@ -43,26 +44,56 @@ final class LoopbackServer: Sendable {
             listener.cancel()
             throw NWError.posix(.EADDRNOTAVAIL)
         }
-        let replaced: Bool = state.withLock {
+        let stored: Bool = state.withLock {
             guard !$0.isStopped else { return false }
             $0.port = port
             $0.token = token
             return true
         }
-        guard replaced else {
+        guard stored, adopt(listener) else {
             listener.cancel()
             throw CancellationError()
         }
-        adopt(listener)
         return URL(string: "http://127.0.0.1:\(port.rawValue)/\(token)/")!
     }
 
     func ensureListening() async -> Bool {
-        let (port, ready) = state.withLock { ($0.isStopped ? nil : $0.port, $0.isReady) }
-        guard let port else { return false }
-        if ready { return true }
-        guard let listener = try? await listen(on: port) else { return false }
-        return adopt(listener)
+        // One re-listen at a time: concurrent callers await the same attempt.
+        let task: Task<Bool, Never>? = state.withLock { (current: inout State) -> Task<Bool, Never>? in
+            guard !current.isStopped, let port = current.port else { return nil }
+            if current.isReady { return Task { true } }
+            if let running = current.relisten { return running }
+            let attempt = Task { [self] in
+                let result = await relisten(on: port)
+                self.state.withLock { $0.relisten = nil }
+                return result
+            }
+            current.relisten = attempt
+            return attempt
+        }
+        return await task?.value ?? false
+    }
+
+    /// Test hook: kills the live listener the way a backgrounded app loses it. Open connections are unaffected.
+    func dropListenerForTesting() {
+        let listener = state.withLock { state -> NWListener? in
+            defer { state.listener = nil; state.isReady = false }
+            return state.listener
+        }
+        listener?.cancel()
+    }
+
+    /// The OS may release the port a moment after the old listener died, so a few attempts are made.
+    private func relisten(on port: NWEndpoint.Port) async -> Bool {
+        for attempt in 0..<5 {
+            if state.withLock({ $0.isStopped }) { return false }
+            if let listener = try? await listen(on: port) {
+                if adopt(listener) { return true }
+                listener.cancel()
+            }
+            if attempt < 4 { try? await Task.sleep(for: .milliseconds(100)) }
+        }
+        return false
     }
 
     func stop() {
@@ -98,6 +129,10 @@ final class LoopbackServer: Sendable {
                     case .failed(let error):
                         pending.withLock { $0.take() }?.resume(throwing: error)
                         if let listener { self?.listenerEnded(listener) }
+                    case .waiting(let error):
+                        // Not able to bind now: fail rather than leave the caller waiting.
+                        pending.withLock { $0.take() }?.resume(throwing: error)
+                        if let listener { self?.listenerEnded(listener) }
                     case .cancelled:
                         pending.withLock { $0.take() }?.resume(throwing: CancellationError())
                         if let listener { self?.listenerEnded(listener) }
@@ -120,7 +155,8 @@ final class LoopbackServer: Sendable {
     @discardableResult
     private func adopt(_ listener: NWListener) -> Bool {
         let (adopted, previous) = state.withLock { state -> (Bool, NWListener?) in
-            guard !state.isStopped else { return (false, nil) }
+            // A listener that already died (ready, then failed) before being stored must not look alive.
+            guard !state.isStopped, listener.state == .ready else { return (false, nil) }
             let previous = state.listener
             state.listener = listener
             state.isReady = true
@@ -131,10 +167,15 @@ final class LoopbackServer: Sendable {
         return adopted
     }
 
+    /// A listener failed or was cancelled: forget it (if it is the live one) and make sure it releases the port.
     private func listenerEnded(_ listener: NWListener) {
         state.withLock {
-            if $0.listener === listener { $0.isReady = false }
+            if $0.listener === listener {
+                $0.listener = nil
+                $0.isReady = false
+            }
         }
+        listener.cancel()
     }
 
     // MARK: - Connections
@@ -236,7 +277,9 @@ private final class ClientConnection: Sendable {
     private struct Head { var method: String; var request: [Substring] }
 
     private func readHead(_ buffer: Data, completion: @escaping @Sendable (Head?) -> Void) {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: maxHeadBytes) { [weak self] data, _, isComplete, error in
+        let remaining = maxHeadBytes - buffer.count
+        guard remaining > 0 else { return completion(nil) }
+        connection.receive(minimumIncompleteLength: 1, maximumLength: remaining) { [weak self] data, _, isComplete, error in
             guard let self else { return }
             var buffer = buffer
             if let data { buffer.append(data) }

@@ -1,4 +1,6 @@
 import Foundation
+import Network
+import Synchronization
 @testable import OroroFeatures
 import Testing
 
@@ -71,5 +73,54 @@ import Testing
         }
         #expect(refused)
         #expect(await server.ensureListening() == false)
+    }
+
+    @Test func listensAgainOnTheSamePortAndTokenAfterTheListenerDies() async throws {
+        let server = LoopbackServer { _ in Self.playlist }
+        let base = try await server.start()
+        defer { server.stop() }
+        server.dropListenerForTesting()
+        #expect(await server.ensureListening())
+        let hit = try await Self.get(base.appending(path: "audio/0.m3u8"))
+        #expect(hit.status == 200 && hit.body == Data("#EXTM3U".utf8))
+    }
+
+    @Test func concurrentRelistenCallsBothSucceed() async throws {
+        let server = LoopbackServer { _ in Self.playlist }
+        let base = try await server.start()
+        defer { server.stop() }
+        server.dropListenerForTesting()
+        async let first = server.ensureListening()
+        async let second = server.ensureListening()
+        let results = await [first, second]
+        #expect(results == [true, true])
+        #expect(try await Self.get(base.appending(path: "x")).status == 200)
+    }
+
+    @Test func closesConnectionsWhoseHeadExceedsTheLimitAcrossChunks() async throws {
+        let calls = Mutex(0)
+        let server = LoopbackServer { _ in
+            calls.withLock { $0 += 1 }
+            return Self.playlist
+        }
+        let base = try await server.start()
+        defer { server.stop() }
+        let connection = NWConnection(host: "127.0.0.1", port: NWEndpoint.Port(rawValue: UInt16(base.port!))!, using: .tcp)
+        connection.start(queue: .global())
+        defer { connection.cancel() }
+        let first = Data("GET \(base.path())".utf8) + Data(repeating: UInt8(ascii: "a"), count: 10_000)
+        let second = Data(repeating: UInt8(ascii: "b"), count: 7_000) + Data(" HTTP/1.1\r\n\r\n".utf8)
+        for chunk in [first, second] {
+            await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+                connection.send(content: chunk, completion: .contentProcessed { _ in done.resume() })
+            }
+        }
+        let received: Data = await withCheckedContinuation { done in
+            connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, _, _ in
+                done.resume(returning: data ?? Data())
+            }
+        }
+        #expect(received.isEmpty)
+        #expect(calls.withLock { $0 } == 0)
     }
 }
