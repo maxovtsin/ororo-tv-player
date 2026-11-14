@@ -48,7 +48,7 @@ import OroroDesign
         subtitleLanguage = preferences.subtitleLanguage
         autoplayNext = preferences.autoplayNext
         simulatedSurround = preferences.simulatedSurround
-        outputIsStereo = lastOutputChannels().map { $0 < 6 } ?? false
+        outputIsStereo = lastOutputChannels().map { !AudioOutput.supportsSurround(channels: $0) } ?? false
         lastUpdated = await environment.catalog.lastUpdated()
         imageCacheBytes = await imageUsage()
     }
