@@ -13,6 +13,9 @@ public struct PlayerScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var model: PlayerModel?
     @State private var showsVideo = false
+    /// The phase whose alert was answered; keeps it from re-presenting until the session moves on.
+    @State private var answeredPhase: PlaybackSession.Phase?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(request: PlayRequest) {
         self.request = request
@@ -30,6 +33,7 @@ public struct PlayerScreen: View {
                 .ignoresSafeArea()
                 .opacity(showsVideo ? 1 : 0)
                 overlays(for: model.session)
+                    .motion(Motion.quick, value: model.session.phase)
             }
         }
         .motion(Motion.quick, value: showsVideo)
@@ -38,6 +42,7 @@ public struct PlayerScreen: View {
         #endif
         .task { await start() }
         .onChange(of: model?.session.phase) { _, phase in
+            answeredPhase = nil
             switch phase {
             case .playing: showsVideo = true
             case .finished: Task { await close(dismiss: true) }
@@ -71,11 +76,22 @@ public struct PlayerScreen: View {
     private func close(dismiss: Bool) async {
         guard let model, !model.isClosed else { return }
         model.isClosed = true
-        showsVideo = false
+        if dismiss { await fadeToBlack() } else { showsVideo = false }
         launcher.lastPlayed = await model.session.willDismiss()
         model.engine.stop()
         if dismiss, launcher.active?.id == request.id {
             launcher.active = nil
+        }
+    }
+
+    /// Lets the video fade out completely before the cover goes away (presented and dismissed through black).
+    private func fadeToBlack() async {
+        await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+            withAnimation(Motion.resolved(Motion.quick, reduceMotion: reduceMotion)) {
+                showsVideo = false
+            } completion: {
+                done.resume()
+            }
         }
     }
 
@@ -102,7 +118,19 @@ public struct PlayerScreen: View {
     // MARK: - Alerts
 
     private func isPresented(_ keyPath: KeyPath<PlaybackSession.Phase, Bool>) -> Binding<Bool> {
-        Binding(get: { model?.session.phase[keyPath: keyPath] ?? false }, set: { _ in })
+        Binding(
+            get: {
+                guard let phase = model?.session.phase, phase != answeredPhase else { return false }
+                return phase[keyPath: keyPath]
+            },
+            set: { _ in }
+        )
+    }
+
+    /// Marks the current alert answered, then runs its action.
+    private func answer(_ action: @escaping @MainActor () async -> Void) {
+        answeredPhase = model?.session.phase
+        Task { await action() }
     }
 
     private var resumeTitle: Text {
@@ -113,13 +141,13 @@ public struct PlayerScreen: View {
         if let session = model?.session, case let .askResume(position) = session.phase {
             let time = playerTimestamp(position)
             Button(String(localized: "player.resume.resume", defaultValue: "Resume from \(time)", bundle: .module)) {
-                Task { await session.chooseResume(true) }
+                answer { await session.chooseResume(true) }
             }
             Button(String(localized: "player.resume.startOver", defaultValue: "Start Over", bundle: .module)) {
-                Task { await session.chooseResume(false) }
+                answer { await session.chooseResume(false) }
             }
             Button(String(localized: "player.resume.cancel", defaultValue: "Cancel", bundle: .module), role: .cancel) {
-                Task { await close(dismiss: true) }
+                answer { await close(dismiss: true) }
             }
         }
     }
@@ -131,10 +159,10 @@ public struct PlayerScreen: View {
     @ViewBuilder private var stillWatchingButtons: some View {
         if let session = model?.session {
             Button(String(localized: "player.stillWatching.continue", defaultValue: "Continue Watching", bundle: .module)) {
-                Task { await session.confirmStillWatching(true) }
+                answer { await session.confirmStillWatching(true) }
             }
             Button(String(localized: "player.stillWatching.stop", defaultValue: "Stop", bundle: .module), role: .cancel) {
-                Task { await session.confirmStillWatching(false) }
+                answer { await session.confirmStillWatching(false) }
             }
         }
     }
@@ -169,10 +197,10 @@ public struct PlayerScreen: View {
     @ViewBuilder private var failureButtons: some View {
         if let session = model?.session {
             Button(String(localized: "player.failure.retry", defaultValue: "Retry", bundle: .module)) {
-                Task { await session.retry() }
+                answer { await session.retry() }
             }
             Button(String(localized: "player.failure.close", defaultValue: "Close", bundle: .module), role: .cancel) {
-                Task { await close(dismiss: true) }
+                answer { await close(dismiss: true) }
             }
         }
     }

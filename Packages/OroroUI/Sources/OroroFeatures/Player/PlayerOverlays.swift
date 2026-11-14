@@ -45,7 +45,7 @@ struct CountdownOverlay: View {
             }
         }
         .padding(Spacing.l)
-        .glassEffect(in: .rect(cornerRadius: 24))
+        .glassEffect(in: .rect(cornerRadius: Spacing.m))
         .tvFocusSection()
         .padding(Spacing.screenEdge)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
@@ -74,7 +74,8 @@ struct NextEpisodeOverlayButton: View {
             String(localized: "player.nextEpisode", defaultValue: "Next Episode", bundle: .module),
             systemImage: "forward.end.fill", action: action
         )
-        .padding(.bottom, 96)
+        // Clears the transport bar.
+        .padding(.bottom, Spacing.xl * 2)
         .padding(.trailing, Spacing.screenEdge)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
     }

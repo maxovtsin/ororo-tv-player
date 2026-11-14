@@ -19,7 +19,10 @@ import OroroCore
     private var lastStatus: AVPlayer.TimeControlStatus?
     /// Set by `play()` / `pause()` so the resulting status change is not reported as remote input.
     private var expectsStatusChange = false
-    private var isSeeking = false
+    /// Targets of the engine's own seeks; their `timeJumped` notifications (which may arrive after the seek
+    /// completes) are not remote input.
+    private var ownSeekTargets: [TimeInterval] = []
+    private static let seekMatchTolerance: TimeInterval = 1.5
     private var legibleGroup: AVMediaSelectionGroup?
     private var selectedLanguage: String?
 
@@ -68,9 +71,9 @@ import OroroCore
     }
 
     func seek(to position: TimeInterval) async {
-        isSeeking = true
-        defer { isSeeking = false }
-        let time = CMTime(seconds: max(position, 0), preferredTimescale: 600)
+        let target = max(position, 0)
+        ownSeekTargets.append(target)
+        let time = CMTime(seconds: target, preferredTimescale: 600)
         await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
             player.seek(to: time) { _ in done.resume() }
         }
@@ -147,6 +150,7 @@ import OroroCore
         stopStallCounter()
         legibleGroup = nil
         selectedLanguage = nil
+        ownSeekTargets = []
     }
 
     private func emitTime() {
@@ -155,7 +159,11 @@ import OroroCore
     }
 
     private func timeJumped() {
-        guard !isSeeking else { return }
+        let now = position
+        if let index = ownSeekTargets.firstIndex(where: { abs($0 - now) <= Self.seekMatchTolerance }) {
+            ownSeekTargets.removeSubrange(...index)
+            return
+        }
         continuation.yield(.userInput)
     }
 

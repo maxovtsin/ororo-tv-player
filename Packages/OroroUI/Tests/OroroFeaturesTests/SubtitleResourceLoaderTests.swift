@@ -36,7 +36,7 @@ import Testing
     // swiftlint:disable:next inclusive_language
     @Test func masterRequestReturnsRewrittenPlaylistWithSubtitleEntries() async throws {
         let result = try await Self.responder().response(for: SubtitlePlaylistBuilder.masterURL(), duration: 0)
-        let text = try #require(String(data: result.data, encoding: .utf8))
+        let text = try #require(String(bytes: result.data, encoding: .utf8))
         let expected = SubtitlePlaylistBuilder.master(
             original: Self.original, originalURL: Self.streamURL, subtitles: Self.playback.subtitles, defaultLanguage: "en"
         )
@@ -56,7 +56,7 @@ import Testing
     @Test func playlistWithoutPreferredLanguageHasNoDefaultTrack() async throws {
         let result = try await Self.responder(preferredLanguage: nil)
             .response(for: SubtitlePlaylistBuilder.masterURL(), duration: 0)
-        let text = try #require(String(data: result.data, encoding: .utf8))
+        let text = try #require(String(bytes: result.data, encoding: .utf8))
         #expect(!text.contains("DEFAULT=YES"))
         #expect(text.contains("LANGUAGE=\"en\""))
     }
@@ -64,7 +64,7 @@ import Testing
     @Test func subtitleRequestReturnsOneSegmentPlaylistForThatLanguage() async throws {
         let responder = Self.responder()
         let result = try await responder.response(for: SubtitlePlaylistBuilder.subtitleURL(lang: "ru"), duration: 2700.4)
-        let text = try #require(String(data: result.data, encoding: .utf8))
+        let text = try #require(String(bytes: result.data, encoding: .utf8))
         #expect(text == """
         #EXTM3U
         #EXT-X-VERSION:3
@@ -82,7 +82,7 @@ import Testing
         let responder = Self.responder()
         for duration in [0, -1, .nan, .infinity] as [TimeInterval] {
             let result = try await responder.response(for: SubtitlePlaylistBuilder.subtitleURL(lang: "en"), duration: duration)
-            let text = try #require(String(data: result.data, encoding: .utf8))
+            let text = try #require(String(bytes: result.data, encoding: .utf8))
             #expect(text.contains("#EXTINF:\(SubtitleResourceResponder.fallbackDuration),"))
             #expect(text.contains("https://example.invalid/subs/en.vtt"))
         }
@@ -104,9 +104,9 @@ import Testing
 
     // swiftlint:disable:next inclusive_language
     @Test func masterFetchFailurePropagates() async {
-        let responder = SubtitleResourceResponder(playback: Self.playback, preferredLanguage: "en") { _ in
+        let responder = SubtitleResourceResponder(playback: Self.playback, preferredLanguage: "en", fetch: { _ in
             throw FetchFailed()
-        }
+        })
         await #expect(throws: FetchFailed.self) {
             _ = try await responder.response(for: SubtitlePlaylistBuilder.masterURL(), duration: 0)
         }
@@ -118,6 +118,45 @@ import Testing
         let subtitles = try await responder.response(for: SubtitlePlaylistBuilder.subtitleURL(lang: "en"), duration: 60)
         #expect(multivariant.contentType == "application/x-mpegURL")
         #expect(subtitles.contentType == "application/x-mpegURL")
+    }
+
+    @Test func contentInformationUsesM3UPlaylistUTI() {
+        #expect(SubtitleResourceLoader.uniformTypeIdentifier(forMIMEType: SubtitleResourceResponder.contentType)
+            == "public.m3u-playlist")
+        #expect(SubtitleResourceLoader.uniformTypeIdentifier(forMIMEType: "application/vnd.apple.mpegurl")
+            == "public.m3u-playlist")
+    }
+
+    @Test func relativeURIsResolveAgainstRedirectedURL() async throws {
+        let redirected = URL(string: "https://edge.example.invalid/live/abc/stream.m3u8?wmsAuthSign=PLACEHOLDER")!
+        let responder = SubtitleResourceResponder(playback: Self.playback, preferredLanguage: nil) { url in
+            guard url == Self.streamURL else { throw FetchFailed() }
+            return (Data(Self.original.utf8), redirected)
+        }
+        let result = try await responder.response(for: SubtitlePlaylistBuilder.masterURL(), duration: 0)
+        let text = try #require(String(bytes: result.data, encoding: .utf8))
+        #expect(text.contains("https://edge.example.invalid/live/abc/chunklist_720.m3u8"))
+        #expect(!text.contains("https://example.invalid/hls/chunklist_720.m3u8"))
+    }
+
+    @Test func fetchErrorsCarryNoURL() {
+        let signed = Self.streamURL
+        let urlError = URLError(.notConnectedToInternet, userInfo: [NSURLErrorFailingURLErrorKey: signed])
+        let mapped = SubtitleResourceLoader.urlFree(urlError)
+        #expect(mapped as? SubtitleResourceLoader.FetchError
+            == .transport(code: URLError.Code.notConnectedToInternet.rawValue))
+        let userInfo = (mapped as NSError).userInfo
+        #expect(userInfo[NSURLErrorFailingURLErrorKey] == nil)
+        #expect(!"\(mapped)".contains("wmsAuthSign"))
+        #expect(SubtitleResourceLoader.urlFree(SubtitleResourceLoader.FetchError.http(status: 403)) as? SubtitleResourceLoader.FetchError
+            == .http(status: 403))
+        #expect(SubtitleResourceLoader.urlFree(URLError(.cancelled)) as? SubtitleResourceLoader.FetchError == .cancelled)
+    }
+
+    @Test func downloadSessionNeverCaches() {
+        let configuration = SubtitleResourceLoader.session.configuration
+        #expect(configuration.urlCache == nil)
+        #expect(configuration.requestCachePolicy == .reloadIgnoringLocalCacheData)
     }
 
     @Test func mediaDurationSumsSegmentsOfFirstVariant() {
