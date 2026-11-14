@@ -6,6 +6,10 @@ public enum Motion {
     public static let quick: Animation = .easeOut(duration: 0.2)
     public static let standard: Animation = .spring(duration: 0.45, bounce: 0.15)
     public static let cinematic: Animation = .easeInOut(duration: 0.6)
+    /// Backdrop slow zoom over the hero dwell. Used with Reduce Motion off only.
+    public static let drift: Animation = .linear(duration: 8)
+    /// Skeleton loop. Static under Reduce Motion.
+    public static let shimmer: Animation = .linear(duration: 1.4).repeatForever(autoreverses: false)
     public static let staggerStep: Double = 0.04, staggerMax = 5
 
     /// Vertical rise, in points, of a staggered appearance.

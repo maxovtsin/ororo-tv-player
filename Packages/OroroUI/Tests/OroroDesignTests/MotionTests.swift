@@ -17,6 +17,14 @@ import Testing
         #expect(Motion.resolved(Motion.cinematic, reduceMotion: false) == Motion.cinematic)
     }
 
+    @Test func tokenValuesArePinned() {
+        #expect(Motion.quick == .easeOut(duration: 0.2))
+        #expect(Motion.standard == .spring(duration: 0.45, bounce: 0.15))
+        #expect(Motion.cinematic == .easeInOut(duration: 0.6))
+        #expect(Motion.drift == .linear(duration: 8))
+        #expect(Motion.shimmer == .linear(duration: 1.4).repeatForever(autoreverses: false))
+    }
+
     @Test func tokensAreDistinct() {
         #expect(Motion.quick != Motion.standard)
         #expect(Motion.standard != Motion.cinematic)
