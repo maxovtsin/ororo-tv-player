@@ -88,4 +88,36 @@ import Testing
         #expect(HeroView.playTitle(.playEpisode(ref)) == "Play S2 E3")
         #expect(HeroView.playTitle(.resumeEpisode(ref)) == "Resume S2 E3")
     }
+
+    @Test func rebuiltPagerStartsFreshDwell() {
+        var pager = HeroPager(count: 6, startTime: 100)
+        #expect(!tick(&pager, at: 101))
+        #expect(!tick(&pager, at: 107.9))
+        #expect(tick(&pager, at: 108))
+    }
+
+    @Test func ineligibleTicksDoNotTouchDwell() {
+        var pager = HeroPager(count: 6)
+        #expect(!tick(&pager, at: 30, focus: false))
+        #expect(tick(&pager, at: 30))
+        #expect(pager.index == 1)
+    }
+
+    @Test func showMetadata() {
+        let title = Title(id: TitleID(kind: .show, id: 1), name: "S", imdbRating: 8.3, year: 2024,
+                          genres: ["A", "B", "C", "D"], lengthMinutes: 45, resolution: .hd, ended: false)
+        #expect(HeroView.metadata(for: title, locale: Locale(identifier: "en_US")) ==
+                [.badge(.imdb(8.3)), .text("2024"), .text("A"), .text("B"), .text("C"), .text("Ongoing")])
+        var ended = title
+        ended.ended = true
+        #expect(HeroView.metadata(for: ended).last == .text("Ended"))
+    }
+
+    @Test func movieMetadata() {
+        let title = Title(id: TitleID(kind: .movie, id: 1), name: "M", imdbRating: 7.0, year: 2020,
+                          genres: ["Drama"], lengthMinutes: 130, resolution: .hd)
+        let items = HeroView.metadata(for: title, locale: Locale(identifier: "en_US"))
+        #expect(items == [.badge(.imdb(7.0)), .text("2020"), .text("Drama"), .text("2h 10m"), .badge(.hd)])
+        #expect(!items.contains(.badge(.cc)))
+    }
 }

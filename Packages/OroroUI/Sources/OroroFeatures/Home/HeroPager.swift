@@ -8,10 +8,12 @@ struct HeroPager: Equatable {
     private(set) var index = 0
     private let count: Int
     /// Latest of: creation (time 0), last user interaction, last advance.
-    private var lastChange: TimeInterval = 0
+    private var lastChange: TimeInterval
 
-    init(count: Int) {
+    /// `startTime` is the current time on the caller's clock, so a rebuilt pager gets a fresh dwell.
+    init(count: Int, startTime: TimeInterval = 0) {
         self.count = max(count, 0)
+        self.lastChange = startTime
     }
 
     mutating func next() {

@@ -33,9 +33,16 @@ public struct HeroView: View {
         ZStack(alignment: .bottomLeading) {
             if let item = current {
                 BackdropView(url: item.title.backdropURL, dim: .hero, drift: true)
-                content(for: item)
-                    .id(item.id)
-                    .transition(textTransition)
+                VStack(alignment: .leading, spacing: Spacing.m) {
+                    // Only the text block swaps per page; the buttons persist so focus survives paging.
+                    textBlock(for: item)
+                        .id(item.id)
+                        .transition(textTransition)
+                    buttons(for: item)
+                }
+                .padding(.horizontal, Spacing.screenEdge)
+                .padding(.bottom, Spacing.xl)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .motion(Motion.cinematic, value: pager.index)
@@ -48,7 +55,7 @@ public struct HeroView: View {
         .accessibilityElement(children: .contain)
         .accessibilityLabel(positionLabel)
         .onChange(of: items.map(\.id)) {
-            pager = HeroPager(count: items.count)
+            pager = HeroPager(count: items.count, startTime: elapsed)
         }
         .onChange(of: focused != nil) { _, inHero in
             if inHero { pager.userInteracted(at: elapsed) }
@@ -62,7 +69,7 @@ public struct HeroView: View {
         items.indices.contains(pager.index) ? items[pager.index] : nil
     }
 
-    private func content(for item: HeroItem) -> some View {
+    private func textBlock(for item: HeroItem) -> some View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             Text(verbatim: item.title.name)
                 .font(Typography.heroTitle)
@@ -75,11 +82,7 @@ public struct HeroView: View {
                     .lineLimit(3)
                     .frame(maxWidth: Self.textWidth, alignment: .leading)
             }
-            buttons(for: item)
         }
-        .padding(.horizontal, Spacing.screenEdge)
-        .padding(.bottom, Spacing.xl)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func buttons(for item: HeroItem) -> some View {
@@ -93,11 +96,11 @@ public struct HeroView: View {
         #if os(tvOS)
         .onMoveCommand { direction in
             switch (direction, focused) {
-            case (.right, .list):
+            case (.right, .list) where items.count > 1:
                 pager.next()
                 pager.userInteracted(at: elapsed)
                 focused = .play
-            case (.left, .play):
+            case (.left, .play) where items.count > 1:
                 pager.previous()
                 pager.userInteracted(at: elapsed)
                 focused = .list
@@ -143,7 +146,7 @@ public struct HeroView: View {
     private func runTicks() async {
         let clock = ContinuousClock()
         while !Task.isCancelled {
-            try? await clock.sleep(for: .seconds(1))
+            try? await clock.sleep(for: .milliseconds(500))
             guard !Task.isCancelled else { return }
             // The page change animates through `.motion(Motion.cinematic, value: pager.index)`.
             _ = pager.tick(at: elapsed, focusInHero: focused != nil, sceneActive: scenePhase == .active, reduceMotion: reduceMotion)
