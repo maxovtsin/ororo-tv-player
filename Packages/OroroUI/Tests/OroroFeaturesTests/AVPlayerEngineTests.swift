@@ -117,6 +117,23 @@ import Testing
         engine.stop()
     }
 
+    // MARK: - Multichannel audio option
+
+    @Test(arguments: [(true, 2), (false, 2), (false, 6)])
+    func audioSelectionIsUntouchedWithoutAMultichannelOption(enabled: Bool, channels: Int) async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: enabled, channels: channels)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        let item = try #require(engine.player.currentItem)
+        if let group = try await item.asset.loadMediaSelectionGroup(for: .audible) {
+            #expect(item.currentMediaSelection.selectedMediaOption(in: group) == group.defaultOption)
+        }
+        engine.stop()
+        let received = await events.value
+        #expect(!received.contains(.userInput) && !received.contains { if case .subtitleChanged = $0 { true } else { false } })
+    }
+
     // MARK: - Surround failure
 
     @Test func aFailureDuringPlaybackEmitsSurroundFailedAndDisablesSurround() async throws {

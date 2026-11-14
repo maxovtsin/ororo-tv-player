@@ -118,6 +118,8 @@ import os
         }
         legibleGroup = try? await asset.loadMediaSelectionGroup(for: .legible)
         selectSubtitle(subtitleLanguage, in: item)
+        await selectMultichannelAudio(of: asset, in: item, generation: generation)
+        guard isCurrent(generation) else { throw CancellationError() }
         if startAt > 0 { await seek(to: startAt) }
         observe(item)
         loadInFlight = nil
@@ -441,6 +443,37 @@ extension AVPlayerEngine {
             "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
         )
         return source
+    }
+}
+
+// MARK: - Multichannel audio option
+
+extension AVPlayerEngine {
+    /// On a surround output, selects the title's own audio option with the most channels (more than 2), preferring the
+    /// current option's language; changes nothing when no option is known to be multichannel. Runs before `observe(_:)`,
+    /// so the selection emits no `.subtitleChanged` or `.userInput`. Logs one line (never a URL).
+    private func selectMultichannelAudio(of asset: AVURLAsset, in item: AVPlayerItem, generation: Int) async {
+        guard AudioOutput.supportsSurround(channels: outputChannels()) else { return }
+        let group = try? await asset.loadMediaSelectionGroup(for: .audible)
+        let variants = (try? await asset.load(.variants)) ?? []
+        guard isCurrent(generation), let group else { return }
+        let candidates = group.options.enumerated().map { index, option in
+            AudioOptionChoice.Candidate(
+                index: index, language: Self.language(of: option),
+                channels: variants.compactMap { $0.audioAttributes?.renditionSpecificAttributes(for: option)?.channelCount }.max()
+            )
+        }
+        let selected = item.currentMediaSelection.selectedMediaOption(in: group)
+        let current = selected.flatMap(group.options.firstIndex(of:)).map { candidates[$0] }
+        guard let best = AudioOptionChoice.best(among: candidates, current: current) else {
+            Self.log.notice("Audio option: no multichannel option")
+            return
+        }
+        let language = best.language ?? "unknown"
+        Self.log.notice(
+            "Audio option: \(best.channels ?? 0, privacy: .public) channels, language \(language, privacy: .public)"
+        )
+        if best != current { item.select(group.options[best.index], in: group) }
     }
 }
 
