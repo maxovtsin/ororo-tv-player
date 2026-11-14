@@ -55,7 +55,10 @@ public struct PlayerScreen: View {
         }
         .onDisappear {
             // Dismissed by the system (Menu / swipe) rather than by `close`.
-            Task { await close(dismiss: false) }
+            Task {
+                await close(dismiss: false)
+                model?.engine.stop() // idempotent; also covers a close interrupted mid-fade
+            }
         }
         .alert(resumeTitle, isPresented: isPresented(\.isAskingResume)) { resumeButtons } message: { EmptyView() }
         .alert(stillWatchingTitle, isPresented: isPresented(\.isStillWatching)) { stillWatchingButtons } message: { EmptyView() }
@@ -76,8 +79,10 @@ public struct PlayerScreen: View {
     private func close(dismiss: Bool) async {
         guard let model, !model.isClosed else { return }
         model.isClosed = true
-        if dismiss { await fadeToBlack() } else { showsVideo = false }
+        // Silence and record first, so a cover torn down mid-fade never leaves audio playing or progress unsaved.
+        model.engine.pause()
         launcher.lastPlayed = await model.session.willDismiss()
+        if dismiss { await fadeToBlack() } else { showsVideo = false }
         model.engine.stop()
         if dismiss, launcher.active?.id == request.id {
             launcher.active = nil

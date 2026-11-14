@@ -21,8 +21,11 @@ import OroroCore
     private var expectsStatusChange = false
     /// Targets of the engine's own seeks; their `timeJumped` notifications (which may arrive after the seek
     /// completes) are not remote input.
-    private var ownSeekTargets: [TimeInterval] = []
-    private static let seekMatchTolerance: TimeInterval = 1.5
+    /// Start times of the engine's own seeks. Each consumes the next `timeJumped` (whatever position the default
+    /// HLS seek tolerance lands on); entries expire so a stale one can't swallow a genuine remote jump.
+    private var isStopped = false
+    private var ownSeeks: [ContinuousClock.Instant] = []
+    private static let ownSeekExpiry: Duration = .seconds(2)
     private var legibleGroup: AVMediaSelectionGroup?
     private var selectedLanguage: String?
 
@@ -72,15 +75,17 @@ import OroroCore
 
     func seek(to position: TimeInterval) async {
         let target = max(position, 0)
-        ownSeekTargets.append(target)
+        ownSeeks.append(.now)
         let time = CMTime(seconds: target, preferredTimescale: 600)
         await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
             player.seek(to: time) { _ in done.resume() }
         }
     }
 
-    /// Stops playback, removes every observer and ends `events`. Call after `PlaybackSession.willDismiss()`.
+    /// Stops playback, removes every observer and ends `events`. Idempotent. Call after `PlaybackSession.willDismiss()`.
     func stop() {
+        guard !isStopped else { return }
+        isStopped = true
         tearDownItem()
         statusTask?.cancel()
         statusTask = nil
@@ -150,7 +155,7 @@ import OroroCore
         stopStallCounter()
         legibleGroup = nil
         selectedLanguage = nil
-        ownSeekTargets = []
+        ownSeeks = []
     }
 
     private func emitTime() {
@@ -159,9 +164,10 @@ import OroroCore
     }
 
     private func timeJumped() {
-        let now = position
-        if let index = ownSeekTargets.firstIndex(where: { abs($0 - now) <= Self.seekMatchTolerance }) {
-            ownSeekTargets.removeSubrange(...index)
+        let now = ContinuousClock.now
+        ownSeeks.removeAll { now - $0 > Self.ownSeekExpiry }
+        if !ownSeeks.isEmpty {
+            ownSeeks.removeFirst()
             return
         }
         continuation.yield(.userInput)
