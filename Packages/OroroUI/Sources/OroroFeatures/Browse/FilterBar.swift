@@ -105,7 +105,7 @@ struct FilterBar: View {
                     model.setGenre(nil)
                 }
                 ForEach(model.genres, id: \.self) { genre in
-                    Chip(genre, isSelected: model.query.genre == genre) {
+                    Chip(GenreName.localized(genre), isSelected: model.query.genre == genre) {
                         model.setGenre(genre)
                     }
                 }

@@ -69,7 +69,7 @@ import OroroDesign
             if title.resolution == .hd { items.append(.badge(.hd)) }
         case .show:
             if let count = seasonCount ?? (allEpisodes.isEmpty ? nil : seasons.filter { $0 != 0 }.count), count > 0 {
-                items.append(.text(Display.seasonCount(count, locale: locale)))
+                items.append(.text(String(localized: "detail.seasonCount", defaultValue: "\(count) Seasons", bundle: .module, locale: locale)))
             }
             if let ended = title.ended {
                 items.append(.text(ended

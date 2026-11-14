@@ -183,7 +183,7 @@ public struct HeroView: View {
         var items: [MetadataItem] = []
         if let rating = title.imdbRating { items.append(.badge(.imdb(rating))) }
         if let year = title.year { items.append(.text(String(year))) }
-        items += title.genres.prefix(3).map { MetadataItem.text($0) }
+        items += title.genres.prefix(3).map { MetadataItem.text(GenreName.localized($0, locale: locale)) }
         switch title.id.kind {
         case .show:
             if let ended = title.ended {

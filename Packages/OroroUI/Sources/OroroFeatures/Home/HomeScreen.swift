@@ -211,9 +211,9 @@ private struct HomeContentView: View {
         case .genre(let genre):
             // Home genre rows are single-kind; the row's kind is its See All query's kind.
             if shelf.seeAll?.kind == .movie {
-                String(localized: "home.shelf.genreMovies", defaultValue: "\(genre) Movies", bundle: .module)
+                String(localized: "home.shelf.genreMovies", defaultValue: "\(GenreName.localized(genre)) Movies", bundle: .module)
             } else {
-                String(localized: "home.shelf.genreShows", defaultValue: "\(genre) Shows", bundle: .module)
+                String(localized: "home.shelf.genreShows", defaultValue: "\(GenreName.localized(genre)) Shows", bundle: .module)
             }
         }
     }

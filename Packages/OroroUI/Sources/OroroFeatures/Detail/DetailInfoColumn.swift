@@ -45,13 +45,14 @@ struct DetailInfoColumn: View {
     @ViewBuilder private var genresLine: some View {
         if let title = model.title, !title.genres.isEmpty || !title.countries.isEmpty {
             let flags = title.countries.compactMap(Display.flag).joined(separator: " ")
-            let parts = [title.genres.joined(separator: " · "), flags].filter { !$0.isEmpty }
+            let genres = title.genres.map { GenreName.localized($0, locale: locale) }
+            let parts = [genres.joined(separator: " · "), flags].filter { !$0.isEmpty }
             let countryNames = title.countries.compactMap { Display.countryName($0, locale: locale) }
             Text(verbatim: parts.joined(separator: " · "))
                 .font(Typography.caption)
                 .foregroundStyle(Palette.textSecondary)
                 .lineLimit(1)
-                .accessibilityLabel(Text(verbatim: (title.genres + countryNames).joined(separator: ", ")))
+                .accessibilityLabel(Text(verbatim: (genres + countryNames).joined(separator: ", ")))
         }
     }
 

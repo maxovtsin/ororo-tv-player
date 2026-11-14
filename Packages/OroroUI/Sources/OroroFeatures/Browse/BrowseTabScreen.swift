@@ -146,7 +146,7 @@ public struct BrowseTabScreen: View {
         case .recentlyUpdated:
             String(localized: "browse.shelf.recentlyUpdated", defaultValue: "Recently Updated", bundle: .module)
         case .genre(let name):
-            name
+            GenreName.localized(name)
         case .continueWatching:
             String(localized: "browse.shelf.continueWatching", defaultValue: "Continue Watching", bundle: .module)
         case .newEpisodes:
