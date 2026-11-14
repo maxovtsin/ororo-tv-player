@@ -166,12 +166,13 @@ import Testing
     }
 
     @Test func focusAreaDrivesExpansionTopAndRestoreTarget() {
-        #expect(HomeFocusArea.isExpanded(nil))
-        #expect(HomeFocusArea.isExpanded(.hero))
-        #expect(!HomeFocusArea.isExpanded(.shelf("popularShows")))
-        #expect(HomeFocusArea.isAtTop(nil))
-        #expect(HomeFocusArea.isAtTop(.hero))
-        #expect(!HomeFocusArea.isAtTop(.shelf("popularShows")))
+        #expect(HomeFocusArea.isExpanded(.hero, lastFocusInHero: false))
+        #expect(!HomeFocusArea.isExpanded(.shelf("popularShows"), lastFocusInHero: true))
+        #expect(HomeFocusArea.isAtTop(.hero, lastFocusInHero: false))
+        #expect(!HomeFocusArea.isAtTop(.shelf("popularShows"), lastFocusInHero: true))
+        // Focus left Home from the hero (tab bar, launch): expanded and at top.
+        #expect(HomeFocusArea.isExpanded(nil, lastFocusInHero: true))
+        #expect(HomeFocusArea.isAtTop(nil, lastFocusInHero: true))
 
         // Leaving the screen (nil) keeps the last area; hero and shelves set it.
         #expect(HomeFocusArea.lastFocusInHero(after: .shelf("myList"), previous: true) == false)
@@ -182,6 +183,14 @@ import Testing
         #expect(HomeFocusArea.restoreTarget(lastFocusInHero: true, anchor: "popularShows") == .hero)
         #expect(HomeFocusArea.restoreTarget(lastFocusInHero: false, anchor: nil) == .hero)
         #expect(HomeFocusArea.restoreTarget(lastFocusInHero: false, anchor: "popularShows") == .shelf("popularShows"))
+    }
+
+    @Test func focusLeavingFromShelfStaysCollapsed() {
+        // A shelf tile opened Detail / the player / a context menu: focus leaves Home (nil).
+        let last = HomeFocusArea.lastFocusInHero(after: .shelf("continueWatching"), previous: true)
+        let afterLeaving = HomeFocusArea.lastFocusInHero(after: nil, previous: last)
+        #expect(!HomeFocusArea.isExpanded(nil, lastFocusInHero: afterLeaving))
+        #expect(!HomeFocusArea.isAtTop(nil, lastFocusInHero: afterLeaving))
     }
 
     // MARK: - Actions

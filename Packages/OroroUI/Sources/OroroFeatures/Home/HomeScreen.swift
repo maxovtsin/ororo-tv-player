@@ -51,7 +51,7 @@ private struct HomeContentView: View {
     }
 
     private var isExpanded: Bool {
-        HomeFocusArea.isExpanded(focusArea)
+        HomeFocusArea.isExpanded(focusArea, lastFocusInHero: lastFocusInHero)
     }
 
     private var restoreTarget: HomeFocusArea {
@@ -160,7 +160,7 @@ private struct HomeContentView: View {
 
     private func focusAreaChanged(_ area: HomeFocusArea?) {
         lastFocusInHero = HomeFocusArea.lastFocusInHero(after: area, previous: lastFocusInHero)
-        router.isAtTop = HomeFocusArea.isAtTop(area)
+        router.isAtTop = HomeFocusArea.isAtTop(area, lastFocusInHero: lastFocusInHero)
     }
 
     /// Menu at a scrolled root: scroll to top and focus the hero (the default-focus target once

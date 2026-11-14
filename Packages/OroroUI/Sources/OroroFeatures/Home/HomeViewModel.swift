@@ -168,14 +168,19 @@ import OroroCore
 enum HomeFocusArea: Hashable, Sendable {
     case hero, shelf(String)
 
-    /// The hero is expanded unless focus is in a shelf (focus in the hero, the tab bar, or not yet placed).
-    static func isExpanded(_ area: HomeFocusArea?) -> Bool {
-        !isInShelf(area)
+    /// The hero is expanded unless focus is in a shelf. With focus outside Home (nil: tab bar, pushed Detail,
+    /// player, context menu) it keeps the state of where focus last was, so it never springs open behind a
+    /// screen pushed from a shelf. `lastFocusInHero` starts true, so launch and tab bar → hero stay expanded.
+    static func isExpanded(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
+        guard let area else { return lastFocusInHero }
+        return !isInShelf(area)
     }
 
     /// Menu at the root goes to the tab bar from the hero; from a shelf it scrolls to the top first.
-    static func isAtTop(_ area: HomeFocusArea?) -> Bool {
-        !isInShelf(area)
+    /// Nil falls back to where focus last was, as in `isExpanded`.
+    static func isAtTop(_ area: HomeFocusArea?, lastFocusInHero: Bool) -> Bool {
+        guard let area else { return lastFocusInHero }
+        return !isInShelf(area)
     }
 
     /// Whether focus was last in the hero; leaving the screen (nil) keeps the previous value.
