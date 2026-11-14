@@ -1,0 +1,80 @@
+{
+  "id": 6936,
+  "name": "Dune Part One",
+  "imdb_id": "1160419",
+  "imdb_rating": 8.0,
+  "year": "2021",
+  "desc": "Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, must travel to the most dangerous planet in the universe to ensure the future of his family and his people. As malevolent forces explode into conflict over the planet's exclusive supply of the most precious resource in existence-a commodity capable of unlocking humanity's greatest potential-only those who can conquer their fear will survive.",
+  "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6936/jYEW5xZkZk2WTrdbMGAPFuBqbDc.jpg",
+  "array_genres": [
+    "Sci-Fi",
+    "Adventure"
+  ],
+  "array_countries": [
+    "US"
+  ],
+  "resolution": "HD",
+  "slug": "dune-part-one",
+  "user_popularity": 32,
+  "trailer": "n9xhJrPXop4",
+  "watched_media_count": 11134,
+  "info": {
+    "smil": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568.smil",
+    "thumbs": 1865,
+    "original": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568.mkv"
+  },
+  "versions": {
+    "240p": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568_240p.mp4",
+    "360p": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568_360p.mp4",
+    "480p": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568_480p.mp4",
+    "720p": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568_720p.mp4",
+    "1080p": "/uploads/movie/file/6936/Dune_Part_One_1160419_1647272568_1080p.mp4"
+  },
+  "subtitles": [
+    {
+      "lang": "ru",
+      "url": "https://ororo.tv/uploads/subtitle/file/641223/Dune.2021.1080p.HMAX.WEBRip.DDP5.1.Atmos.x264-CM.vtt"
+    },
+    {
+      "lang": "en",
+      "url": "https://ororo.tv/uploads/subtitle/file/641195/Dune_Part_One_1160419.vtt"
+    },
+    {
+      "lang": "it",
+      "url": "https://ororo.tv/uploads/subtitle/file/641335/Dune.Part.One.2021.1080p.UHD.BluRay.DD%2B7.1.DoVi.x265-SA89.vtt"
+    },
+    {
+      "lang": "de",
+      "url": "https://ororo.tv/uploads/subtitle/file/641339/dune.2021.1080p.hmax.web-dl.ddp5.1.atmos.x264-evo-german.vtt"
+    },
+    {
+      "lang": "pl",
+      "url": "https://ororo.tv/uploads/subtitle/file/641334/dune.2021.1080p.web.h264-naisu.vtt"
+    },
+    {
+      "lang": "tr",
+      "url": "https://ororo.tv/uploads/subtitle/file/641336/dune.2021.2160p.hmax.web-dl.ddp5.1.atmos.hdr.x265-mzabi.tr.vtt"
+    },
+    {
+      "lang": "fr",
+      "url": "https://ororo.tv/uploads/subtitle/file/641337/Dune.2021.2160p.HMAX.WEB-DL.DDP5.1.Atmos.HDR.HEVC-CM.fre.vtt"
+    },
+    {
+      "lang": "pt",
+      "url": "https://ororo.tv/uploads/subtitle/file/641333/dune.2021.1080p.hmax.web-dl.ddp5.1.atmos.h.264-flux.vtt"
+    },
+    {
+      "lang": "cs",
+      "url": "https://ororo.tv/uploads/subtitle/file/641340/Dune__2021__1080p_10bit_HMAX_WEB-DL_DDP5.1_HEVC-Vyndros.vtt"
+    },
+    {
+      "lang": "es",
+      "url": "https://ororo.tv/uploads/subtitle/file/641338/track_1647509107.vtt"
+    }
+  ],
+  "length": 155,
+  "updated_at": 1793560932,
+  "poster_thumb": "https://ororo.tv/uploads/movie/poster/6936/p1-600x900-e66b296f9e99-d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+  "url": "https://example.invalid/stream.m3u8?wmsAuthSign=PLACEHOLDER",
+  "download_url": "https://example.invalid/stream.m3u8?wmsAuthSign=PLACEHOLDER"
+}

@@ -1,0 +1,31 @@
+{
+  "id": 30010,
+  "name": "The Late Mr Elvesham",
+  "plot": "Impoverished young medical student Edward Eden is visited by the wealthy, elderly philosopher Egbert Elvesham with an offer to make the boy his heir - on condition he changes his name to that of his older benefactor. Mr Elvesham wines and dines Edward, who waked up next morning to find he has undergone a sinister transformation - which he will need to reverse in order to regain his youth and sanity.",
+  "season": 1,
+  "number": "1",
+  "resolution": "SD",
+  "watched_media_count": 220,
+  "myshows_id": 15671577,
+  "info": {
+    "smil": "/uploads/video/file/30010/the.nightmare.worlds.of.h.g.wells.s01e01.hdtv.x264-tla_ettv__1487236960.smil",
+    "thumbs": 275,
+    "original": "/uploads/video/file/30010/the.nightmare.worlds.of.h.g.wells.s01e01.hdtv.x264-tla_ettv__1487236960.mp4"
+  },
+  "versions": {
+    "240p": "/uploads/video/file/30010/the.nightmare.worlds.of.h.g.wells.s01e01.hdtv.x264-tla_ettv__1487236960_240p.mp4",
+    "360p": "/uploads/video/file/30010/the.nightmare.worlds.of.h.g.wells.s01e01.hdtv.x264-tla_ettv__1487236960_360p.mp4",
+    "480p": "/uploads/video/file/30010/the.nightmare.worlds.of.h.g.wells.s01e01.hdtv.x264-tla_ettv__1487236960_480p.mp4"
+  },
+  "subtitles": [
+    {
+      "lang": "en",
+      "url": "https://ororo.tv/uploads/subtitle/file/540351/the.nightmare.worlds.of.h.g.wells.s01e01.720p.amzn.web-dl.ddp2.0.h.264-spirit.english.hi.vtt"
+    }
+  ],
+  "airdate": "2016-01-29",
+  "updated_at": 1786941524,
+  "show_name": "The Nightmare Worlds of H.G. Wells",
+  "url": "https://example.invalid/stream.m3u8?wmsAuthSign=PLACEHOLDER",
+  "download_url": "https://example.invalid/stream.m3u8?wmsAuthSign=PLACEHOLDER"
+}
