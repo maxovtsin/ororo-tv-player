@@ -1,44 +1,38 @@
 import Foundation
 import OroroCore
-import XCTest
+import Testing
 @testable import OroroStore
 
-final class KeychainCredentialStoreTests: XCTestCase {
-    private var store: KeychainCredentialStore!
+@Suite struct KeychainCredentialStoreTests {
+    private let store = KeychainCredentialStore(service: "test.ororo.\(UUID().uuidString)")
 
-    override func setUp() {
-        super.setUp()
-        store = KeychainCredentialStore(service: "test.ororo.\(UUID().uuidString)")
-    }
-
-    override func tearDown() {
-        try? store.clear()
-        store = nil
-        super.tearDown()
-    }
-
-    func testSaveThenLoad() throws {
+    @Test func saveThenLoad() throws {
+        defer { try? store.clear() }
         try store.save(Credentials(email: "a@example.com", password: "dummy-pass"))
-        XCTAssertEqual(store.load(), Credentials(email: "a@example.com", password: "dummy-pass"))
+        #expect(store.load() == Credentials(email: "a@example.com", password: "dummy-pass"))
     }
 
-    func testSaveReplacesPrevious() throws {
+    @Test func saveReplacesPrevious() throws {
+        defer { try? store.clear() }
         try store.save(Credentials(email: "a@example.com", password: "one"))
         try store.save(Credentials(email: "b@example.com", password: "two"))
-        XCTAssertEqual(store.load(), Credentials(email: "b@example.com", password: "two"))
+        #expect(store.load() == Credentials(email: "b@example.com", password: "two"))
     }
 
-    func testClearRemoves() throws {
+    @Test func clearRemoves() throws {
+        defer { try? store.clear() }
         try store.save(Credentials(email: "a@example.com", password: "one"))
         try store.clear()
-        XCTAssertNil(store.load())
+        #expect(store.load() == nil)
     }
 
-    func testLoadWithNothingStoredIsNil() {
-        XCTAssertNil(store.load())
+    @Test func loadWithNothingStoredIsNil() {
+        defer { try? store.clear() }
+        #expect(store.load() == nil)
     }
 
-    func testClearWhenEmptyDoesNotThrow() {
-        XCTAssertNoThrow(try store.clear())
+    @Test func clearWhenEmptyDoesNotThrow() throws {
+        defer { try? store.clear() }
+        try store.clear()
     }
 }
