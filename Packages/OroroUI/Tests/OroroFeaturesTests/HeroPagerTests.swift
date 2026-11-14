@@ -81,6 +81,16 @@ import Testing
         #expect(pager.index == 0)
     }
 
+    @Test func heroHeightLeavesTheFirstShelfPeeking() {
+        #if os(tvOS)
+        #expect(HeroView.height(screenHeight: 1080, isExpanded: true) == 1080 - HeroView.shelfPeek)
+        #expect(HeroView.height(screenHeight: 1080, isExpanded: false) == 540)
+        #else
+        #expect(HeroView.height(screenHeight: 800, isExpanded: true) == 440)
+        #expect(HeroView.height(screenHeight: 800, isExpanded: false) == 280)
+        #endif
+    }
+
     @Test func playButtonTitlesFollowAction() {
         let ref = EpisodeRef(episodeID: 7, season: 2, number: 3)
         #expect(HeroView.playTitle(.playMovie) == "Play")

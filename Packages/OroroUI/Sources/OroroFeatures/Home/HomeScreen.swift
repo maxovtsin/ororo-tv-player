@@ -59,31 +59,9 @@ private struct HomeContentView: View {
     }
 
     var body: some View {
-        ScrollView(.vertical) {
-            LazyVStack(alignment: .leading, spacing: Spacing.shelfGap) {
-                if let content = model.content {
-                    if !content.hero.isEmpty { hero(content.hero) }
-                    ForEach(Array(content.shelves.enumerated()), id: \.element.id) { index, shelf in
-                        row(shelf)
-                            .focusedValue(\.homeFocusArea, .shelf(shelf.id))
-                            .homeDefaultFocus(restoreTarget == .shelf(shelf.id), in: focusNamespace)
-                            .modifier(InitialStagger(index: index, enabled: !hasStaggered) { hasStaggered = true })
-                            .id(shelf.id)
-                    }
-                } else {
-                    ForEach(0..<Self.skeletonRows, id: \.self) { index in
-                        SkeletonShelf(tiles: Self.skeletonTiles)
-                            .staggeredAppearance(index: index)
-                    }
-                }
-            }
-            .padding(.bottom, Spacing.xl)
-            .scrollTargetLayout()
-            .motion(Motion.standard, value: isExpanded)
+        GeometryReader { proxy in
+            scrollContent(layout: Self.heroLayout(proxy))
         }
-        .scrollClipDisabled()
-        .scrollPosition($scrollPosition)
-        .homeFocusScope(focusNamespace)
         .task { await run() }
         .onAppear(perform: reappear)
         .onChange(of: focusArea) { _, area in focusAreaChanged(area) }
@@ -95,16 +73,69 @@ private struct HomeContentView: View {
         }
     }
 
+    /// tvOS: the scroll view runs edge to edge (behind the tab bar) so the hero backdrop is full-bleed; the
+    /// shelves get the horizontal safe area back as padding. iOS keeps the safe area.
+    private static func heroLayout(_ proxy: GeometryProxy) -> HeroLayout {
+        let insets = proxy.safeAreaInsets
+        #if os(tvOS)
+        return HeroLayout(screenHeight: proxy.size.height + insets.top + insets.bottom, insets: insets)
+        #else
+        return HeroLayout(screenHeight: proxy.size.height)
+        #endif
+    }
+
+    private func scrollContent(layout: HeroLayout) -> some View {
+        ScrollView(.vertical) {
+            LazyVStack(alignment: .leading, spacing: Spacing.shelfGap) {
+                if let content = model.content {
+                    if content.hero.isEmpty { topInset(layout) } else { hero(content.hero, layout: layout) }
+                    ForEach(Array(content.shelves.enumerated()), id: \.element.id) { index, shelf in
+                        row(shelf)
+                            .padding(.leading, layout.insets.leading)
+                            .padding(.trailing, layout.insets.trailing)
+                            .focusedValue(\.homeFocusArea, .shelf(shelf.id))
+                            .homeDefaultFocus(restoreTarget == .shelf(shelf.id), in: focusNamespace)
+                            .modifier(InitialStagger(index: index, enabled: !hasStaggered) { hasStaggered = true })
+                            .id(shelf.id)
+                    }
+                } else {
+                    topInset(layout)
+                    ForEach(0..<Self.skeletonRows, id: \.self) { index in
+                        SkeletonShelf(tiles: Self.skeletonTiles)
+                            .padding(.leading, layout.insets.leading)
+                            .padding(.trailing, layout.insets.trailing)
+                            .staggeredAppearance(index: index)
+                    }
+                }
+            }
+            .padding(.bottom, Spacing.xl)
+            .scrollTargetLayout()
+            .motion(Motion.standard, value: isExpanded)
+        }
+        .scrollClipDisabled()
+        .scrollPosition($scrollPosition)
+        .homeFocusScope(focusNamespace)
+        #if os(tvOS)
+        .ignoresSafeArea(.container, edges: [.top, .horizontal])
+        #endif
+    }
+
     private var anchor: String? {
         router.focus.verticalAnchor(screen: Self.screen)
     }
 
     // MARK: - Pieces
 
-    private func hero(_ items: [HeroItem]) -> some View {
+    /// Without a hero nothing may sit under the tab bar: the top safe area the scroll view ignores comes back.
+    private func topInset(_ layout: HeroLayout) -> some View {
+        Color.clear.frame(height: max(layout.insets.top - Spacing.shelfGap, 0))
+    }
+
+    private func hero(_ items: [HeroItem], layout: HeroLayout) -> some View {
         HeroView(
             items: items,
             isExpanded: isExpanded,
+            layout: layout,
             isInList: { [model] title in model.library.isInMyList(title.id) },
             onPlay: { [model, launcher] item in model.heroPlay(item, launcher: launcher) },
             onToggleList: { [model] title in Task { await model.toggleList(title) } }

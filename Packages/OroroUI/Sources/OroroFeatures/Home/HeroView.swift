@@ -2,11 +2,25 @@ import OroroCore
 import OroroDesign
 import SwiftUI
 
+/// Screen geometry for the hero: the full screen height (safe area included) and the safe-area insets the
+/// backdrop extends into while the text and buttons stay clear of them.
+public struct HeroLayout: Equatable, Sendable {
+    public var screenHeight: CGFloat?
+    public var insets: EdgeInsets
+
+    public init(screenHeight: CGFloat? = nil, insets: EdgeInsets = EdgeInsets()) {
+        self.screenHeight = screenHeight
+        self.insets = insets
+    }
+}
+
 /// Full-screen paging banner at the top of Home. Expanded while focus is inside it, collapsed once
 /// focus moves into the shelves; the collapse is one `standard` animation on `isExpanded`.
+/// On tvOS the backdrop is full-bleed (behind the tab bar); expanded, it leaves the first shelf's header peeking.
 public struct HeroView: View {
     private let items: [HeroItem]
     private let isExpanded: Bool
+    private let layout: HeroLayout
     private let isInList: (Title) -> Bool
     private let onPlay: (HeroItem) -> Void
     private let onToggleList: (Title) -> Void
@@ -19,10 +33,11 @@ public struct HeroView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(items: [HeroItem], isExpanded: Bool, isInList: @escaping (Title) -> Bool,
+    public init(items: [HeroItem], isExpanded: Bool, layout: HeroLayout = HeroLayout(), isInList: @escaping (Title) -> Bool,
                 onPlay: @escaping (HeroItem) -> Void, onToggleList: @escaping (Title) -> Void) {
         self.items = items
         self.isExpanded = isExpanded
+        self.layout = layout
         self.isInList = isInList
         self.onPlay = onPlay
         self.onToggleList = onToggleList
@@ -32,7 +47,6 @@ public struct HeroView: View {
     public var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let item = current {
-                BackdropView(url: item.title.backdropURL, dim: .hero, drift: true)
                 VStack(alignment: .leading, spacing: Spacing.m) {
                     // Only the text block swaps per page; the buttons persist so focus survives paging.
                     textBlock(for: item)
@@ -40,16 +54,25 @@ public struct HeroView: View {
                         .transition(textTransition)
                     buttons(for: item)
                 }
-                .padding(.horizontal, Spacing.screenEdge)
+                .padding(.leading, Spacing.screenEdge + layout.insets.leading)
+                .padding(.trailing, Spacing.screenEdge + layout.insets.trailing)
                 .padding(.bottom, Spacing.xl)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        // The backdrop never sizes the hero (an aspect-filled image is taller than the hero and would push the
+        // buttons below its clipped bottom edge).
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .background {
+            if let item = current {
+                BackdropView(url: item.title.backdropURL, dim: .hero, drift: true)
             }
         }
         .motion(Motion.cinematic, value: pager.index)
         .overlay(alignment: .bottomTrailing) { pageDots }
         .overlay { Color.black.opacity(isExpanded ? 0 : 0.5).allowsHitTesting(false) }
         .scaleEffect(isExpanded ? 1 : 0.96, anchor: .top)
-        .containerRelativeFrame(.vertical) { length, _ in length * (isExpanded ? Self.expandedFraction : Self.collapsedFraction) }
+        .modifier(HeroHeight(screenHeight: layout.screenHeight, isExpanded: isExpanded))
         .clipped()
         .motion(Motion.standard, value: isExpanded)
         .accessibilityElement(children: .contain)
@@ -120,7 +143,7 @@ public struct HeroView: View {
                     .frame(width: Spacing.s, height: Spacing.s)
             }
         }
-        .padding(.horizontal, Spacing.screenEdge)
+        .padding(.trailing, Spacing.screenEdge + layout.insets.trailing)
         .padding(.bottom, Spacing.l)
         .motion(Motion.quick, value: pager.index)
         .accessibilityHidden(true)
@@ -156,10 +179,19 @@ public struct HeroView: View {
     // MARK: Pure helpers
 
     #if os(tvOS)
-    private static let expandedFraction: CGFloat = 1, collapsedFraction: CGFloat = 0.5, textWidth: CGFloat = 900
+    static let expandedFraction: CGFloat = 1, collapsedFraction: CGFloat = 0.5, textWidth: CGFloat = 900
+    /// Expanded, the hero stops this far above the screen bottom so the first shelf's header shows.
+    static let shelfPeek: CGFloat = 150
     #else
-    private static let expandedFraction: CGFloat = 0.55, collapsedFraction: CGFloat = 0.35, textWidth: CGFloat = 600
+    static let expandedFraction: CGFloat = 0.55, collapsedFraction: CGFloat = 0.35, textWidth: CGFloat = 600
+    static let shelfPeek: CGFloat = 0
     #endif
+
+    /// Hero height for a known full-screen height.
+    nonisolated static func height(screenHeight: CGFloat, isExpanded: Bool) -> CGFloat {
+        guard isExpanded else { return screenHeight * collapsedFraction }
+        return max(screenHeight * expandedFraction - shelfPeek, screenHeight * collapsedFraction)
+    }
 
     /// "Play", "Play S2 E4", "Resume S2 E3"
     nonisolated static func playTitle(_ action: HeroAction) -> String {
@@ -197,8 +229,25 @@ public struct HeroView: View {
     }
 }
 
+/// Sizes the hero from the screen height when known, else from its container (previews).
+private struct HeroHeight: ViewModifier {
+    let screenHeight: CGFloat?
+    let isExpanded: Bool
+
+    func body(content: Content) -> some View {
+        if let screenHeight {
+            content.frame(height: HeroView.height(screenHeight: screenHeight, isExpanded: isExpanded))
+        } else {
+            content.containerRelativeFrame(.vertical) { length, _ in
+                HeroView.height(screenHeight: length, isExpanded: isExpanded)
+            }
+        }
+    }
+}
+
 #Preview("Hero expanded") {
     HeroView(items: HeroPreviewData.items, isExpanded: true, isInList: { $0.id.id == 2 }, onPlay: { _ in }, onToggleList: { _ in })
+        .ignoresSafeArea()
 }
 
 #Preview("Hero collapsed") {
