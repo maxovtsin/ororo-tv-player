@@ -319,15 +319,18 @@ Every screen defines its loading, empty and error state; see *States and errors*
   and HD (movies), 2–3 lines of `desc`. No CC badge (not in list data).
 - Buttons: **Play** (movies) or **Play S1 E1 / Resume S2 E3** (shows, from local
   progress and up-next — no network), and **+ My List**.
-- Paging: left/right moves between the buttons; pressing past the outermost button
-  pages to the previous/next item.
+- Paging: the items are a horizontal strip of pages, each with its own buttons. Left/right
+  (click or swipe) moves between the buttons; moving past the outermost button moves focus
+  onto the neighbouring page and the strip slides with it, backdrop included. A click past
+  the first or last page wraps around.
 - Auto-advance: every 8 s while focus is in the hero **and** the remote has been idle
   for 8 s. It stops when focus is in the shelves, the app is inactive, or Reduce Motion
   is on.
 
-**Collapse** — the hero has two states, driven by focus, not by scroll offset:
-expanded while focus is inside it, collapsed once focus moves into the shelves. One
-spring animates the change. No per-frame geometry reads feed state.
+**Dimming** — the hero keeps its size; it is dimmed while focus is in the shelves. Moving
+between the hero and the shelves is one vertical scroll: while focus is in the hero the
+page sits at the top (full-bleed backdrop, first shelf header peeking). No per-frame
+geometry reads feed state.
 
 **Shelves** — landscape 16:9 backdrop tiles, title appears below on focus. Each shelf
 shows at most 30 items.
@@ -546,7 +549,7 @@ present.
 |---|---|---|
 | focus | system | tile lift, parallax, button focus |
 | `quick` | 0.2 s ease-out | text and badge swaps, image fade-in, footer strip |
-| `standard` | spring, 0.45 s, slight bounce | hero collapse, season switch, row expansion |
+| `standard` | spring, 0.45 s, slight bounce | hero dim and scroll to top, season switch, row expansion |
 | `cinematic` | 0.6 s ease-in-out | backdrop crossfades, hero paging |
 | `stagger` | 40 ms per item, max 5 items | shelves and rows entering |
 
@@ -557,8 +560,8 @@ No animation is written with ad-hoc durations; everything uses a token.
 | Moment | Motion |
 |---|---|
 | Launch | backdrop fades in, hero text rises 24 pt and fades, shelves stagger in |
-| Hero paging | backdrop crossfade (`cinematic`), text block fades and slides; a slow 1.00 → 1.06 scale drift on the backdrop over the 8 s dwell |
-| Hero collapse | one `standard` spring: hero shrinks and dims, shelves rise |
+| Hero paging | the page strip slides (`cinematic`), backdrop and text together; a slow 1.00 → 1.06 scale drift on the backdrop over the 8 s dwell |
+| Hero → shelves | the focus engine's scroll; the hero dims (`standard`) |
 | Tile focus | system lift and parallax (`.buttonStyle(.card)`); title reveals below (`quick`) |
 | Tile → Detail | zoom navigation transition from the tile **[spike]**. Fallback: detail backdrop crossfades in from the tile's image while the left column slides in 24 pt and fades, staggered |
 | Detail data arrives | skeleton rows crossfade to real rows, staggered |

@@ -192,13 +192,13 @@ import Testing
         #expect(await harness.catalog.saveSnapshotCalls == 1)
     }
 
-    @Test func focusAreaDrivesExpansionTopAndRestoreTarget() {
-        #expect(HomeFocusArea.isExpanded(.hero, lastFocusInHero: false))
-        #expect(!HomeFocusArea.isExpanded(.shelf("popularShows"), lastFocusInHero: true))
+    @Test func focusAreaDrivesHeroDimTopAndRestoreTarget() {
+        #expect(HomeFocusArea.isHeroActive(.hero, lastFocusInHero: false))
+        #expect(!HomeFocusArea.isHeroActive(.shelf("popularShows"), lastFocusInHero: true))
         #expect(HomeFocusArea.isAtTop(.hero, lastFocusInHero: false))
         #expect(!HomeFocusArea.isAtTop(.shelf("popularShows"), lastFocusInHero: true))
-        // Focus left Home from the hero (tab bar, launch): expanded and at top.
-        #expect(HomeFocusArea.isExpanded(nil, lastFocusInHero: true))
+        // Focus left Home from the hero (tab bar, launch): lit and at top.
+        #expect(HomeFocusArea.isHeroActive(nil, lastFocusInHero: true))
         #expect(HomeFocusArea.isAtTop(nil, lastFocusInHero: true))
 
         // Leaving the screen (nil) keeps the last area; hero and shelves set it.
@@ -212,12 +212,21 @@ import Testing
         #expect(HomeFocusArea.restoreTarget(lastFocusInHero: false, anchor: "popularShows") == .shelf("popularShows"))
     }
 
-    @Test func focusLeavingFromShelfStaysCollapsed() {
+    @Test func focusLeavingFromShelfStaysDimmed() {
         // A shelf tile opened Detail / the player / a context menu: focus leaves Home (nil).
         let last = HomeFocusArea.lastFocusInHero(after: .shelf("continueWatching"), previous: true)
         let afterLeaving = HomeFocusArea.lastFocusInHero(after: nil, previous: last)
-        #expect(!HomeFocusArea.isExpanded(nil, lastFocusInHero: afterLeaving))
+        #expect(!HomeFocusArea.isHeroActive(nil, lastFocusInHero: afterLeaving))
         #expect(!HomeFocusArea.isAtTop(nil, lastFocusInHero: afterLeaving))
+    }
+
+    @Test func shelvesYieldDefaultFocusToTheHeroFromOutsideHome() {
+        // Tab bar after the hero: focus coming back down must land on the hero, not a remembered tile.
+        #expect(!HomeFocusArea.shelvesOfferDefaultFocus(nil, lastFocusInHero: true))
+        // Moving down from the hero, or back to Home after a shelf (pop, player): the remembered tile.
+        #expect(HomeFocusArea.shelvesOfferDefaultFocus(.hero, lastFocusInHero: true))
+        #expect(HomeFocusArea.shelvesOfferDefaultFocus(nil, lastFocusInHero: false))
+        #expect(HomeFocusArea.shelvesOfferDefaultFocus(.shelf("popularShows"), lastFocusInHero: false))
     }
 
     // MARK: - Actions

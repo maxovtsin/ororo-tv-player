@@ -26,6 +26,12 @@ struct HeroPager: Equatable {
         index = (index + count - 1) % count
     }
 
+    /// Jumps to `index` (focus moved onto another page); out-of-range indices are ignored.
+    mutating func show(_ index: Int) {
+        guard (0..<count).contains(index) else { return }
+        self.index = index
+    }
+
     mutating func userInteracted(at time: TimeInterval) {
         lastChange = time
     }
@@ -36,5 +42,13 @@ struct HeroPager: Equatable {
         next()
         lastChange = time
         return true
+    }
+
+    /// The page an edge click wraps to: forward from the last page's trailing button to the first page,
+    /// back from the first page's leading button to the last. Elsewhere the focus engine moves on its own (nil).
+    static func wrapTarget(from page: Int, count: Int, forward: Bool, onEdgeButton: Bool) -> Int? {
+        guard count > 1, onEdgeButton else { return nil }
+        if forward { return page == count - 1 ? 0 : nil }
+        return page == 0 ? count - 1 : nil
     }
 }

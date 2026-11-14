@@ -43,6 +43,8 @@ private struct HomeContentView: View {
     @State private var hasAppeared = false
     /// Becomes true once the first rows have appeared; rows created later (lazily, while scrolling) don't stagger.
     @State private var hasStaggered = false
+    /// Bumped to move focus onto the hero (Menu-to-top).
+    @State private var heroFocusRequest = 0
     @Namespace private var focusNamespace
 
     init(environment: AppEnvironment) {
@@ -50,8 +52,8 @@ private struct HomeContentView: View {
         _model = State(initialValue: HomeViewModel(environment: environment))
     }
 
-    private var isExpanded: Bool {
-        HomeFocusArea.isExpanded(focusArea, lastFocusInHero: lastFocusInHero)
+    private var isHeroActive: Bool {
+        HomeFocusArea.isHeroActive(focusArea, lastFocusInHero: lastFocusInHero)
     }
 
     private var restoreTarget: HomeFocusArea {
@@ -86,31 +88,35 @@ private struct HomeContentView: View {
 
     private func scrollContent(layout: HeroLayout) -> some View {
         ScrollView(.vertical) {
-            LazyVStack(alignment: .leading, spacing: Spacing.shelfGap) {
-                if let content = model.content {
-                    if content.hero.isEmpty { topInset(layout) } else { hero(content.hero, layout: layout) }
-                    ForEach(Array(content.shelves.enumerated()), id: \.element.id) { index, shelf in
-                        row(shelf)
-                            .padding(.leading, layout.insets.leading)
-                            .padding(.trailing, layout.insets.trailing)
-                            .focusedValue(\.homeFocusArea, .shelf(shelf.id))
-                            .homeDefaultFocus(restoreTarget == .shelf(shelf.id), in: focusNamespace)
-                            .modifier(InitialStagger(index: index, enabled: !hasStaggered) { hasStaggered = true })
-                            .id(shelf.id)
-                    }
-                } else {
-                    topInset(layout)
-                    ForEach(0..<Self.skeletonRows, id: \.self) { index in
-                        SkeletonShelf(tiles: Self.skeletonTiles)
-                            .padding(.leading, layout.insets.leading)
-                            .padding(.trailing, layout.insets.trailing)
-                            .staggeredAppearance(index: index)
+            VStack(alignment: .leading, spacing: Spacing.shelfGap) {
+                // The hero sits outside the lazy stack, so it always exists: focus can be sent to it from anywhere
+                // down the page, and scrolling to the top never builds it mid-scroll.
+                if let hero = model.content?.hero, !hero.isEmpty { self.hero(hero, layout: layout) } else { topInset(layout) }
+                LazyVStack(alignment: .leading, spacing: Spacing.shelfGap) {
+                    if let content = model.content {
+                        ForEach(Array(content.shelves.enumerated()), id: \.element.id) { index, shelf in
+                            row(shelf)
+                                .padding(.leading, layout.insets.leading)
+                                .padding(.trailing, layout.insets.trailing)
+                                .focusedValue(\.homeFocusArea, .shelf(shelf.id))
+                                .homeDefaultFocus(restoreTarget == .shelf(shelf.id), in: focusNamespace)
+                                .modifier(InitialStagger(index: index, enabled: !hasStaggered) { hasStaggered = true })
+                                .id(shelf.id)
+                        }
+                    } else {
+                        ForEach(0..<Self.skeletonRows, id: \.self) { index in
+                            SkeletonShelf(tiles: Self.skeletonTiles)
+                                .padding(.leading, layout.insets.leading)
+                                .padding(.trailing, layout.insets.trailing)
+                                .staggeredAppearance(index: index)
+                        }
                     }
                 }
             }
             .padding(.bottom, Spacing.xl)
+            // The hero is a scroll target: at the top the scroll position tracks it. Tracking the first shelf
+            // instead, a layout pass (focus moving up to the tab bar) would jump the shelf to the top edge.
             .scrollTargetLayout()
-            .motion(Motion.standard, value: isExpanded)
         }
         .scrollClipDisabled()
         .scrollPosition($scrollPosition)
@@ -134,8 +140,9 @@ private struct HomeContentView: View {
     private func hero(_ items: [HeroItem], layout: HeroLayout) -> some View {
         HeroView(
             items: items,
-            isExpanded: isExpanded,
+            isActive: isHeroActive,
             layout: layout,
+            focusRequest: heroFocusRequest,
             isInList: { [model] title in model.library.isInMyList(title.id) },
             onPlay: { [model, launcher] item in model.heroPlay(item, launcher: launcher) },
             onToggleList: { [model] title in Task { await model.toggleList(title) } }
@@ -156,6 +163,7 @@ private struct HomeContentView: View {
             memory: router.focus,
             zoomNamespace: zoomNamespace,
             showsSeeAll: shelf.seeAll != nil,
+            offersDefaultFocus: HomeFocusArea.shelvesOfferDefaultFocus(focusArea, lastFocusInHero: lastFocusInHero),
             onSeeAll: shelf.seeAll.map { query in { [router] in router.push(.browse(query)) } },
             onSelect: { [model, router, launcher] tile in
                 guard let item = shelf.items.first(where: { $0.id == tile.id }) else { return }
@@ -192,19 +200,35 @@ private struct HomeContentView: View {
     private func focusAreaChanged(_ area: HomeFocusArea?) {
         lastFocusInHero = HomeFocusArea.lastFocusInHero(after: area, previous: lastFocusInHero)
         router.isAtTop = HomeFocusArea.isAtTop(area, lastFocusInHero: lastFocusInHero)
+        #if os(tvOS)
+        // Focus-driven scrolling would lift the hero's low-set buttons ~230 pt, cutting off the backdrop top.
+        // Scrolling to the top in the same update takes over that scroll: the hero stays full-bleed, and coming
+        // up from the shelves is a single scroll back to the top.
+        if area == .hero {
+            withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) {
+                scrollPosition.scrollTo(edge: .top)
+            }
+        }
+        #endif
     }
 
-    /// Menu at a scrolled root: scroll to top and focus the hero (the default-focus target once
-    /// `lastFocusInHero` is set; with no hero, the first shelf takes focus as the topmost).
+    /// Menu at a scrolled root. tvOS with a hero: focus the hero, whose focus change scrolls to the top
+    /// (`focusAreaChanged`). Otherwise scroll to the top, and the first shelf takes focus as the topmost default.
     private func scrollToTop() {
         lastFocusInHero = true
+        router.isAtTop = true
+        #if os(tvOS)
+        if model.content?.hero.isEmpty == false {
+            heroFocusRequest += 1
+            return
+        }
+        #endif
         withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) {
             scrollPosition.scrollTo(edge: .top)
         }
         #if os(tvOS)
         resetFocus(in: focusNamespace)
         #endif
-        router.isAtTop = true
     }
 
     // MARK: - Mapping

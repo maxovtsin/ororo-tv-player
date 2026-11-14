@@ -83,12 +83,37 @@ import Testing
 
     @Test func heroHeightLeavesTheFirstShelfPeeking() {
         #if os(tvOS)
-        #expect(HeroView.height(screenHeight: 1080, isExpanded: true) == 1080 - HeroView.shelfPeek)
-        #expect(HeroView.height(screenHeight: 1080, isExpanded: false) == 540)
+        #expect(HeroView.height(screenHeight: 1080) == 1080 - HeroView.shelfPeek)
         #else
-        #expect(HeroView.height(screenHeight: 800, isExpanded: true) == 440)
-        #expect(HeroView.height(screenHeight: 800, isExpanded: false) == 280)
+        #expect(HeroView.height(screenHeight: 800) == 440)
         #endif
+    }
+
+    @Test func showJumpsToAPageAndIgnoresOutOfRange() {
+        var pager = HeroPager(count: 4)
+        pager.show(2)
+        #expect(pager.index == 2)
+        pager.show(4)
+        pager.show(-1)
+        #expect(pager.index == 2)
+        pager.next()
+        #expect(pager.index == 3)
+    }
+
+    @Test func edgeClicksWrapAround() {
+        // Right on the last page's trailing button goes to the first page; left on the first page's leading one to the last.
+        #expect(HeroPager.wrapTarget(from: 3, count: 4, forward: true, onEdgeButton: true) == 0)
+        #expect(HeroPager.wrapTarget(from: 0, count: 4, forward: false, onEdgeButton: true) == 3)
+    }
+
+    @Test func noWrapAwayFromTheEdges() {
+        // Inside the strip the focus engine moves between pages itself.
+        #expect(HeroPager.wrapTarget(from: 2, count: 4, forward: true, onEdgeButton: true) == nil)
+        #expect(HeroPager.wrapTarget(from: 1, count: 4, forward: false, onEdgeButton: true) == nil)
+        // On the last page's leading button, right moves to its trailing button.
+        #expect(HeroPager.wrapTarget(from: 3, count: 4, forward: true, onEdgeButton: false) == nil)
+        #expect(HeroPager.wrapTarget(from: 0, count: 1, forward: true, onEdgeButton: true) == nil)
+        #expect(HeroPager.wrapTarget(from: 0, count: 0, forward: false, onEdgeButton: true) == nil)
     }
 
     @Test func playButtonTitlesFollowAction() {
