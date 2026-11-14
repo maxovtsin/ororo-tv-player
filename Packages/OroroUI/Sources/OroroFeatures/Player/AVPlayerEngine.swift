@@ -1,5 +1,6 @@
 import AVFoundation
 import OroroCore
+import os
 
 /// `PlayerEngine` over `AVPlayer`. Maps AVFoundation state to `PlayerEvent`s for `PlaybackSession`.
 /// Never logs or stores the stream URL.
@@ -12,8 +13,13 @@ import OroroCore
     /// An item that never becomes ready fails like a long stall (the session recovers once, then shows the error).
     static let readyTimeout: Duration = .seconds(30)
 
+    private static let log = Logger(subsystem: "com.dissimirall.Ororo-Player", category: "Surround")
+
     let player = AVPlayer()
     let subtitles: any SubtitleProvider
+    let surround: SurroundPolicy
+    private let outputChannels: @MainActor () -> Int
+    private let readyTimeout: Duration
     let events: AsyncStream<PlayerEvent>
 
     private let continuation: AsyncStream<PlayerEvent>.Continuation
@@ -34,9 +40,19 @@ import OroroCore
     private static let ownSeekExpiry: Duration = .seconds(2)
     private var legibleGroup: AVMediaSelectionGroup?
     private var selectedLanguage: String?
+    /// The current load's surround source (also while it starts, so `stop()` reaches it); `nil` plays original audio.
+    private var surroundSource: (any SurroundSource)?
+    /// Bumped by every load and by `stop()`; a surround start that finishes after its load was superseded is dropped.
+    private var loadGeneration = 0
 
-    init(subtitles: any SubtitleProvider = HLSInjectedSubtitles()) {
+    init(subtitles: any SubtitleProvider = HLSInjectedSubtitles(),
+         surround: SurroundPolicy = .disabled,
+         outputChannels: @escaping @MainActor () -> Int = AudioOutput.channelCount,
+         readyTimeout: Duration = AVPlayerEngine.readyTimeout) {
         self.subtitles = subtitles
+        self.surround = surround
+        self.outputChannels = outputChannels
+        self.readyTimeout = readyTimeout
         (events, continuation) = AsyncStream.makeStream(of: PlayerEvent.self)
         player.appliesMediaSelectionCriteriaAutomatically = false
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
@@ -59,10 +75,11 @@ import OroroCore
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         tearDownItem()
         try? AVAudioSession.sharedInstance().setActive(true)
-        let asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage)
+        let source = await startSurround()
+        let asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
         let item = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: item)
-        try await Self.waitUntilReady(item)
+        try await Self.waitUntilReady(item, timeout: readyTimeout)
         legibleGroup = try? await asset.loadMediaSelectionGroup(for: .legible)
         selectSubtitle(subtitleLanguage, in: item)
         if startAt > 0 { await seek(to: startAt) }
@@ -93,6 +110,7 @@ import OroroCore
         guard !isStopped else { return }
         isStopped = true
         tearDownItem()
+        loadGeneration += 1
         statusObservation?.invalidate()
         statusObservation = nil
         if let timeObserver { player.removeTimeObserver(timeObserver) }
@@ -165,6 +183,8 @@ import OroroCore
     }
 
     private func tearDownItem() {
+        surroundSource?.stop()
+        surroundSource = nil
         itemObservation?.invalidate()
         itemObservation = nil
         itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
@@ -208,6 +228,38 @@ import OroroCore
     private func stopStallCounter() {
         stallTask?.cancel()
         stallTask = nil
+    }
+
+    // MARK: - Surround
+
+    /// Decides whether this load plays simulated 5.1 and starts its source; `nil` means original audio.
+    /// Order: output channels, then the preference, then the source start. Logs one line (never the stream URL).
+    private func startSurround() async -> (any SurroundSource)? {
+        loadGeneration += 1
+        let generation = loadGeneration
+        let channels = outputChannels()
+        AudioOutput.lastObservedChannelCount = channels
+        var source: (any SurroundSource)?
+        if AudioOutput.supportsSurround(channels: channels), await surround.isEnabled(), generation == loadGeneration {
+            // Task 8 replaces this with the fallback to original audio.
+            let candidate = surround.makeSource { _ in }
+            surroundSource = candidate
+            do {
+                _ = try await candidate.start()
+                // A newer load or `stop()` has already stopped the candidate through `tearDownItem()`.
+                if generation == loadGeneration { source = candidate }
+            } catch {
+                if generation == loadGeneration {
+                    candidate.stop()
+                    surroundSource = nil
+                }
+            }
+        }
+        let port = AVAudioSession.sharedInstance().currentRoute.outputs.first?.portType.rawValue ?? "none"
+        Self.log.notice(
+            "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
+        )
+        return source
     }
 
     // MARK: - Subtitles

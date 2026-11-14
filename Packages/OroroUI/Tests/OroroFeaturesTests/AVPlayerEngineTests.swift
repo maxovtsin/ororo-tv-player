@@ -1,12 +1,21 @@
 import AVFoundation
 import Foundation
+import OroroCore
 @testable import OroroFeatures
 import Testing
 
-/// `AVPlayerEngine.waitUntilReady` against real `AVPlayerItem`s (KVO-driven, never Combine `.values`).
-@Suite @MainActor struct AVPlayerEngineTests {
+/// `AVPlayerEngine.waitUntilReady` against real `AVPlayerItem`s (KVO-driven, never Combine `.values`), and the
+/// engine's per-load surround decision. Serialized: the tests share the process-global
+/// `AudioOutput.lastObservedChannelCount`.
+@Suite(.serialized) @MainActor struct AVPlayerEngineTests {
+    private static let playback = Playback(
+        streamURL: URL(string: "https://example.invalid/hls/stream.m3u8?wmsAuthSign=PLACEHOLDER")!,
+        subtitles: [Subtitle(lang: "en", url: URL(string: "https://example.invalid/subs/en.vtt")!)],
+        fetchedAt: Date(timeIntervalSince1970: 1_761_955_200)
+    )
+
     @Test func becomesReadyForAPlayableItem() async throws {
-        let item = AVPlayerItem(url: try Self.silentWAV())
+        let item = AVPlayerItem(url: try TestMedia.silentWAV())
         let player = AVPlayer(playerItem: item)
         try await AVPlayerEngine.waitUntilReady(item, timeout: .seconds(20))
         #expect(item.status == .readyToPlay)
@@ -40,19 +49,48 @@ import Testing
         await #expect(throws: CancellationError.self) { try await wait.value }
     }
 
-    /// A 0.5 s mono 8 kHz 16-bit silent WAV in the temporary directory.
-    private static func silentWAV() throws -> URL {
-        let sampleRate: UInt32 = 8_000, samples = 4_000
-        let dataSize = UInt32(samples * 2)
-        var data = Data()
-        func append<T: FixedWidthInteger>(_ value: T) { withUnsafeBytes(of: value.littleEndian) { data.append(contentsOf: $0) } }
-        data.append(contentsOf: Array("RIFF".utf8)); append(UInt32(36) + dataSize)
-        data.append(contentsOf: Array("WAVEfmt ".utf8)); append(UInt32(16)); append(UInt16(1)); append(UInt16(1))
-        append(sampleRate); append(sampleRate * 2); append(UInt16(2)); append(UInt16(16))
-        data.append(contentsOf: Array("data".utf8)); append(dataSize)
-        data.append(Data(count: Int(dataSize)))
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: "silence-\(UUID()).wav")
-        try data.write(to: url)
-        return url
+    // MARK: - Surround
+
+    private static func engine(_ subtitles: RecordingSubtitles, source: FakeSurroundSource, enabled: Bool = true,
+                               channels: Int = 6) -> AVPlayerEngine {
+        AVPlayerEngine(subtitles: subtitles,
+                       surround: SurroundPolicy(isEnabled: { enabled }, makeSource: { onFailure in source.adopt(onFailure) }),
+                       outputChannels: { channels }, readyTimeout: .seconds(5))
+    }
+
+    @Test func loadUsesSurroundWhenEnabledOnASixChannelOutput() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [true] && source.startCount == 1)
+        #expect(AudioOutput.lastObservedChannelCount == 6)
+        engine.stop()
+        #expect(source.stopCount == 1)
+    }
+
+    @Test(arguments: [(false, 6), (true, 2)])
+    func loadSkipsSurroundWhenDisabledOrStereo(enabled: Bool, channels: Int) async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source, enabled: enabled, channels: channels)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false] && source.startCount == 0)
+        engine.stop()
+    }
+
+    @Test func loadPlaysOriginalAudioWhenTheSourceCannotStart() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startFails: true)
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(subtitles.surroundFlags == [false])
+        engine.stop()
+    }
+
+    @Test func aSecondLoadStopsTheFirstSource() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        #expect(source.startCount == 2 && source.stopCount == 1 && subtitles.surroundFlags == [true, true])
+        engine.stop()
     }
 }

@@ -19,27 +19,35 @@ struct SubtitleResourceResponder: Sendable {
     private let playback: Playback
     private let preferredLanguage: String?
     private let fetch: ResolvingFetch
+    private let authorAudio: AuthorAudio?
 
-    init(playback: Playback, preferredLanguage: String?, fetch: @escaping @Sendable (URL) async throws -> Data) {
+    /// Rewrites the multivariant playlist's audio (surround); `nil` leaves the text unchanged.
+    typealias AuthorAudio = @Sendable (String) async -> String?
+
+    init(playback: Playback, preferredLanguage: String?, fetch: @escaping @Sendable (URL) async throws -> Data,
+         authorAudio: AuthorAudio? = nil) {
         self.init(playback: playback, preferredLanguage: preferredLanguage, resolvingFetch: { url in
             (try await fetch(url), url)
-        })
+        }, authorAudio: authorAudio)
     }
 
-    init(playback: Playback, preferredLanguage: String?, resolvingFetch: @escaping ResolvingFetch) {
+    init(playback: Playback, preferredLanguage: String?, resolvingFetch: @escaping ResolvingFetch,
+         authorAudio: AuthorAudio? = nil) {
         self.playback = playback
         self.preferredLanguage = preferredLanguage
         self.fetch = resolvingFetch
+        self.authorAudio = authorAudio
     }
 
     func response(for url: URL, duration: TimeInterval) async throws -> (data: Data, contentType: String) {
         if url == SubtitlePlaylistBuilder.masterURL() {
             let fetched = try await fetch(playback.streamURL)
             guard let original = String(bytes: fetched.data, encoding: .utf8) else { throw Failure.unreadablePlaylist }
-            let multivariant = SubtitlePlaylistBuilder.master(
+            var multivariant = SubtitlePlaylistBuilder.master(
                 original: original, originalURL: fetched.url,
                 subtitles: playback.subtitles, defaultLanguage: preferredLanguage
             )
+            if let authorAudio, let authored = await authorAudio(multivariant) { multivariant = authored }
             return (Data(multivariant.utf8), Self.contentType)
         }
         guard let lang = SubtitlePlaylistBuilder.language(from: url),
@@ -65,8 +73,11 @@ final class SubtitleResourceLoader: NSObject, AVAssetResourceLoaderDelegate, Sen
     private let inFlight = Mutex<[ObjectIdentifier: Task<Void, Never>]>([:])
 
     init(playback: Playback, preferredLanguage: String?,
-         fetch: @escaping SubtitleResourceResponder.ResolvingFetch = SubtitleResourceLoader.download) {
-        let responder = SubtitleResourceResponder(playback: playback, preferredLanguage: preferredLanguage, resolvingFetch: fetch)
+         fetch: @escaping SubtitleResourceResponder.ResolvingFetch = SubtitleResourceLoader.download,
+         authorAudio: SubtitleResourceResponder.AuthorAudio? = nil) {
+        let responder = SubtitleResourceResponder(
+            playback: playback, preferredLanguage: preferredLanguage, resolvingFetch: fetch, authorAudio: authorAudio
+        )
         self.responder = responder
         self.duration = MediaDuration(responder: responder, fetch: fetch)
     }

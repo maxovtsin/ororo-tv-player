@@ -80,7 +80,7 @@ public struct PlayerScreen: View {
 
     private func start() async {
         guard model == nil else { return }
-        let engine = AVPlayerEngine()
+        let engine = AVPlayerEngine(surround: .live(isEnabled: { true }))
         let session = PlaybackSession(request: request, environment: environment, session: appSession, engine: engine)
         model = PlayerModel(engine: engine, session: session)
         await session.start()

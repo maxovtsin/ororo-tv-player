@@ -179,4 +179,21 @@ import Testing
         #expect(SubtitleResourceLoader.mediaDuration(ofMediaPlaylist: media) == 23.5)
         #expect(SubtitleResourceLoader.mediaDuration(ofMediaPlaylist: "#EXTM3U\n") == 0)
     }
+
+    @Test func appliesAudioAuthoringToTheMultivariantPlaylist() async throws {
+        let responder = SubtitleResourceResponder(
+            playback: Self.playback, preferredLanguage: "en", resolvingFetch: { _ in (Data(Self.original.utf8), Self.streamURL) },
+            authorAudio: { $0 + "#AUTHORED\n" })
+        let data = try await responder.response(for: SubtitlePlaylistBuilder.masterURL(), duration: 0).data
+        let text = try #require(String(bytes: data, encoding: .utf8))
+        #expect(text.hasSuffix("#AUTHORED\n") && text.contains(#"SUBTITLES="subs""#))
+    }
+
+    @Test func keepsThePlaylistWhenAudioAuthoringDeclines() async throws {
+        let fetch: SubtitleResourceResponder.ResolvingFetch = { _ in (Data(Self.original.utf8), Self.streamURL) }
+        let plain = SubtitleResourceResponder(playback: Self.playback, preferredLanguage: "en", resolvingFetch: fetch)
+        let declined = SubtitleResourceResponder(playback: Self.playback, preferredLanguage: "en", resolvingFetch: fetch, authorAudio: { _ in nil })
+        let url = SubtitlePlaylistBuilder.masterURL()
+        #expect(try await declined.response(for: url, duration: 0).data == plain.response(for: url, duration: 0).data)
+    }
 }
