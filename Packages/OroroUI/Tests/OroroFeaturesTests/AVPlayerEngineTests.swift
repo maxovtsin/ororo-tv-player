@@ -82,6 +82,7 @@ import Testing
         let engine = Self.engine(subtitles, source: source)
         try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
         #expect(subtitles.surroundFlags == [false])
+        #expect(source.stopCount == 1)
         engine.stop()
     }
 
@@ -92,5 +93,35 @@ import Testing
         try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
         #expect(source.startCount == 2 && source.stopCount == 1 && subtitles.surroundFlags == [true, true])
         engine.stop()
+    }
+
+    @Test func stopWhileSurroundStartsLeavesThePlayerEmpty() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startDelay: .milliseconds(300))
+        let engine = Self.engine(subtitles, source: source)
+        let load = Task { try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) }
+        try await Self.waitUntil { source.startCount == 1 }
+        engine.stop()
+        await #expect(throws: CancellationError.self) { try await load.value }
+        #expect(engine.player.currentItem == nil && subtitles.surroundFlags.isEmpty && source.stopCount == 1)
+    }
+
+    @Test func aLoadSupersededWhileSurroundStartsDoesNotReplaceTheNewerItem() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource(startDelay: .milliseconds(300))
+        let engine = Self.engine(subtitles, source: source)
+        let first = Task { try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil) }
+        try await Self.waitUntil { source.startCount == 1 }
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        await #expect(throws: CancellationError.self) { try await first.value }
+        // Only the newer load built an asset, and its item is the one playing.
+        #expect(subtitles.surroundFlags == [true] && engine.player.currentItem?.status == .readyToPlay)
+        engine.stop()
+    }
+
+    /// Polls `condition` on the main actor every 10 ms, for at most 5 s.
+    private static func waitUntil(_ condition: () -> Bool) async throws {
+        for _ in 0..<500 where !condition() {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(condition())
     }
 }

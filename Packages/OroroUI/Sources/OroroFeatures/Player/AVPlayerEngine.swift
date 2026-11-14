@@ -75,7 +75,10 @@ import os
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         tearDownItem()
         try? AVAudioSession.sharedInstance().setActive(true)
-        let source = await startSurround()
+        let (source, generation) = await startSurround()
+        // `stop()` or a newer load ran while surround started: installing an item now would revive a stopped player
+        // or replace the newer load's item.
+        guard !isStopped, generation == loadGeneration else { throw CancellationError() }
         let asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
         let item = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: item)
@@ -232,9 +235,10 @@ import os
 
     // MARK: - Surround
 
-    /// Decides whether this load plays simulated 5.1 and starts its source; `nil` means original audio.
+    /// Decides whether this load plays simulated 5.1 and starts its source; a `nil` source means original audio.
     /// Order: output channels, then the preference, then the source start. Logs one line (never the stream URL).
-    private func startSurround() async -> (any SurroundSource)? {
+    /// Returns the load's generation so the caller can tell whether the load was superseded meanwhile.
+    private func startSurround() async -> (source: (any SurroundSource)?, generation: Int) {
         loadGeneration += 1
         let generation = loadGeneration
         let channels = outputChannels()
@@ -259,7 +263,7 @@ import os
         Self.log.notice(
             "Output channels \(channels, privacy: .public), port \(port, privacy: .public), surround \(source != nil, privacy: .public)"
         )
-        return source
+        return (source, generation)
     }
 
     // MARK: - Subtitles

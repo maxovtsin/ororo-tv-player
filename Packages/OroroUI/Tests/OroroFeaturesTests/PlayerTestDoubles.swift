@@ -59,11 +59,15 @@ final class FakeSurroundSource: SurroundSource {
     private let startFails: Bool
     private let servesAfterWake: Bool
     private let failsAfterStart: Duration?
+    private let startDelay: Duration?
 
-    init(startFails: Bool = false, servesAfterWake: Bool = true, failsAfterStart: Duration? = nil) {
+    /// - Parameter startDelay: how long `start()` suspends before it succeeds or fails.
+    init(startFails: Bool = false, servesAfterWake: Bool = true, failsAfterStart: Duration? = nil,
+         startDelay: Duration? = nil) {
         self.startFails = startFails
         self.servesAfterWake = servesAfterWake
         self.failsAfterStart = failsAfterStart
+        self.startDelay = startDelay
     }
 
     var startCount: Int { state.withLock { $0.startCount } }
@@ -83,6 +87,7 @@ final class FakeSurroundSource: SurroundSource {
 
     func start() async throws -> URL {
         state.withLock { $0.startCount += 1 }
+        if let startDelay { try? await Task.sleep(for: startDelay) }
         if startFails { throw StartFailed() }
         if let failsAfterStart {
             Task { [self] in
