@@ -30,9 +30,14 @@ public struct Badge: View {
         case .hd: Text(verbatim: "HD")
         case .sd: Text(verbatim: "SD")
         case .cc: Text(verbatim: "CC")
-        case .new: Text("New", bundle: .module)
+        case .new: Text(verbatim: Self.newTitle)
         case .text(let string): Text(verbatim: string)
         }
+    }
+
+    /// Shared by the visible "New" badge and its accessibility label.
+    nonisolated static var newTitle: String {
+        String(localized: "badge.new", defaultValue: "New", bundle: .module)
     }
 
     nonisolated static func formatted(_ rating: Double) -> String {
@@ -73,7 +78,7 @@ public extension BadgeKind {
         case .cc:
             return String(localized: "badge.cc.accessibility", defaultValue: "Subtitles available", bundle: .module)
         case .new:
-            return String(localized: "badge.new.accessibility", defaultValue: "New", bundle: .module)
+            return Badge.newTitle
         case .text(let string):
             return string
         }
