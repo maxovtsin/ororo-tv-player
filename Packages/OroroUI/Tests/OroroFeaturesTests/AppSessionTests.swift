@@ -287,7 +287,7 @@ import Testing
         #expect(session.state == .signedOut)
     }
 
-    @Test func signInFailingAfterShowsIsFailedAndRetryUsesTheEnteredCredentials() async throws {
+    @Test func signInFailingAfterShowsIsFailedAndRepeatedRetriesUseTheEnteredCredentials() async throws {
         let credentials = InMemoryCredentialStore()
         let gated = GatedCatalog(credentials: credentials, moviesError: .offline)
         let session = Self.session(catalog: gated, credentials: credentials)
@@ -300,9 +300,18 @@ import Testing
         #expect(session.state == .failed(.offline))
         #expect(credentials.stored == nil)
 
+        await session.retry()  // still offline
+        #expect(session.state == .failed(.offline))
+        await session.retry()  // and again
+        #expect(session.state == .failed(.offline))
+        #expect(await gated.signInCalls == 3)
+        #expect(credentials.stored == nil)
+
         await gated.setMoviesError(nil)
         await session.retry()
         #expect(session.state == .ready)
+        #expect(await gated.signInCalls == 4)
+        #expect(session.storedEmail == Samples.credentials.email)
         #expect(await gated.lastSignInCredentials == Samples.credentials)
         #expect(credentials.stored == Samples.credentials)
     }

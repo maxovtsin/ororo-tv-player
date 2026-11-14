@@ -27,8 +27,9 @@ import Synchronization
     @ObservationIgnored private var refreshInFlight: Task<Void, Never>?
     /// True from `start()` until its catalog work (decode + first refresh) has finished.
     @ObservationIgnored private(set) var isLaunching = false
-    /// True while `signIn` downloads; gates its progress updates.
-    @ObservationIgnored private var signInInFlight = false
+    /// Tokens of the `signIn` calls still downloading; each call's progress hand-off is gated by its own token.
+    @ObservationIgnored private var activeSignIns: Set<Int> = []
+    @ObservationIgnored private var nextSignInToken = 0
     /// Credentials of a sign-in that failed after `/shows` succeeded; they are not stored yet, so Retry uses them.
     @ObservationIgnored private var pendingCredentials: Credentials?
 
@@ -84,15 +85,17 @@ import Synchronization
     public func signIn(email: String, password: String) async throws {
         let credentials = Credentials(email: email, password: password)
         let catalogProvider = environment.catalog
-        signInInFlight = true
-        defer { signInInFlight = false }
+        nextSignInToken += 1
+        let token = nextSignInToken
+        activeSignIns.insert(token)
+        defer { activeSignIns.remove(token) }
         // Recorded synchronously, so a failure right after `/shows` is classified even before the progress hop lands.
         let showsSucceeded = Mutex(false)
         // Unstructured so the download survives the sign-in form disappearing when the loading screen takes over.
         let download = Task { [weak self] in
             try await catalogProvider.signIn(credentials) { [weak self] fraction in
                 if fraction > 0.5 { showsSucceeded.withLock { $0 = true } }
-                Task { @MainActor in self?.signInProgress(fraction) }
+                Task { @MainActor in self?.signInProgress(fraction, token: token) }
             }
         }
         let loaded: Catalog
@@ -125,6 +128,13 @@ import Synchronization
         refreshInFlight = nil
         isLaunching = false
         pendingCredentials = nil
+        // Everything in memory goes before the first await, so loads cancelled by `clear()` below see
+        // `.signedOut` and never restore an earlier state.
+        catalog = nil
+        storedEmail = nil
+        newEpisodeInfo = [:]
+        needsReauth = false
+        state = .signedOut
         do {
             try environment.credentials.clear()
         } catch {
@@ -133,11 +143,6 @@ import Synchronization
         }
         await environment.details.clear()
         await environment.catalog.clear()
-        catalog = nil
-        storedEmail = nil
-        newEpisodeInfo = [:]
-        needsReauth = false
-        state = .signedOut
     }
 
     /// Overlapping calls share the refresh in flight; a forced one runs again after it.
@@ -176,8 +181,8 @@ import Synchronization
 
     public func retry() async {
         guard case .failed = state else { return }
+        // Kept until success, a 401 or sign-out, so repeated failures can be retried without retyping.
         if let pending = pendingCredentials {
-            pendingCredentials = nil
             await loadFromNetwork(pending)
             return
         }
@@ -210,6 +215,8 @@ import Synchronization
             }
             // A sign-out while downloading already moved the state on.
             guard case .loadingCatalog = state else { return }
+            pendingCredentials = nil
+            storedEmail = credentials.email
             install(loaded)
             state = .ready
             await resolveNewEpisodes()
@@ -219,6 +226,7 @@ import Synchronization
         } catch {
             guard case .loadingCatalog = state else { return }
             if let apiError = error as? APIError, apiError == .unauthorized {
+                pendingCredentials = nil
                 state = .signedOut
             } else {
                 state = .failed(error as? APIError ?? .server(status: 0))
@@ -233,8 +241,8 @@ import Synchronization
 
     /// `/shows` is the first half of the progress, and only it can answer 401. Exactly 0.5 can still precede a 401
     /// (the transport reports the body before checking the status), so only `/movies` progress (> 0.5) counts.
-    private func signInProgress(_ fraction: Double) {
-        guard signInInFlight, fraction > 0.5 else { return }
+    private func signInProgress(_ fraction: Double, token: Int) {
+        guard activeSignIns.contains(token), fraction > 0.5 else { return }
         switch state {
         case .signedOut: state = .loadingCatalog(min(1, fraction))
         case .loadingCatalog: updateProgress(fraction)
