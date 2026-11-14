@@ -39,7 +39,7 @@ public struct Transport: Sendable {
 
     public func send(_ endpoint: Endpoint, credentials: Credentials, ifNoneMatch: String? = nil,
                      progress: (@Sendable (Double) -> Void)? = nil) async throws -> RawResponse {
-        var request = URLRequest(url: URL(string: baseURL.absoluteString + endpoint.path)!)
+        var request = URLRequest(url: baseURL.appending(path: endpoint.path))
         let token = Data("\(credentials.email):\(credentials.password)".utf8).base64EncodedString()
         request.setValue("Basic \(token)", forHTTPHeaderField: "Authorization")
         if let ifNoneMatch {
@@ -54,11 +54,11 @@ public struct Transport: Sendable {
             } else {
                 (data, response) = try await session.data(for: request)
             }
-        } catch let error as URLError where Self.isOffline(error) {
-            throw APIError.offline
+        } catch let error as URLError {
+            throw Self.map(error)
         }
 
-        guard let http = response as? HTTPURLResponse else { throw APIError.decoding }
+        guard let http = response as? HTTPURLResponse else { throw APIError.server(status: 0) }
         let etag = http.value(forHTTPHeaderField: "ETag")
         switch http.statusCode {
         case 304: return RawResponse(data: Data(), etag: etag, notModified: true)
@@ -74,25 +74,36 @@ public struct Transport: Sendable {
         let (bytes, response) = try await session.bytes(for: request)
         let expected = response.expectedContentLength
         var data = Data()
-        var sinceReport = 0
+        if expected > 0 { data.reserveCapacity(Int(min(expected, 64 * 1024 * 1024))) }
+        var chunk = [UInt8]()
+        chunk.reserveCapacity(Self.chunkSize)
         for try await byte in bytes {
-            data.append(byte)
-            sinceReport += 1
-            if expected > 0, sinceReport >= 16 * 1024 {
-                sinceReport = 0
-                progress(min(1, Double(data.count) / Double(expected)))
+            chunk.append(byte)
+            if chunk.count >= Self.chunkSize {
+                data.append(contentsOf: chunk)
+                chunk.removeAll(keepingCapacity: true)
+                if expected > 0 { progress(min(1, Double(data.count) / Double(expected))) }
             }
         }
+        data.append(contentsOf: chunk)
         if expected > 0 { progress(min(1, Double(data.count) / Double(expected))) }
         return (data, response)
     }
 
-    private static func isOffline(_ error: URLError) -> Bool {
+    private static let chunkSize = 64 * 1024
+
+    /// Cancellation stays cancellation; connectivity failures are `.offline`; any other transport-level
+    /// failure is `.server(status: 0)` (0 = no HTTP status, the request never completed).
+    private static func map(_ error: URLError) -> Error {
         switch error.code {
-        case .notConnectedToInternet, .timedOut, .networkConnectionLost, .cannotFindHost, .cannotConnectToHost:
-            true
+        case .cancelled:
+            CancellationError()
+        case .notConnectedToInternet, .timedOut, .networkConnectionLost, .cannotFindHost, .cannotConnectToHost,
+             .dnsLookupFailed, .secureConnectionFailed, .internationalRoamingOff, .dataNotAllowed,
+             .cannotLoadFromNetwork, .callIsActive:
+            APIError.offline
         default:
-            false
+            APIError.server(status: 0)
         }
     }
 }

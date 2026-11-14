@@ -122,20 +122,51 @@ final class ProgressBox: @unchecked Sendable {
     }
 
     @Test(arguments: [URLError.Code.notConnectedToInternet, .timedOut, .networkConnectionLost,
-                      .cannotFindHost, .cannotConnectToHost])
+                      .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed, .secureConnectionFailed,
+                      .internationalRoamingOff, .dataNotAllowed, .cannotLoadFromNetwork, .callIsActive])
     func mapsURLErrorToOffline(code: URLError.Code) async {
         let (transport, _) = make(.failure(code))
         await #expect(throws: APIError.offline) { try await transport.send(.shows, credentials: credentials) }
     }
 
-    @Test func progressReportsFractionWhenLengthKnown() async throws {
-        let body = String(repeating: "x", count: 100)
-        let (transport, _) = make(ok(["Content-Length": "100"], body: body))
+    @Test func otherURLErrorMapsToServerStatusZero() async {
+        let (transport, _) = make(.failure(.badServerResponse))
+        await #expect(throws: APIError.server(status: 0)) { try await transport.send(.shows, credentials: credentials) }
+    }
+
+    @Test func cancelledURLErrorMapsToCancellationError() async {
+        let (transport, _) = make(.failure(.cancelled))
+        await #expect(throws: CancellationError.self) { try await transport.send(.shows, credentials: credentials) }
+    }
+
+    @Test func taskCancellationThrowsCancellationError() async {
+        let (transport, _) = make(ok())
+        let task = Task { () -> RawResponse in
+            try await Task.sleep(for: .seconds(5))
+            return try await transport.send(.shows, credentials: credentials)
+        }
+        task.cancel()
+        await #expect(throws: CancellationError.self) { try await task.value }
+    }
+
+    @Test func progressReportsMonotonicFractionWhenLengthKnown() async throws {
+        let size = 64 * 1024 * 3 + 5000
+        let (transport, _) = make(ok(["Content-Length": "\(size)"], body: String(repeating: "x", count: size)))
         let box = ProgressBox()
         let response = try await transport.send(.shows, credentials: credentials, progress: { box.append($0) })
-        #expect(response.data.count == 100)
-        #expect(box.values.last == 1.0)
-        #expect(box.values.allSatisfy { $0 >= 0 && $0 <= 1 })
+        #expect(response.data.count == size)
+        let values = box.values
+        #expect(values.last == 1.0)
+        #expect(values.contains { $0 > 0 && $0 < 1 })
+        #expect(zip(values, values.dropFirst()).allSatisfy { $0 <= $1 })
+    }
+
+    @Test func progressNotReportedWithoutContentLength() async throws {
+        let (transport, _) = make(ok(["Transfer-Encoding": "chunked"], body: String(repeating: "x", count: 200_000)))
+        let box = ProgressBox()
+        let response = try await transport.send(.shows, credentials: credentials, progress: { box.append($0) })
+        #expect(response.data.count == 200_000)
+        #expect(box.values.isEmpty)
     }
 
     @Test func endpointPaths() {
