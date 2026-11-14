@@ -1,6 +1,6 @@
 import Foundation
 import OroroCore
-import OroroFeatures
+@testable import OroroFeatures
 import OroroTestSupport
 import Testing
 
@@ -17,7 +17,8 @@ import Testing
 
         @MainActor init(credentials stored: Credentials? = Samples.credentials, cached: Catalog? = nil,
                         signInResult: Result<Catalog, APIError> = .success(Samples.catalog),
-                        library: Library = Library(), newEpisodes: [Int: NewEpisodeInfo] = [:]) {
+                        library: Library = Library(), newEpisodes: [Int: NewEpisodeInfo] = [:],
+                        now: @escaping @MainActor () -> Date = { Samples.now }) {
             credentials = InMemoryCredentialStore(stored)
             catalog = FakeCatalog(cached: cached, signInResult: signInResult, credentials: credentials)
             self.library = InMemoryLibraryStore(library)
@@ -25,7 +26,7 @@ import Testing
             session = AppSession(environment: AppEnvironment(
                 api: api, catalog: catalog, library: self.library, details: details,
                 credentials: credentials, newEpisodes: self.newEpisodes
-            ))
+            ), now: now)
         }
     }
 
@@ -232,5 +233,196 @@ import Testing
         await harness.session.start()
         #expect(await eventually { harness.session.needsReauth })
         #expect(harness.session.state == .ready)
+    }
+
+    // MARK: - fix round 1
+
+    @Test func signOutDuringLaunchDecodeStaysSignedOut() async {
+        let gated = GatedCatalog(snapshot: HomeContent(hero: [], shelves: []))
+        let credentials = InMemoryCredentialStore(Samples.credentials)
+        let session = Self.session(catalog: gated, credentials: credentials)
+        await session.start()
+        #expect(session.state == .ready)
+        #expect(await eventually { await gated.isWaiting(.loadCached) })
+
+        await session.signOut()
+        await gated.open(.loadCached)  // resolves with no cache
+        #expect(await eventually { !session.isLaunching })
+        #expect(session.state == .signedOut)
+        #expect(await gated.signInCalls == 0)
+    }
+
+    @Test func signInStaysSignedOutUntilShowsSucceedThenShowsProgress() async throws {
+        let credentials = InMemoryCredentialStore()
+        let gated = GatedCatalog(credentials: credentials)
+        let session = Self.session(catalog: gated, credentials: credentials)
+        await session.start()
+        let signIn = Task { try await session.signIn(email: "user@example.invalid", password: "placeholder") }
+
+        #expect(await eventually { await gated.isWaiting(.shows) })
+        for _ in 0..<100 { await Task.yield() }  // let the 0.25 progress hop land
+        #expect(session.state == .signedOut)
+
+        await gated.open(.shows)
+        #expect(await eventually { await gated.isWaiting(.movies) })
+        #expect(await eventually { session.state == .loadingCatalog(0.75) })
+
+        await gated.open(.movies)
+        try await signIn.value
+        #expect(session.state == .ready)
+        #expect(session.catalog == Samples.catalog)
+        #expect(credentials.stored == Samples.credentials)
+    }
+
+    @Test func signInUnauthorizedNeverLeavesSignedOut() async {
+        let gated = GatedCatalog(showsError: .unauthorized)
+        let session = Self.session(catalog: gated, credentials: InMemoryCredentialStore())
+        await session.start()
+        let signIn = Task { try await session.signIn(email: "user@example.invalid", password: "wrong") }
+        #expect(await eventually { await gated.isWaiting(.shows) })
+        #expect(session.state == .signedOut)
+        await gated.open(.shows)
+        await #expect(throws: APIError.unauthorized) { try await signIn.value }
+        for _ in 0..<100 { await Task.yield() }
+        #expect(session.state == .signedOut)
+    }
+
+    @Test func signInFailingAfterShowsIsFailedAndRetryUsesTheEnteredCredentials() async throws {
+        let credentials = InMemoryCredentialStore()
+        let gated = GatedCatalog(credentials: credentials, moviesError: .offline)
+        let session = Self.session(catalog: gated, credentials: credentials)
+        await session.start()
+        await gated.open(.shows)
+        await gated.open(.movies)
+        await #expect(throws: APIError.offline) {
+            try await session.signIn(email: "user@example.invalid", password: "placeholder")
+        }
+        #expect(session.state == .failed(.offline))
+        #expect(credentials.stored == nil)
+
+        await gated.setMoviesError(nil)
+        await session.retry()
+        #expect(session.state == .ready)
+        #expect(await gated.lastSignInCredentials == Samples.credentials)
+        #expect(credentials.stored == Samples.credentials)
+    }
+
+    @Test func sceneBecameActiveRefreshesOnlyWhenStale() async {
+        var clock = Samples.now.addingTimeInterval(3_600)
+        let harness = Harness(cached: Samples.catalog, now: { clock })
+        await harness.session.start()
+        #expect(await eventually { !harness.session.isLaunching })
+        #expect(await harness.catalog.refreshCalls == 1)
+
+        await harness.session.sceneBecameActive()  // 1 h old: fresh
+        #expect(await harness.catalog.refreshCalls == 1)
+
+        clock = Samples.now.addingTimeInterval(7 * 3_600)  // FakeCatalog's lastUpdated is still fetchedAt
+        await harness.catalog.configure { $0.lastUpdatedDate = Samples.now }
+        await harness.session.sceneBecameActive()
+        #expect(await harness.catalog.refreshCalls == 2)
+    }
+
+    @Test func sceneBecameActiveIsSkippedDuringLaunch() async {
+        let gated = GatedCatalog(snapshot: HomeContent(hero: [], shelves: []), cached: Samples.catalog)
+        let session = Self.session(catalog: gated, credentials: InMemoryCredentialStore(Samples.credentials),
+                                   now: { Samples.now.addingTimeInterval(7 * 3_600) })
+        await session.start()
+        #expect(await eventually { await gated.isWaiting(.loadCached) })
+        await session.sceneBecameActive()
+        #expect(await gated.loadCachedCalls == 1)
+        #expect(await gated.refreshCalls == 0)
+        await gated.open(.loadCached)
+        #expect(await eventually { !session.isLaunching })
+        #expect(await gated.refreshCalls == 1)
+    }
+
+    private static func session(catalog: GatedCatalog, credentials: InMemoryCredentialStore,
+                                now: @escaping @MainActor () -> Date = { Samples.now }) -> AppSession {
+        AppSession(environment: AppEnvironment(
+            api: FakeAPI(), catalog: catalog, library: InMemoryLibraryStore(), details: FakeDetails(),
+            credentials: credentials, newEpisodes: FakeNewEpisodes()
+        ), now: now)
+    }
+}
+
+/// A catalog whose `loadCached` and sign-in downloads wait for the test to open them. Sign-in mirrors
+/// `CatalogRepository`: `/shows` then `/movies`, progress is the mean of the two downloads, and the
+/// credentials are saved only after both succeed.
+actor GatedCatalog: CatalogProviding {
+    enum Step: Hashable { case loadCached, shows, movies }
+
+    private var catalog: Catalog?
+    private let snapshot: HomeContent?
+    private var cached: Catalog?
+    private let showsError: APIError?
+    private var moviesError: APIError?
+    private var opened: Set<Step> = []
+    private var waiters: [Step: CheckedContinuation<Void, Never>] = [:]
+    private(set) var signInCalls = 0, loadCachedCalls = 0, refreshCalls = 0
+    private(set) var lastSignInCredentials: Credentials?
+
+    private let storedCredentials: (any CredentialStoring)?
+
+    init(credentials: (any CredentialStoring)? = nil, snapshot: HomeContent? = nil, cached: Catalog? = nil,
+         showsError: APIError? = nil, moviesError: APIError? = nil) {
+        storedCredentials = credentials
+        self.snapshot = snapshot
+        self.cached = cached
+        self.showsError = showsError
+        self.moviesError = moviesError
+    }
+
+    func open(_ step: Step) {
+        opened.insert(step)
+        waiters.removeValue(forKey: step)?.resume()
+    }
+
+    func isWaiting(_ step: Step) -> Bool { waiters[step] != nil }
+
+    func setMoviesError(_ error: APIError?) { moviesError = error }
+
+    private func wait(_ step: Step) async {
+        guard !opened.contains(step) else { return }
+        await withCheckedContinuation { waiters[step] = $0 }
+    }
+
+    func current() async -> Catalog? { catalog }
+    func lastUpdated() async -> Date? { catalog?.fetchedAt }
+
+    func signIn(_ c: Credentials, progress: (@Sendable (Double) -> Void)?) async throws -> Catalog {
+        signInCalls += 1
+        lastSignInCredentials = c
+        progress?(0.25)
+        await wait(.shows)
+        progress?(0.5)  // like the transport, the /shows body is reported before its status is checked
+        if let showsError { throw showsError }
+        progress?(0.75)
+        await wait(.movies)
+        if let moviesError { throw moviesError }
+        progress?(1)
+        try storedCredentials?.save(c)
+        catalog = Samples.catalog
+        return Samples.catalog
+    }
+
+    func loadCached() async -> Catalog? {
+        loadCachedCalls += 1
+        await wait(.loadCached)
+        catalog = cached ?? catalog
+        return cached
+    }
+
+    func refresh(force: Bool, now: Date) async throws -> Bool {
+        refreshCalls += 1
+        return false
+    }
+
+    func homeSnapshot() async -> HomeContent? { snapshot }
+    func saveHomeSnapshot(_ content: HomeContent) async {}
+
+    func clear() async {
+        catalog = nil
+        cached = nil
     }
 }

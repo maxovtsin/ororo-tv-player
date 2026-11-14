@@ -69,6 +69,7 @@ private struct AppRootContent: View {
                 .environment(launcher)
                 .environment(tabs.router(tabs.selected))
                 .environment(\.appEnvironment, environment)
+                .environment(\.selectTab, SelectTabAction { [tabs] tab in tabs.selected = tab })
         }
         .sheet(isPresented: $session.needsReauth) {
             ReauthSheet(email: session.storedEmail)
@@ -77,6 +78,10 @@ private struct AppRootContent: View {
         }
         .task {
             if session.state == .launching { await session.start() }
+        }
+        .onChange(of: Phase(session.state)) { _, phase in
+            // A new account starts on Home with empty stacks and no focus memory.
+            if phase == .signedOut { tabs = TabsModel() }
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {

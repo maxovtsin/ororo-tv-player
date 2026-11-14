@@ -25,6 +25,7 @@ struct LoadingScreen: View {
                 .accessibilityValue(progress.formatted(.percent.precision(.fractionLength(0))))
             } else {
                 ProgressView()
+                    .accessibilityLabel(String(localized: "appRoot.loading.launching", defaultValue: "Loading", bundle: .module))
             }
         }
         .padding(Spacing.screenEdge)
@@ -58,10 +59,8 @@ struct CatalogFailureScreen: View {
         case .offline:
             String(localized: "appRoot.error.offline",
                    defaultValue: "You're offline. Check your connection and try again.", bundle: .module)
-        case .unauthorized:
-            String(localized: "appRoot.error.unauthorized",
-                   defaultValue: "Your email or password is no longer accepted.", bundle: .module)
-        case .notFound, .server, .decoding:
+        default:
+            // `.unauthorized` never reaches this screen: it returns to sign-in.
             String(localized: "appRoot.error.server",
                    defaultValue: "Couldn't load the catalog from ororo.tv. Try again in a moment.", bundle: .module)
         }
