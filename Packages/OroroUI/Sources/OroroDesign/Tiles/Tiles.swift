@@ -3,7 +3,7 @@ import SwiftUI
 /// Per-platform tile sizes.
 ///
 /// `size(_:)` is the artwork size. A landscape tile additionally reserves `captionHeight(_:)`
-/// directly below its artwork for the focus-revealed title and subtitle, so its total layout
+/// directly below its artwork for the title and subtitle, so its total layout
 /// height is `size.height + captionHeight`. `ShelfRow` and `PosterGrid` must allow that total.
 public enum TileMetrics {
     public static func size(_ shape: TileShape) -> CGSize {
@@ -102,7 +102,7 @@ public struct PosterTile: View {
     }
 }
 
-/// 16:9; title + subtitle reveal below on focus (quick); progress bar; badge top-leading.
+/// 16:9; title + subtitle always shown below (brightened on focus); progress bar; badge top-leading.
 public struct LandscapeTile: View {
     private let model: TileModel
     private let isFocused: Bool
@@ -154,14 +154,15 @@ public struct LandscapeTile: View {
                     .lineLimit(1)
             }
         }
+        .foregroundStyle(isFocused ? Palette.textPrimary : Palette.textSecondary)
         .padding(.top, Spacing.m)
-        .opacity(isFocused ? 1 : 0)
         .motion(Motion.quick, value: isFocused)
     }
 }
 
 public struct SeeAllTile: View {
     private let shape: TileShape
+    @Environment(\.isFocused) private var isFocused
 
     public init(shape: TileShape) {
         self.shape = shape
@@ -175,9 +176,10 @@ public struct SeeAllTile: View {
             Text(label)
                 .font(Typography.headline)
         }
-        .foregroundStyle(Palette.textSecondary)
+        .foregroundStyle(isFocused ? Palette.textPrimary : Palette.textSecondary)
         .frame(width: size.width, height: size.height)
-        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: TileMetrics.cornerRadius))
+        .background(.white.opacity(isFocused ? 0.16 : 0.08))
+        .modifier(TileChrome(isFocused: isFocused))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
     }

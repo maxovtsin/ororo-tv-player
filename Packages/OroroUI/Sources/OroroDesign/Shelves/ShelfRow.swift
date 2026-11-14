@@ -62,7 +62,7 @@ public struct ShelfRow: View {
                         .tileButtonStyle()
                     }
                 }
-                .padding(.vertical, Spacing.l)
+                .padding(.vertical, Spacing.m) // room for the focus scale and shadow
                 .scrollTargetLayout()
             }
             .scrollIndicators(.hidden)
@@ -165,13 +165,18 @@ extension View {
         #endif
     }
 
-    /// System card lift and parallax on tvOS; plain on iOS.
+    /// Tiles draw their own focus chrome (`TileChrome`), so the button adds only press feedback. The system
+    /// `.card` style is not used: its platter would fill a landscape tile's caption area and clip the scaled artwork.
     func tileButtonStyle() -> some View {
-        #if os(tvOS)
-        buttonStyle(.card)
-        #else
-        buttonStyle(.plain)
-        #endif
+        buttonStyle(TileButtonStyle())
+    }
+}
+
+private struct TileButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .motion(Motion.quick, value: configuration.isPressed)
     }
 }
 

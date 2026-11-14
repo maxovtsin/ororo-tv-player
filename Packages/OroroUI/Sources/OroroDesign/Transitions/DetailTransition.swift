@@ -19,10 +19,16 @@ private struct DetailZoomSource: ViewModifier {
     let id: String
     let namespace: Namespace.ID?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private static let focusOverflow: CGFloat = 32
 
     func body(content: Content) -> some View {
         if let namespace, !reduceMotion {
-            content.matchedTransitionSource(id: id, in: namespace)
+            // The source layer clips to its bounds; the padding leaves room for the tile's focus scale and shadow
+            // without changing layout.
+            content
+                .padding(Self.focusOverflow)
+                .matchedTransitionSource(id: id, in: namespace)
+                .padding(-Self.focusOverflow)
         } else {
             content
         }
