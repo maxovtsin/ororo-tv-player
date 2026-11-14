@@ -133,6 +133,57 @@ import Testing
         #expect(await harness.catalog.saveSnapshotCalls == 2)
     }
 
+    @Test func catalogArrivingOverSnapshotWaitsForNextAppear() async {
+        let snapshot = HomeContent(
+            hero: [HeroItem(title: title(.movie, 1001), action: .playMovie)],
+            shelves: [Shelf(id: "popularShows", kind: .popularShows, items: [ShelfItem(title: title(.show, 101))], totalCount: 1)]
+        )
+        let harness = await makeHarness(snapshot: snapshot)
+        await harness.model.appear(catalog: nil, newEpisodeInfo: [:])
+
+        await harness.model.catalogArrived(Samples.catalog, newEpisodeInfo: [:])
+        #expect(harness.model.content == snapshot)
+        #expect(await harness.catalog.saveSnapshotCalls == 0)
+
+        await harness.model.appear(catalog: Samples.catalog, newEpisodeInfo: [:])
+        #expect(harness.model.content != snapshot)
+        #expect(harness.model.content?.hero.count == 6)
+        #expect(await harness.catalog.saveSnapshotCalls == 1)
+    }
+
+    @Test func catalogArrivingOverSkeletonBuildsOnce() async {
+        let harness = await makeHarness()
+        await harness.model.appear(catalog: nil, newEpisodeInfo: [:])
+        #expect(harness.model.content == nil)
+
+        // The screen's appear and the catalog-arrival callback may overlap; the second is a no-op.
+        async let first: Void = harness.model.catalogArrived(Samples.catalog, newEpisodeInfo: [:])
+        async let second: Void = harness.model.appear(catalog: Samples.catalog, newEpisodeInfo: [:])
+        _ = await (first, second)
+
+        #expect(harness.model.content?.hero.count == 6)
+        #expect(await harness.catalog.saveSnapshotCalls == 1)
+    }
+
+    @Test func focusAreaDrivesExpansionTopAndRestoreTarget() {
+        #expect(HomeFocusArea.isExpanded(nil))
+        #expect(HomeFocusArea.isExpanded(.hero))
+        #expect(!HomeFocusArea.isExpanded(.shelf("popularShows")))
+        #expect(HomeFocusArea.isAtTop(nil))
+        #expect(HomeFocusArea.isAtTop(.hero))
+        #expect(!HomeFocusArea.isAtTop(.shelf("popularShows")))
+
+        // Leaving the screen (nil) keeps the last area; hero and shelves set it.
+        #expect(HomeFocusArea.lastFocusInHero(after: .shelf("myList"), previous: true) == false)
+        #expect(HomeFocusArea.lastFocusInHero(after: .hero, previous: false) == true)
+        #expect(HomeFocusArea.lastFocusInHero(after: nil, previous: false) == false)
+
+        // Restore: the hero when focus was last there or nothing is remembered, else the anchored shelf.
+        #expect(HomeFocusArea.restoreTarget(lastFocusInHero: true, anchor: "popularShows") == .hero)
+        #expect(HomeFocusArea.restoreTarget(lastFocusInHero: false, anchor: nil) == .hero)
+        #expect(HomeFocusArea.restoreTarget(lastFocusInHero: false, anchor: "popularShows") == .shelf("popularShows"))
+    }
+
     // MARK: - Actions
 
     @Test func selectPlayableItemPlays() async {

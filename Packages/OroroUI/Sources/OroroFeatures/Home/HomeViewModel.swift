@@ -17,6 +17,8 @@ import OroroCore
     /// Inputs of the current `content` when it was built from a catalog; nil while showing the snapshot.
     @ObservationIgnored private var built: (catalog: Catalog, newEpisodeInfo: [Int: NewEpisodeInfo])?
     @ObservationIgnored private var savedSnapshot: HomeContent?
+    /// The last queued `appear` / `catalogArrived`.
+    @ObservationIgnored private var queue: Task<Void, Never>?
 
     private static let personalShelves: Set<String> = ["continueWatching", "newEpisodes", "myList"]
 
@@ -25,13 +27,33 @@ import OroroCore
         self.now = now
     }
 
-    /// True once `content` comes from a catalog rather than the snapshot.
-    var isBuiltFromCatalog: Bool {
-        built != nil
-    }
-
     /// Rebuilds only here, never while visible.
     func appear(catalog: Catalog?, newEpisodeInfo: [Int: NewEpisodeInfo]) async {
+        await serialized { await self.performAppear(catalog: catalog, newEpisodeInfo: newEpisodeInfo) }
+    }
+
+    /// A catalog became available while Home is visible. It is applied at once only over skeletons
+    /// (`content == nil`): nothing moves under the user's focus. Over a snapshot it waits for the next `appear`,
+    /// which also refreshes the snapshot's personal rows.
+    func catalogArrived(_ catalog: Catalog?, newEpisodeInfo: [Int: NewEpisodeInfo]) async {
+        await serialized {
+            guard self.content == nil, catalog != nil else { return }
+            await self.performAppear(catalog: catalog, newEpisodeInfo: newEpisodeInfo)
+        }
+    }
+
+    /// Runs `work` after every earlier `appear` / `catalogArrived`, so overlapping calls never build twice.
+    private func serialized(_ work: @escaping @MainActor () async -> Void) async {
+        let previous = queue
+        let task = Task { @MainActor in
+            await previous?.value
+            await work()
+        }
+        queue = task
+        await task.value
+    }
+
+    private func performAppear(catalog: Catalog?, newEpisodeInfo: [Int: NewEpisodeInfo]) async {
         library = await environment.library.snapshot()
         guard let catalog else {
             if content == nil {
@@ -139,5 +161,39 @@ import OroroCore
     private func personalShelf(_ id: String, _ kind: ShelfKind, _ items: [ShelfItem]) -> Shelf? {
         guard !items.isEmpty else { return nil }
         return Shelf(id: id, kind: kind, items: Array(items.prefix(ShelfBuilder.shelfCap)), totalCount: items.count)
+    }
+}
+
+/// Where focus is on Home, published by the hero and each shelf as a focused value (focus anywhere inside them).
+enum HomeFocusArea: Hashable, Sendable {
+    case hero, shelf(String)
+
+    /// The hero is expanded unless focus is in a shelf (focus in the hero, the tab bar, or not yet placed).
+    static func isExpanded(_ area: HomeFocusArea?) -> Bool {
+        !isInShelf(area)
+    }
+
+    /// Menu at the root goes to the tab bar from the hero; from a shelf it scrolls to the top first.
+    static func isAtTop(_ area: HomeFocusArea?) -> Bool {
+        !isInShelf(area)
+    }
+
+    /// Whether focus was last in the hero; leaving the screen (nil) keeps the previous value.
+    static func lastFocusInHero(after area: HomeFocusArea?, previous: Bool) -> Bool {
+        switch area {
+        case .hero: true
+        case .shelf: false
+        case nil: previous
+        }
+    }
+
+    /// Where focus returns on re-appear: the hero, unless focus was last in a shelf and that shelf is remembered.
+    static func restoreTarget(lastFocusInHero: Bool, anchor: String?) -> HomeFocusArea {
+        guard !lastFocusInHero, let anchor else { return .hero }
+        return .shelf(anchor)
+    }
+
+    private static func isInShelf(_ area: HomeFocusArea?) -> Bool {
+        if case .shelf = area { true } else { false }
     }
 }

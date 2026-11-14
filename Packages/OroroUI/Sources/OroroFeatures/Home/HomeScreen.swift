@@ -13,13 +13,9 @@ public struct HomeScreen: View {
     }
 }
 
-/// Where focus is on Home. Bound to the hero and each shelf as containers, so it reads "focus is inside".
-private enum HomeFocusArea: Hashable {
-    case hero, shelf(String)
-
-    var isShelf: Bool {
-        if case .shelf = self { true } else { false }
-    }
+extension FocusedValues {
+    /// Set by the hero and each Home shelf; present while focus is anywhere inside them.
+    @Entry var homeFocusArea: HomeFocusArea?
 }
 
 private struct HomeContentView: View {
@@ -33,16 +29,20 @@ private struct HomeContentView: View {
     @Environment(PlaybackLauncher.self) private var launcher
     @Environment(AppSession.self) private var session
     @Environment(\.detailZoomNamespace) private var zoomNamespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     #if os(tvOS)
     @Environment(\.resetFocus) private var resetFocus
     #endif
 
     @State private var model: HomeViewModel
     @State private var scrollPosition = ScrollPosition(idType: String.self)
-    @FocusState private var focusArea: HomeFocusArea?
+    /// Where focus is, read from the focused values the hero and the shelves publish.
+    @FocusedValue(\.homeFocusArea) private var focusArea
     /// Whether focus was last in the hero (true) or in a shelf (false); decides where focus returns on re-appear.
     @State private var lastFocusInHero = true
     @State private var hasAppeared = false
+    /// Becomes true once the first rows have appeared; rows created later (lazily, while scrolling) don't stagger.
+    @State private var hasStaggered = false
     @Namespace private var focusNamespace
 
     init(environment: AppEnvironment) {
@@ -50,9 +50,12 @@ private struct HomeContentView: View {
         _model = State(initialValue: HomeViewModel(environment: environment))
     }
 
-    /// Expanded while focus is in the hero (or outside the screen, e.g. in the tab bar); collapsed in the shelves.
     private var isExpanded: Bool {
-        !(focusArea?.isShelf ?? false)
+        HomeFocusArea.isExpanded(focusArea)
+    }
+
+    private var restoreTarget: HomeFocusArea {
+        HomeFocusArea.restoreTarget(lastFocusInHero: lastFocusInHero, anchor: anchor)
     }
 
     var body: some View {
@@ -62,9 +65,9 @@ private struct HomeContentView: View {
                     if !content.hero.isEmpty { hero(content.hero) }
                     ForEach(Array(content.shelves.enumerated()), id: \.element.id) { index, shelf in
                         row(shelf)
-                            .focused($focusArea, equals: .shelf(shelf.id))
-                            .homeDefaultFocus(!lastFocusInHero && anchor == shelf.id, in: focusNamespace)
-                            .staggeredAppearance(index: index)
+                            .focusedValue(\.homeFocusArea, .shelf(shelf.id))
+                            .homeDefaultFocus(restoreTarget == .shelf(shelf.id), in: focusNamespace)
+                            .modifier(InitialStagger(index: index, enabled: !hasStaggered) { hasStaggered = true })
                             .id(shelf.id)
                     }
                 } else {
@@ -86,9 +89,9 @@ private struct HomeContentView: View {
         .onChange(of: focusArea) { _, area in focusAreaChanged(area) }
         .onChange(of: router.scrollToTopToken) { scrollToTop() }
         .onChange(of: session.catalogVersion) {
-            // The first catalog replaces the snapshot / skeleton; later ones wait for the next appear.
-            guard !model.isBuiltFromCatalog else { return }
-            Task { await model.appear(catalog: session.catalog, newEpisodeInfo: session.newEpisodeInfo) }
+            // Applied at once only over skeletons; over a snapshot (or built content) it waits for the next appear.
+            // The model serializes this with `appear`, so the two never build twice.
+            Task { await model.catalogArrived(session.catalog, newEpisodeInfo: session.newEpisodeInfo) }
         }
     }
 
@@ -106,8 +109,8 @@ private struct HomeContentView: View {
             onPlay: { [model, launcher] item in model.heroPlay(item, launcher: launcher) },
             onToggleList: { [model] title in Task { await model.toggleList(title) } }
         )
-        .focused($focusArea, equals: .hero)
-        .homeDefaultFocus(lastFocusInHero || anchor == nil, in: focusNamespace)
+        .focusedValue(\.homeFocusArea, .hero)
+        .homeDefaultFocus(restoreTarget == .hero, in: focusNamespace)
         .id(Self.heroID)
     }
 
@@ -156,21 +159,17 @@ private struct HomeContentView: View {
     }
 
     private func focusAreaChanged(_ area: HomeFocusArea?) {
-        switch area {
-        case .hero: lastFocusInHero = true
-        case .shelf: lastFocusInHero = false
-        case nil: break
-        }
-        router.isAtTop = !(area?.isShelf ?? false)
+        lastFocusInHero = HomeFocusArea.lastFocusInHero(after: area, previous: lastFocusInHero)
+        router.isAtTop = HomeFocusArea.isAtTop(area)
     }
 
-    /// Menu at a scrolled root: scroll to top and focus the hero.
+    /// Menu at a scrolled root: scroll to top and focus the hero (the default-focus target once
+    /// `lastFocusInHero` is set; with no hero, the first shelf takes focus as the topmost).
     private func scrollToTop() {
         lastFocusInHero = true
-        withAnimation(Motion.standard) {
+        withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) {
             scrollPosition.scrollTo(edge: .top)
         }
-        focusArea = model.content?.hero.isEmpty == false ? .hero : model.content?.shelves.first.map { .shelf($0.id) }
         #if os(tvOS)
         resetFocus(in: focusNamespace)
         #endif
@@ -226,9 +225,10 @@ private struct SkeletonShelf: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s) {
-            RoundedRectangle(cornerRadius: Spacing.xs)
-                .fill(.white.opacity(0.08))
-                .frame(width: 280, height: Spacing.m)
+            // Redacted header text at the shelf-title font: the placeholder takes the real header's size.
+            Text(verbatim: "Placeholder shelf")
+                .font(Typography.headline)
+                .redacted(reason: .placeholder)
                 .padding(.horizontal, Spacing.screenEdge)
             HStack(spacing: Spacing.l) {
                 ForEach(0..<tiles, id: \.self) { _ in
@@ -243,6 +243,30 @@ private struct SkeletonShelf: View {
             .clipped()
         }
         .accessibilityHidden(true)
+    }
+}
+
+/// `staggeredAppearance` for rows present in the first layout only. `enabled` is captured once when the row
+/// is created, so the modifier's structure never changes afterwards (which would reset the row's state).
+private struct InitialStagger: ViewModifier {
+    let index: Int
+    let didAppear: () -> Void
+    @State private var enabled: Bool
+
+    init(index: Int, enabled: Bool, didAppear: @escaping () -> Void) {
+        self.index = index
+        self.didAppear = didAppear
+        _enabled = State(initialValue: enabled)
+    }
+
+    func body(content: Content) -> some View {
+        if enabled {
+            content
+                .staggeredAppearance(index: index)
+                .onAppear(perform: didAppear)
+        } else {
+            content
+        }
     }
 }
 
