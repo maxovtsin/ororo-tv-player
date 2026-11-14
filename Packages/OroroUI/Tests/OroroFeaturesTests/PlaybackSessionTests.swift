@@ -477,18 +477,23 @@ extension PlaybackSessionTests {
 
 extension PlaybackSessionTests {
     @Test func dismissDuringNextEpisodeFetchStartsNothing() async {
-        let harness = Harness(.episode(id: Self.s1e1, showID: 101))
+        let harness = Harness(.episode(id: Self.s1e1, showID: 101), gated: true)
+        let gate = harness.gate!
         await harness.session.start()
         await harness.session.handle(.ended)
-        await harness.details.configure { $0.delay = .milliseconds(100) }
+        await gate.arm()
         await harness.clock.advance(by: .seconds(5))
-        #expect(await eventually { await harness.details.episodePlaybackCalls == 2 })
+        // The countdown's next-episode fetch is provably parked on the gate.
+        #expect(await eventually { await gate.parked == 1 })
 
         let phase = harness.session.phase
         let played = await harness.session.willDismiss()
         #expect(played == PlayableID(kind: .episode, id: Self.s1e1))
-        try? await Task.sleep(for: .milliseconds(300)) // let the in-flight fetch return
-        await settle()
+
+        await gate.release()
+        #expect(await eventually { await gate.returned == 1 })
+        await settle() // let the session's continuation after the fetch run
+        #expect(await harness.details.episodePlaybackCalls == 2)
 
         #expect(harness.engine.loads.count == 1)
         #expect(harness.engine.playCount == 1)
@@ -549,11 +554,14 @@ extension PlaybackSessionTests {
     let clock = TestClock()
     let now = NowBox(Samples.now)
     let session: PlaybackSession
+    /// Present when built with `gated: true`; wraps `details` and can park `episodePlayback`.
+    let gate: GatedDetails?
 
-    init(_ target: PlayRequest.Target, startOver: Bool = false, library: Library = Library()) {
+    init(_ target: PlayRequest.Target, startOver: Bool = false, library: Library = Library(), gated: Bool = false) {
         self.library = InMemoryLibraryStore(library)
+        gate = gated ? GatedDetails(details) : nil
         let environment = AppEnvironment(api: FakeAPI(), catalog: FakeCatalog(current: Samples.catalog), library: self.library,
-                                         details: details, credentials: InMemoryCredentialStore(Samples.credentials),
+                                         details: gate ?? details, credentials: InMemoryCredentialStore(Samples.credentials),
                                          newEpisodes: FakeNewEpisodes())
         let now = now
         session = PlaybackSession(request: PlayRequest(target: target, startOver: startOver), environment: environment,
@@ -606,6 +614,44 @@ extension PlaybackSessionTests {
     func play() { playCount += 1 }
     func pause() { pauseCount += 1 }
     func seek(to: TimeInterval) async { position = to }
+}
+
+/// Forwards to `FakeDetails`; while armed, `episodePlayback` parks until `release()` (no real-time waits).
+private actor GatedDetails: DetailProviding {
+    private let base: FakeDetails
+    private var armed = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    /// Calls parked on the gate so far, and calls that returned after being released.
+    private(set) var parked = 0, returned = 0
+
+    init(_ base: FakeDetails) {
+        self.base = base
+    }
+
+    func arm() {
+        armed = true
+    }
+
+    func release() {
+        armed = false
+        let released = waiters
+        waiters = []
+        for waiter in released { waiter.resume() }
+    }
+
+    func episodePlayback(id: Int) async throws -> EpisodeDetail {
+        guard armed else { return try await base.episodePlayback(id: id) }
+        parked += 1
+        await withCheckedContinuation { waiters.append($0) }
+        defer { returned += 1 }
+        return try await base.episodePlayback(id: id)
+    }
+
+    func show(id: Int) async throws -> ShowDetail { try await base.show(id: id) }
+    func movie(id: Int) async throws -> MovieDetail { try await base.movie(id: id) }
+    func episode(id: Int) async throws -> EpisodeDetail { try await base.episode(id: id) }
+    func moviePlayback(id: Int) async throws -> MovieDetail { try await base.moviePlayback(id: id) }
+    func clear() async { await base.clear() }
 }
 
 private final class NowBox: Sendable {
