@@ -76,7 +76,7 @@ Inputs the spec implies but does not spell out. Each has a test in the owning ta
 | Name | Command |
 |---|---|
 | `KIT_TEST <Suite>` | `swift test --package-path Packages/OroroKit --filter <Suite>` |
-| `UI_TEST <Suite>` | `cd Packages/OroroUI && xcodebuild test -scheme OroroUI-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation)' -only-testing:OroroFeaturesTests/<Suite>` (use `OroroDesignTests/<Suite>` for Design) |
+| `UI_TEST <Suite>` | `cd Packages/OroroUI && xcodebuild test -scheme OroroUI-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)' -only-testing:OroroFeaturesTests/<Suite>` (use `OroroDesignTests/<Suite>` for Design) |
 | `UI_BUILD_IOS` | `cd Packages/OroroUI && xcodebuild build -scheme OroroUI-Package -destination 'generic/platform=iOS Simulator'` |
 | `LINT` | `swiftlint lint --strict` |
 | `APPS_BUILD` | `mise exec -- tuist generate --no-open && xcodebuild build -workspace Ororo.xcworkspace -scheme OroroTV -destination 'generic/platform=tvOS Simulator' && xcodebuild build -workspace Ororo.xcworkspace -scheme Ororo -destination 'generic/platform=iOS Simulator'` |

@@ -2,7 +2,11 @@
 .DS_Store
 
 # Xcode
-øbuild/
+build/
+*.xcodeproj
+*.xcworkspace
+Derived/
+.build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3

@@ -1,11 +1,14 @@
+included:
+- Packages
+- Apps
 disabled_rules:
 - identifier_name
-- force_cast
 - type_name
 opt_in_rules:
 - empty_count
 - empty_string
-#excluded:
+excluded:
+- Packages/*/.build
 line_length:
     warning: 150
     error: 200
