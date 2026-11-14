@@ -15,7 +15,7 @@ import OroroDesign
         BrowseEngine.apply(query, to: catalog)
     }
 
-    private(set) var query: BrowseQuery
+    var query: BrowseQuery
     private(set) var results: [Title] = []
     /// `results` as grid tiles, built once per results change.
     private(set) var tiles: [TileModel] = []
@@ -128,15 +128,42 @@ import OroroDesign
         computeTask = Task { [weak self] in
             let titles = await compute(query, catalog)
             guard !Task.isCancelled else { return }
-            self?.apply(titles, generation: current)
+            let output = await Self.build(titles)
+            guard !Task.isCancelled else { return }
+            self?.apply(output, generation: current)
         }
     }
 
-    private func apply(_ titles: [Title], generation current: Int) {
+    /// Everything derived from the results, built off the main actor so it only assigns.
+    struct Output: Sendable {
+        let titles: [Title]
+        let tiles: [TileModel]
+        let indexByTileID: [String: Int]
+    }
+
+    @concurrent static func build(_ titles: [Title]) async -> Output {
+        var index: [String: Int] = [:]
+        index.reserveCapacity(titles.count)
+        var tiles: [TileModel] = []
+        tiles.reserveCapacity(titles.count)
+        for (offset, title) in titles.enumerated() {
+            let tile = TileModel(title)
+            tiles.append(tile)
+            if index[tile.id] == nil { index[tile.id] = offset }
+        }
+        return Output(titles: titles, tiles: tiles, indexByTileID: index)
+    }
+
+    /// The title behind a grid tile id.
+    func title(forTileID id: String) -> Title? {
+        indexByTileID[id].map { results[$0] }
+    }
+
+    private func apply(_ output: Output, generation current: Int) {
         guard current == generation else { return }
-        results = titles
-        tiles = titles.map { TileModel($0) }
-        indexByTileID = Dictionary(titles.enumerated().map { (TileModel.tileID($1.id), $0) }, uniquingKeysWith: { first, _ in first })
+        results = output.titles
+        tiles = output.tiles
+        indexByTileID = output.indexByTileID
         resultsVersion += 1
         isFiltering = false
         if let focused, indexByTileID[TileModel.tileID(focused.id)] == nil {
@@ -173,11 +200,11 @@ import OroroDesign
         return parts.joined(separator: " · ")
     }
 
-    /// Replaces the path entry holding this grid's query so Back and tab switches keep the filters.
-    /// Returns false when `index` no longer points at a browse entry.
+    /// Replaces the path entry holding this grid's original query so Back and tab switches keep the filters.
+    /// Returns false when `index` no longer points at that entry (e.g. the screen was popped).
     @discardableResult
-    static func writeBack(_ query: BrowseQuery, into path: inout [Route], at index: Int?) -> Bool {
-        guard let index, path.indices.contains(index), case .browse = path[index] else { return false }
+    static func writeBack(_ query: BrowseQuery, replacing original: BrowseQuery, into path: inout [Route], at index: Int?) -> Bool {
+        guard let index, path.indices.contains(index), path[index] == .browse(original) else { return false }
         path[index] = .browse(query)
         return true
     }

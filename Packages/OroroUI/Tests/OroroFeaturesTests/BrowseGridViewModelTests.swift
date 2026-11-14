@@ -172,15 +172,26 @@ import Testing
         #expect(ids(model) == [2, 3, 1])
     }
 
-    @Test func queryChangesAreWrittenBackToThePathEntry() {
-        var path: [Route] = [.browse(.default(.show)), .show(1)]
+    @Test func queryIsWrittenBackToTheOriginalPathEntry() {
+        let original = BrowseQuery.default(.show)
+        var path: [Route] = [.browse(original), .show(1)]
         let changed = BrowseQuery(kind: .show, genre: "Drama", sort: .year)
-        #expect(BrowseGridViewModel.writeBack(changed, into: &path, at: 0))
+        #expect(BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 0))
         #expect(path == [.browse(changed), .show(1)])
-        #expect(!BrowseGridViewModel.writeBack(changed, into: &path, at: 1))
-        #expect(!BrowseGridViewModel.writeBack(changed, into: &path, at: nil))
-        #expect(!BrowseGridViewModel.writeBack(changed, into: &path, at: 5))
+        // Popped or different entries are left alone.
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 1))
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 0))
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: nil))
+        #expect(!BrowseGridViewModel.writeBack(changed, replacing: original, into: &path, at: 5))
         #expect(path == [.browse(changed), .show(1)])
+    }
+
+    @Test func tilesAndLookupMatchResults() async {
+        let model = model(.default(.show))
+        await model.settle()
+        #expect(model.tiles.map(\.id) == ["show-2", "show-3", "show-1"])
+        #expect(model.title(forTileID: "show-3")?.id.id == 3)
+        #expect(model.title(forTileID: "movie-10") == nil)
     }
 }
 

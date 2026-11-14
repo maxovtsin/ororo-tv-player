@@ -16,6 +16,13 @@ public struct BrowseGridScreen: View {
 
     @State private var model: BrowseGridViewModel?
     @State private var library = Library()
+    /// Index of this grid's entry in `router.path` and the query it was pushed with, captured at build.
+    @State private var pathEntry: (index: Int?, query: BrowseQuery)?
+    @State private var focusFirstTile = false
+    @Namespace private var focusScope
+    #if os(tvOS)
+    @Environment(\.resetFocus) private var resetFocus
+    #endif
 
     public init(query: BrowseQuery) {
         self.query = query
@@ -39,11 +46,15 @@ public struct BrowseGridScreen: View {
         .padding(.top, Spacing.m)
         .onAppear(perform: buildModelIfNeeded)
         .onChange(of: session.catalogVersion) { _, _ in
-            // The first catalog replaces the skeleton; later versions wait for the next appearance.
+            // Only the first catalog is used (it replaces the skeleton); the screen keeps that snapshot while it exists.
             buildModelIfNeeded()
         }
+        .onDisappear(perform: writeQueryBack)
         .task {
             library = await environment.library.snapshot()
+            for await updated in await environment.library.updates() {
+                library = updated
+            }
         }
     }
 
@@ -86,6 +97,17 @@ public struct BrowseGridScreen: View {
         }
         .motion(Motion.quick, value: model.resultsVersion)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        #if os(tvOS)
+        .focusScope(focusScope)
+        #endif
+        .onChange(of: model.resultsVersion) { _, _ in
+            // After Reset Filters the old focus target is gone: land on the first tile.
+            guard focusFirstTile else { return }
+            focusFirstTile = false
+            #if os(tvOS)
+            resetFocus(in: focusScope)
+            #endif
+        }
     }
 
     private func grid(_ model: BrowseGridViewModel) -> some View {
@@ -93,14 +115,17 @@ public struct BrowseGridScreen: View {
             screen: screen, items: model.tiles, memory: router.focus, zoomNamespace: zoomNamespace,
             onFocusChange: { tile in model.focusChanged(tile?.id) },
             onSelect: { tile in
-                guard let title = model.results.first(where: { TileModel.tileID($0.id) == tile.id }) else { return }
+                guard let title = model.title(forTileID: tile.id) else { return }
                 router.open(title.id, zoomSourceID: "grid/\(tile.id)")
             },
             menu: { tile in
-                guard let title = model.results.first(where: { TileModel.tileID($0.id) == tile.id }) else { return AnyView(EmptyView()) }
+                guard let title = model.title(forTileID: tile.id) else { return AnyView(EmptyView()) }
                 return titleMenu(for: ShelfItem(title: title), context: .plain, library: library, environment: environment, router: router)
             }
         )
+        #if os(tvOS)
+        .prefersDefaultFocus(focusFirstTile, in: focusScope)
+        #endif
     }
 
     private func emptyState(_ model: BrowseGridViewModel) -> some View {
@@ -109,6 +134,7 @@ public struct BrowseGridScreen: View {
                 .font(Typography.title)
             ActionButton(String(localized: "browse.grid.reset", defaultValue: "Reset Filters", bundle: .module),
                          systemImage: "arrow.counterclockwise") {
+                focusFirstTile = true
                 model.reset()
             }
         }
@@ -130,16 +156,24 @@ public struct BrowseGridScreen: View {
     private func buildModelIfNeeded() {
         guard model == nil, let catalog = session.catalog else { return }
         let model = BrowseGridViewModel(query: query, catalog: catalog)
-        let entryIndex = router.path.lastIndex { route in
+        pathEntry = (router.path.lastIndex { route in
             if case .browse = route { true } else { false }
-        }
+        }, query)
         let screen = screen
-        model.onQueryChange = { [router] query in
-            // A different grid: start from the first tile, then keep the filters across Back and tab switches.
+        // A different grid: start from the first tile. The path entry is updated when the screen disappears,
+        // because changing a pushed route's value while it is visible would re-create the screen.
+        model.onQueryChange = { [router] _ in
             router.focus.reset(screen: screen)
-            BrowseGridViewModel.writeBack(query, into: &router.path, at: entryIndex)
         }
         self.model = model
+    }
+
+    /// Back, a tab switch or a detail push: keep the filters in the router's path entry.
+    private func writeQueryBack() {
+        guard let model, let pathEntry, model.query != pathEntry.query else { return }
+        if BrowseGridViewModel.writeBack(model.query, replacing: pathEntry.query, into: &router.path, at: pathEntry.index) {
+            self.pathEntry = (pathEntry.index, model.query)
+        }
     }
 }
 
