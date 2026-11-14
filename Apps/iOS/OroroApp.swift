@@ -3,9 +3,11 @@ import SwiftUI
 
 @main
 struct OroroApp: App {
+    private let environment = AppEnvironment.live()
+
     var body: some Scene {
         WindowGroup {
-            Text("Ororo")
+            AppRootView().environment(\.appEnvironment, environment)
         }
     }
 }
