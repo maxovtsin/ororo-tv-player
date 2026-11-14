@@ -108,4 +108,54 @@ import Testing
         #expect(Set(result.keys) == [sid(2)])
         #expect(Set(await resolver.cached().keys) == [sid(2)])
     }
+
+    @Test func keptEntryIsRecomputedAfterUserWatchesMore() async {
+        let details = FakeDetails()
+        let resolver = NewEpisodeResolver(details: details, maxPerRun: 1)
+        let all = shows(1...2)
+        _ = await resolver.resolve(shows: all, library: library(watched: [id(1, 1, 1)]))
+        // Reversed order puts show 1 over the cap, so its refs are kept; the user has since watched its old first (E2).
+        let second = await resolver.resolve(shows: all.reversed(), library: library(watched: [id(1, 1, 1), id(1, 1, 2)]))
+        #expect(second[sid(1)] == NewEpisodeInfo(first: EpisodeRef(episodeID: id(1, 1, 3), season: 1, number: 3), count: 8))
+        let third = await resolver.resolve(shows: all.reversed(), library: library(watched: [id(1, 2, 5)]))
+        #expect(third[sid(1)] == nil)
+    }
+
+    @Test func freshFetchWithNothingUnwatchedRemovesOldEntry() async {
+        let resolver = NewEpisodeResolver(details: FakeDetails())
+        let all = shows(1...1)
+        let first = await resolver.resolve(shows: all, library: library(watched: [id(1, 1, 1)]))
+        #expect(first[sid(1)] != nil)
+        let second = await resolver.resolve(shows: all, library: library(watched: [id(1, 2, 5)]))
+        #expect(second.isEmpty)
+        #expect(await resolver.cached().isEmpty)
+    }
+
+    @Test func supersededResolveDoesNotOverwrite() async {
+        let details = FakeDetails()
+        await details.configure { $0.delay = .milliseconds(30) }
+        let resolver = NewEpisodeResolver(details: details)
+        let lib = library(watched: [id(1, 1, 1), id(2, 1, 1), id(3, 1, 1)])
+        let slow = Task { await resolver.resolve(shows: shows(1...2), library: lib) }
+        try? await Task.sleep(for: .milliseconds(10))
+        let fast = await resolver.resolve(shows: shows(3...3), library: lib)
+        _ = await slow.value
+        #expect(Set(fast.keys) == [sid(3)])
+        #expect(Set(await resolver.cached().keys) == [sid(3)])
+    }
+
+    @Test func cancelledResolveDoesNotCommit() async {
+        let details = FakeDetails()
+        await details.configure { $0.delay = .milliseconds(30) }
+        let resolver = NewEpisodeResolver(details: details)
+        let all = shows(1...3)
+        let lib = library(watched: all.map { id($0.id.id - 100, 1, 1) })
+        let task = Task { await resolver.resolve(shows: all, library: lib) }
+        try? await Task.sleep(for: .milliseconds(10))
+        task.cancel()
+        let result = await task.value
+        #expect(result.isEmpty)
+        #expect(await resolver.cached().isEmpty)
+        #expect(await details.showCalls < 3)
+    }
 }
