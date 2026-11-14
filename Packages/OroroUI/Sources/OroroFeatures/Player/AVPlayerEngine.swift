@@ -52,6 +52,10 @@ import os
     private var failedDuringLoad = false
     /// Surround failed or was disabled: this engine plays original audio for the rest of its life.
     private var surroundDisabled = false
+    /// Numbers each `observe(_:)`; `observedItem` is the live one (`nil` once silenced), so callbacks from an earlier or
+    /// silenced item are dropped even when already queued.
+    private var itemObservationCount = 0
+    private(set) var observedItem: Int?
     /// The current item was given up for a surround failure: it reports nothing more (the session reloads).
     private var silencedItem = false
     /// A source reported `.slowDevice`: no engine plays surround again until the app is relaunched.
@@ -190,22 +194,40 @@ import os
     }
 
     private func observe(_ item: AVPlayerItem) {
+        itemObservationCount += 1
+        let observation = itemObservationCount
+        observedItem = observation
+        // A callback already queued when the item is silenced or replaced must not reach the session.
         itemObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard item.status == .failed else { return }
-            Self.onMain { self?.itemFailed() }
+            Self.onMain { self?.received(.failed, from: observation) }
         }
         let center = NotificationCenter.default
-        func on(_ name: Notification.Name, _ action: @escaping @MainActor (AVPlayerEngine) -> Void) -> any NSObjectProtocol {
+        func on(_ name: Notification.Name, _ signal: ItemSignal) -> any NSObjectProtocol {
             center.addObserver(forName: name, object: item, queue: .main) { [weak self] _ in
-                Self.onMain { if let self { action(self) } }
+                Self.onMain { self?.received(signal, from: observation) }
             }
         }
         itemNotificationTokens = [
-            on(AVPlayerItem.failedToPlayToEndTimeNotification) { $0.itemFailed() },
-            on(AVPlayerItem.didPlayToEndTimeNotification) { $0.continuation.yield(.ended) },
-            on(AVPlayerItem.mediaSelectionDidChangeNotification) { $0.selectionChanged() },
-            on(AVPlayerItem.timeJumpedNotification) { $0.timeJumped() }
+            on(AVPlayerItem.failedToPlayToEndTimeNotification, .failed),
+            on(AVPlayerItem.didPlayToEndTimeNotification, .ended),
+            on(AVPlayerItem.mediaSelectionDidChangeNotification, .selectionChanged),
+            on(AVPlayerItem.timeJumpedNotification, .timeJumped)
         ]
+    }
+
+    enum ItemSignal: Sendable { case failed, ended, selectionChanged, timeJumped }
+
+    /// One observer callback of item observation `observation`. Dropped unless that observation is still live: a callback
+    /// already queued when its item was silenced or replaced must not reach the session.
+    func received(_ signal: ItemSignal, from observation: Int) {
+        guard observedItem == observation else { return }
+        switch signal {
+        case .failed: itemFailed()
+        case .ended: continuation.yield(.ended)
+        case .selectionChanged: selectionChanged()
+        case .timeJumped: timeJumped()
+        }
     }
 
     /// Runs `work` on the main actor: inline when already on the main thread (keeps KVO order), else hops.
@@ -230,6 +252,7 @@ import os
     /// Removes the current item's observers and stall counter; while `silencedItem`, it reports no more time or stalls.
     private func silenceItem() {
         silencedItem = true
+        observedItem = nil
         itemObservation?.invalidate()
         itemObservation = nil
         itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }

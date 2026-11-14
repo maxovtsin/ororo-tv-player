@@ -211,6 +211,23 @@ import Testing
         #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
     }
 
+    @Test func aQueuedSecondFailureSignalFromTheAbandonedItemIsIgnored() async throws {
+        let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
+        let engine = Self.engine(subtitles, source: source)
+        let events = Self.collect(engine)
+        try await engine.load(Self.playback, startAt: 0, subtitleLanguage: nil)
+        // The item's status KVO fired off the main thread, so its callback hops; the failure notification wins the race.
+        let observation = try #require(engine.observedItem)
+        Self.failCurrentItem(engine)
+        engine.received(.failed, from: observation)
+        engine.received(.ended, from: observation)
+        try await Task.sleep(for: .milliseconds(100))
+        engine.stop()
+        let received = await events.value
+        #expect(received.filter { $0 == .surroundFailed }.count == 1 && !received.contains(.failed))
+        #expect(!received.contains(.ended))
+    }
+
     @Test func anItemFailureWithoutSurroundIsAFailure() async throws {
         let subtitles = RecordingSubtitles(), source = FakeSurroundSource()
         let engine = Self.engine(subtitles, source: source, enabled: false)
