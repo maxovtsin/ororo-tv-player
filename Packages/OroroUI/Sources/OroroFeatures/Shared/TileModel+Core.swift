@@ -17,11 +17,11 @@ extension TileModel {
         )
     }
 
-    /// A shelf item tile: subtitle is "S2 E5" when the item has an episode, else the year;
+    /// A shelf item tile: subtitle is `Display.episodeLabel` ("S2 E5") when the item has an episode, else the year;
     /// `.new` / `.newCount` / `.newSince` all map to the `.new` badge.
     public init(_ item: ShelfItem, locale: Locale = .current) {
         let subtitle: String? = if let episode = item.episode {
-            "S\(episode.season) E\(episode.number)"
+            Display.episodeLabel(season: episode.season, number: episode.number)
         } else {
             item.title.year.map { String($0) }
         }

@@ -159,6 +159,9 @@ public struct MovieDetail: Hashable, Sendable {
 }
 
 /// Not Codable (carries `Playback`).
+///
+/// `episode.showID` is 0 when unknown (the endpoint does not return it); consumers take the show id from
+/// `PlayRequest.Target.episode(showID:)` or the show detail, never from `EpisodeDetail`.
 public struct EpisodeDetail: Hashable, Sendable {
     public var episode: Episode
     public var showName: String?

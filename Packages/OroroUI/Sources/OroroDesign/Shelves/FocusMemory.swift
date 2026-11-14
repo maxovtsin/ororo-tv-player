@@ -1,4 +1,4 @@
-import Observation
+import SwiftUI
 
 // STUB (T3) — implemented by Task D5.
 @MainActor @Observable public final class FocusMemory {

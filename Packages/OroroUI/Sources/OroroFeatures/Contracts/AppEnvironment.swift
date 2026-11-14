@@ -41,15 +41,18 @@ public struct AppEnvironment: Sendable {
     /// Inert services for previews and the environment default: nothing signed in, empty library,
     /// every network call fails with `.offline`. Available in release builds (it backs `\.appEnvironment`'s default).
     public static func preview() -> AppEnvironment {
-        AppEnvironment(
-            api: PreviewAPI(),
-            catalog: PreviewCatalog(),
-            library: PreviewLibrary(),
-            details: PreviewDetails(),
-            credentials: PreviewCredentials(),
-            newEpisodes: PreviewNewEpisodes()
-        )
+        sharedPreview
     }
+
+    /// Built once; backs `preview()` and the `\.appEnvironment` default.
+    private static let sharedPreview = AppEnvironment(
+        api: PreviewAPI(),
+        catalog: PreviewCatalog(),
+        library: PreviewLibrary(),
+        details: PreviewDetails(),
+        credentials: PreviewCredentials(),
+        newEpisodes: PreviewNewEpisodes()
+    )
 }
 
 extension EnvironmentValues {

@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 public enum TileShape: Sendable { case poster, landscape }
 

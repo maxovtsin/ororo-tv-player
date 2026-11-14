@@ -21,6 +21,8 @@ public protocol OroroAPI: Sendable {
     func movies(_ c: Credentials, ifNoneMatch: String?, progress: (@Sendable (Double) -> Void)?) async throws -> Conditional<ListResponse>
     func show(id: Int, _ c: Credentials) async throws -> ShowDetail
     func movie(id: Int, _ c: Credentials) async throws -> MovieDetail
+    /// `episode.showID` is 0 when unknown (the endpoint does not return it); consumers take the show id from
+    /// `PlayRequest.Target.episode(showID:)` or the show detail, never from `EpisodeDetail`.
     func episode(id: Int, _ c: Credentials) async throws -> EpisodeDetail
 }
 

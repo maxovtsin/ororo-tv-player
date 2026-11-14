@@ -1,5 +1,5 @@
-import Foundation
 import Nuke
+import SwiftUI
 
 // STUB (T3) — implemented by Task D2.
 public enum ImageCache {
