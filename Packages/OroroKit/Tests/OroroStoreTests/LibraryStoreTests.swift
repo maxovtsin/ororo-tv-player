@@ -201,7 +201,7 @@ import Testing
         #expect(data.count < LibraryStore.sizeBudget)
     }
 
-    @Test(.disabled("needs C5: Library.prune() is still a stub")) func updatePrunesBeyondCaps() async {
+    @Test func updatePrunesBeyondCaps() async {
         let store = LibraryStore(persistence: InMemoryPersistence(), clock: ManualClock())
         let base = Date(timeIntervalSince1970: 1_761_955_200)
         await store.update { library in
