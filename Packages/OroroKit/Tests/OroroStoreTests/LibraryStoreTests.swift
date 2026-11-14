@@ -239,6 +239,28 @@ import Testing
         #expect(written.preferences.autoplayNext == false)
     }
 
+    @Test func aLibrarySavedBeforeSurroundLoadsIntact() async throws {
+        let movie = PlayableID(kind: .movie, id: 1001)
+        var saved = Library()
+        saved.myList = [item]
+        saved.progress = [ProgressEntry(playable: movie, position: 120, duration: 6000, updatedAt: Date(timeIntervalSince1970: 1_761_955_300))]
+        saved.preferences = Preferences(subtitleLanguage: "ru", autoplayNext: false, simulatedSurround: false)
+        var object = try #require(try JSONSerialization.jsonObject(with: LibraryStore.encoder.encode(saved)) as? [String: Any])
+        var preferences = try #require(object["preferences"] as? [String: Any])
+        #expect(preferences.removeValue(forKey: "simulatedSurround") != nil)
+        object["preferences"] = preferences
+        let p = InMemoryPersistence(data: try JSONSerialization.data(withJSONObject: object))
+
+        let loaded = await LibraryStore(persistence: p).snapshot()
+        #expect(loaded.myList == saved.myList)
+        #expect(loaded.progress == saved.progress)
+        #expect(loaded.preferences.subtitleLanguage == "ru")
+        #expect(loaded.preferences.autoplayNext == false)
+        #expect(loaded.preferences.simulatedSurround == true)
+        #expect(p.backup == nil)
+        #expect(p.backupWrites == 0)
+    }
+
     @Test func newerSchemaThatDecodesIsStillBackedUp() async throws {
         var future = Library(schemaVersion: 2)
         future.watchedMovies = [7]

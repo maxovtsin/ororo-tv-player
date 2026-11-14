@@ -88,10 +88,22 @@ public struct FollowState: Hashable, Codable, Sendable {
 public struct Preferences: Hashable, Codable, Sendable {
     public var subtitleLanguage: String?    // nil = Off
     public var autoplayNext: Bool
+    /// Generates 5.1 for stereo titles when the output supports it (tvOS).
+    public var simulatedSurround: Bool
 
-    public init(subtitleLanguage: String? = "en", autoplayNext: Bool = true) {
+    public init(subtitleLanguage: String? = "en", autoplayNext: Bool = true, simulatedSurround: Bool = true) {
         self.subtitleLanguage = subtitleLanguage
         self.autoplayNext = autoplayNext
+        self.simulatedSurround = simulatedSurround
+    }
+
+    // Hand-written so a library saved before `simulatedSurround` existed still decodes: a decode failure would
+    // make the store back the data up and start empty.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        subtitleLanguage = try container.decodeIfPresent(String.self, forKey: .subtitleLanguage)
+        autoplayNext = try container.decode(Bool.self, forKey: .autoplayNext)
+        simulatedSurround = try container.decodeIfPresent(Bool.self, forKey: .simulatedSurround) ?? true
     }
 }
 

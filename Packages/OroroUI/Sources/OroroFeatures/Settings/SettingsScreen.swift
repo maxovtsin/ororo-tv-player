@@ -56,7 +56,7 @@ public struct SettingsScreen: View {
                     confirmSignOut = true
                 }
             }
-            Section(String(localized: "settings.playback", defaultValue: "Playback", bundle: .module)) {
+            Section {
                 Picker(
                     String(localized: "settings.subtitleLanguage", defaultValue: "Subtitle language", bundle: .module),
                     selection: Binding(get: { model.subtitleLanguage }, set: { code in Task { await model.setSubtitleLanguage(code) } })
@@ -70,6 +70,24 @@ public struct SettingsScreen: View {
                     String(localized: "settings.autoplayNext", defaultValue: "Autoplay next episode", bundle: .module),
                     isOn: Binding(get: { model.autoplayNext }, set: { enabled in Task { await model.setAutoplay(enabled) } })
                 )
+                #if os(tvOS)
+                Toggle(
+                    String(localized: "settings.simulatedSurround", defaultValue: "Simulated surround", bundle: .module),
+                    isOn: Binding(get: { model.simulatedSurround }, set: { enabled in Task { await model.setSimulatedSurround(enabled) } })
+                )
+                #endif
+            } header: {
+                Text(String(localized: "settings.playback", defaultValue: "Playback", bundle: .module))
+            } footer: {
+                #if os(tvOS)
+                if model.outputIsStereo {
+                    Text(String(
+                        localized: "settings.simulatedSurroundStereoOutput",
+                        defaultValue: "The current audio output is stereo, so the original sound is used.",
+                        bundle: .module
+                    ))
+                }
+                #endif
             }
             Section(String(localized: "settings.catalog", defaultValue: "Catalog", bundle: .module)) {
                 LabeledContent(String(localized: "settings.lastUpdated", defaultValue: "Last updated", bundle: .module)) {
