@@ -47,9 +47,10 @@ import Testing
             let interior = errors.indices.filter { $0 >= 3 && $0 < errors.count - 2 }
             let nearJoins = interior.filter(boundaries.contains).map { errors[$0] }.max() ?? 0
             let elsewhere = interior.filter { !boundaries.contains($0) }.map { errors[$0] }.max() ?? 0
-            // Measured during review: correct scheme ≈ 0.004–0.006 near joins vs 0.004–0.007 elsewhere; a missing post-roll ≈ 0.15.
+            // Measured on this fixture: L 0.024 near joins vs 0.021 elsewhere, Ls 0.018 vs 0.015. The peaks are the fixture's
+            // noise bursts, and one continuous encode gives the same values (≈ 0.021 elsewhere). A missing post-roll ≈ 0.15.
             #expect(nearJoins <= 1.25 * elsewhere)
-            #expect(elsewhere < 0.02)
+            #expect(elsewhere < 0.05)
         }
     }
 
