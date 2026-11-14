@@ -1,16 +1,21 @@
 import Foundation
 
-/// Where `LibraryStore` keeps its JSON. `writeBackup` stores a copy of unreadable data and never replaces an existing backup.
+/// Where `LibraryStore` keeps its JSON.
 public protocol LibraryPersistence: Sendable {
+    /// The primary library data, or nil when there is none.
     func read() -> Data?
+    /// Replaces the primary library data.
     func write(_ data: Data)
+    /// Stores a copy of unreadable data. Never replaces an existing backup.
     func writeBackup(_ data: Data)
+    /// Deletes both the primary data and the backup (used by "Erase library").
     func remove()
 }
 
 /// The durable option on tvOS. Backup key: key + ".unreadable".
 public struct UserDefaultsLibraryPersistence: LibraryPersistence {
-    // UserDefaults is documented as thread-safe; the init takes it `sending` so no one else holds it non-Sendably.
+    // Apple's UserDefaults documentation states "The UserDefaults class is thread-safe", so sharing one instance
+    // across isolation domains is sound even though the SDK does not mark it Sendable.
     nonisolated(unsafe) private let defaults: UserDefaults
     private let key: String
 
@@ -36,6 +41,7 @@ public struct UserDefaultsLibraryPersistence: LibraryPersistence {
 
     public func remove() {
         defaults.removeObject(forKey: key)
+        defaults.removeObject(forKey: backupKey)
     }
 }
 
@@ -67,5 +73,6 @@ public struct FileLibraryPersistence: LibraryPersistence {
 
     public func remove() {
         try? FileManager.default.removeItem(at: fileURL)
+        try? FileManager.default.removeItem(at: backupURL)
     }
 }

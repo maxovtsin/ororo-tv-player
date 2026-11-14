@@ -106,29 +106,47 @@ import Testing
         let store = LibraryStore(persistence: InMemoryPersistence(), clock: ManualClock())
         await store.update { $0.preferences.autoplayNext = false }   // before subscribing: not replayed
         let stream = await store.updates()
-        let item = item
-        await store.update { $0.myList.append(item) }
-        await store.update { $0.preferences.subtitleLanguage = "fr" }
-        await store.erase()
-
-        var received: [Library] = []
-        for await library in stream {
-            received.append(library)
-            if received.count == 3 { break }
+        let received = Mutex<[Library]>([])
+        let consumer = Task {
+            for await library in stream { received.withLock { $0.append(library) } }
         }
-        try #require(received.count == 3)
-        #expect(received[0].myList == [item])
-        #expect(received[0].preferences.autoplayNext == false)
-        #expect(received[0].preferences.subtitleLanguage == "en")
-        #expect(received[1].preferences.subtitleLanguage == "fr")
-        #expect(received[2] == Library())
+        defer { consumer.cancel() }
+        let item = item
+
+        // The stream keeps only the newest unread value, so wait for each emission before the next change.
+        await store.update { $0.myList.append(item) }
+        try await eventually { received.withLock { $0.count } == 1 }
+        await store.update { $0.preferences.subtitleLanguage = "fr" }
+        try await eventually { received.withLock { $0.count } == 2 }
+        await store.update { $0.preferences.subtitleLanguage = "fr" }   // no change: not published
+        await store.erase()
+        try await eventually { received.withLock { $0.count } == 3 }
+
+        let libraries = received.withLock { $0 }
+        try #require(libraries.count == 3)
+        #expect(libraries[0].myList == [item])
+        #expect(libraries[0].preferences.autoplayNext == false)
+        #expect(libraries[0].preferences.subtitleLanguage == "en")
+        #expect(libraries[1].preferences.subtitleLanguage == "fr")
+        #expect(libraries[2] == Library())
+    }
+
+    @Test func updateThatChangesNothingDoesNotDirtyOrSchedule() async throws {
+        let clock = ManualClock()
+        let p = InMemoryPersistence()
+        let store = LibraryStore(persistence: p, flushInterval: .seconds(10), clock: clock)
+        await store.update { $0.preferences.autoplayNext = true }      // already true
+        await store.flush()
+        #expect(p.writes.isEmpty)
+        #expect(clock.sleeperCount == 0)
     }
 
     // MARK: - Erase
 
     @Test func eraseClearsMemoryAndDisk() async throws {
-        let p = InMemoryPersistence()
+        let p = InMemoryPersistence(data: Data("not json".utf8))
         let store = LibraryStore(persistence: p, clock: ManualClock())
+        #expect(p.backup == Data("not json".utf8))
         let item = item
         await store.update {
             $0.myList.append(item)
@@ -136,20 +154,27 @@ import Testing
             $0.preferences.autoplayNext = false
         }
         await store.flush()
+        #expect(p.data != nil)
+
         await store.erase()
         #expect(await store.snapshot() == Library())
-        let written = try LibraryStore.decoder.decode(Library.self, from: try #require(p.data))
-        #expect(written == Library())
+        #expect(p.data == nil)
+        #expect(p.backup == nil)                         // erase also deletes the unreadable-data backup
+        await store.flush()                              // nothing left to write
+        #expect(p.data == nil)
         #expect(await LibraryStore(persistence: p).snapshot() == Library())
+        #expect(p.backup == nil)
     }
 
     // MARK: - Size and caps
 
     @Test func libraryAtAllCapsFitsBudget() throws {
-        let base = Date(timeIntervalSince1970: 1_761_955_200)
+        // Worst case: every cap full, large ids, and dates with fractional seconds (longest JSON numbers).
+        let base = Date(timeIntervalSince1970: 1_761_955_200.123_456)
+        func date(_ i: Int) -> Date { base + Double(i) + 0.987_654_321 }
         var library = Library()
         library.myList = (0..<Library.maxMyList).map {
-            MyListItem(title: TitleID(kind: $0.isMultiple(of: 2) ? .show : .movie, id: 100_000 + $0), addedAt: base + Double($0))
+            MyListItem(title: TitleID(kind: $0.isMultiple(of: 2) ? .show : .movie, id: 100_000 + $0), addedAt: date($0))
         }
         library.progress = (0..<Library.maxProgress).map {
             ProgressEntry(
@@ -158,19 +183,21 @@ import Testing
                 season: 12,
                 number: 24,
                 episodeName: "A Fairly Long Episode Name, Part \($0)",
-                position: 1_234.567,
-                duration: 2_640.123,
-                updatedAt: base + Double($0)
+                position: 1_234.567_891,
+                duration: 2_640.123_456,
+                updatedAt: date($0)
             )
         }
         library.watchedEpisodes = (0..<Library.maxWatched).map { 1_000_000 + $0 }
-        library.followed = Dictionary(uniqueKeysWithValues: (0..<200).map {
-            (100_000 + $0, FollowState(seenNewestVideo: base + Double($0), started: true))
+        library.watchedMovies = (0..<Library.maxWatched).map { 1_000_000 + $0 }
+        library.followed = Dictionary(uniqueKeysWithValues: (0..<Library.maxMyList).map {
+            (100_000 + $0, FollowState(seenNewestVideo: date($0), started: true))
         })
-        library.upNext = Dictionary(uniqueKeysWithValues: (0..<200).map {
-            (100_000 + $0, UpNextEntry(ref: EpisodeRef(episodeID: 2_000_000 + $0, season: 12, number: 24), setAt: base))
+        library.upNext = Dictionary(uniqueKeysWithValues: (0..<Library.maxMyList).map {
+            (100_000 + $0, UpNextEntry(ref: EpisodeRef(episodeID: 2_000_000 + $0, season: 12, number: 24), setAt: date($0)))
         })
         let data = try LibraryStore.encoder.encode(library)
+        #expect(data.count < 300_000)
         #expect(data.count < LibraryStore.sizeBudget)
     }
 
@@ -263,7 +290,7 @@ import Testing
 
         p.remove()
         #expect(p.read() == nil)
-        #expect(check.data(forKey: "lib.unreadable") == Data("old".utf8))
+        #expect(check.data(forKey: "lib.unreadable") == nil)          // remove() clears the backup too
     }
 
     @Test func filePersistenceRoundTripsAndKeepsFirstBackup() throws {
@@ -286,6 +313,7 @@ import Testing
 
         p.remove()
         #expect(p.read() == nil)
+        #expect(try FileManager.default.contentsOfDirectory(atPath: dir.path()).isEmpty)   // backup removed too
     }
 
     @Test func storeOverFilePersistenceSurvivesReopen() async throws {
@@ -301,7 +329,7 @@ import Testing
 
 // MARK: - Helpers
 
-/// Test-local persistence. Like the real ones, `writeBackup` never replaces an existing backup.
+/// Test-local persistence. Like the real ones, `writeBackup` never replaces an existing backup and `remove()` deletes both.
 final class InMemoryPersistence: LibraryPersistence, Sendable {
     private struct State {
         var data: Data?
@@ -337,7 +365,12 @@ final class InMemoryPersistence: LibraryPersistence, Sendable {
         }
     }
 
-    func remove() { state.withLock { $0.data = nil } }
+    func remove() {
+        state.withLock {
+            $0.data = nil
+            $0.backup = nil
+        }
+    }
 }
 
 /// A clock that only moves when the test calls `advance(by:)`.

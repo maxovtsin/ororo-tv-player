@@ -4,6 +4,7 @@ import OroroCore
 /// The user's library (My List, progress, watched flags, up-next, preferences): the only durable user data.
 ///
 /// Memory is updated immediately; disk writes are throttled to one per `flushInterval` unless `flush()` is called.
+/// `erase()` removes everything from disk, including the unreadable-data backup.
 /// Unreadable stored data (corrupt, or written by a newer schema) is copied once to the persistence's backup slot,
 /// and the primary slot is not overwritten until the user actually changes something.
 public actor LibraryStore: LibraryStoring {
@@ -56,8 +57,11 @@ public actor LibraryStore: LibraryStoring {
     }
 
     public func update(_ mutate: @Sendable (inout Library) -> Void) async {
-        mutate(&library)
-        library.prune()
+        var changed = library
+        mutate(&changed)
+        changed.prune()
+        guard changed != library else { return }
+        library = changed
         dirty = true
         publish()
         scheduleFlush()
@@ -72,13 +76,15 @@ public actor LibraryStore: LibraryStoring {
     public func erase() async {
         cancelScheduledFlush()
         library = Library()
-        write()
+        dirty = false
+        persistence.remove()
         publish()
     }
 
-    /// Emits the library after every `update` / `erase`; does not replay the current value on subscription.
+    /// Emits the library after every changing `update` and every `erase`; does not replay the current value on subscription.
+    /// Keeps only the newest unread value, so a slow subscriber sees the latest library rather than a backlog.
     public func updates() async -> AsyncStream<Library> {
-        let (stream, continuation) = AsyncStream<Library>.makeStream()
+        let (stream, continuation) = AsyncStream<Library>.makeStream(bufferingPolicy: .bufferingNewest(1))
         let id = UUID()
         continuations[id] = continuation
         continuation.onTermination = { [weak self] _ in
