@@ -100,7 +100,24 @@ import Testing
         #expect(router.path == [.show(103)])
     }
 
+    @Test func nilCatalogIsNotEmptyState() {
+        let model = MyListViewModel(environment: environment())
+        model.update(library: richLibrary(), catalog: nil, newEpisodeInfo: [:])
+        #expect(!model.hasLoaded)
+        model.update(library: Library(), catalog: catalog, newEpisodeInfo: [:])
+        #expect(model.hasLoaded && model.isEmpty)
+    }
+
+    @Test func tilesMatchRows() {
+        let model = MyListViewModel(environment: environment())
+        model.update(library: richLibrary(), catalog: catalog, newEpisodeInfo: [:])
+        #expect(model.continueWatchingTiles.map(\.id) == model.continueWatching.map(\.id))
+        #expect(model.newEpisodeTiles.map(\.id) == model.newEpisodes.map(\.id))
+        #expect(model.gridTiles.map(\.id) == ["movie-1001", "show-102", "show-101"])
+    }
+
+    /// Lets the library actor and the observing task run by yielding (no wall-clock), bounded.
     private func waitUntil(_ condition: @MainActor () -> Bool) async {
-        for _ in 0..<2000 where !condition() { try? await Task.sleep(for: .milliseconds(1)) }
+        for _ in 0..<100_000 where !condition() { await Task.yield() }
     }
 }

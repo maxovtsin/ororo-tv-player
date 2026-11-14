@@ -16,6 +16,10 @@ public struct MyListScreen: View {
 
     @State private var model: MyListViewModel?
     @State private var scrollPosition = ScrollPosition()
+    @State private var gridResetToken = 0
+    #if os(tvOS)
+    @Environment(\.resetFocus) private var resetFocus
+    #endif
     @Namespace private var focusScope
 
     public init() {}
@@ -39,8 +43,18 @@ public struct MyListScreen: View {
             await model.observe(catalog: session.catalog, newEpisodeInfo: session.newEpisodeInfo)
         }
         .onChange(of: router.scrollToTopToken) {
+            // Forget the remembered rows/grid position, recreate the grid at its top, scroll up and focus the first element.
+            router.focus.reset(screen: Self.screenID)
+            gridResetToken += 1
             withAnimation(Motion.resolved(Motion.standard, reduceMotion: reduceMotion)) { scrollPosition.scrollTo(edge: .top) }
+            resetFocusToFirst()
         }
+    }
+
+    private func resetFocusToFirst() {
+        #if os(tvOS)
+        resetFocus(in: focusScope)
+        #endif
     }
 
     @ViewBuilder
@@ -50,11 +64,12 @@ public struct MyListScreen: View {
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.shelfGap) {
-                    row(model, shelf: "continueWatching", title: String(localized: "mylist.continueWatching", defaultValue: "Continue Watching",
-                                                                                    bundle: .module),
-                        items: model.continueWatching, context: .continueWatching)
-                    row(model, shelf: "newEpisodes", title: String(localized: "mylist.newEpisodes", defaultValue: "New Episodes", bundle: .module),
-                        items: model.newEpisodes, context: .newEpisodes)
+                    row(model, shelf: "continueWatching",
+                        title: String(localized: "mylist.continueWatching", defaultValue: "Continue Watching", bundle: .module),
+                        items: model.continueWatching, tiles: model.continueWatchingTiles, context: .continueWatching)
+                    row(model, shelf: "newEpisodes",
+                        title: String(localized: "mylist.newEpisodes", defaultValue: "New Episodes", bundle: .module),
+                        items: model.newEpisodes, tiles: model.newEpisodeTiles, context: .newEpisodes)
                     if !model.titles.isEmpty {
                         grid(model)
                     }
@@ -63,7 +78,6 @@ public struct MyListScreen: View {
             }
             .scrollPosition($scrollPosition)
             .myListFocusScope(focusScope)
-            .onAppear { router.isAtTop = true }
             .onScrollGeometryChange(for: Bool.self) { $0.contentOffset.y <= $0.contentInsets.top + 1 } action: { _, atTop in
                 router.isAtTop = atTop
             }
@@ -71,9 +85,10 @@ public struct MyListScreen: View {
     }
 
     @ViewBuilder
-    private func row(_ model: MyListViewModel, shelf: String, title: String, items: [ShelfItem], context: MenuContext) -> some View {
+    private func row(_ model: MyListViewModel, shelf: String, title: String, items: [ShelfItem], tiles: [TileModel],
+                     context: MenuContext) -> some View {
         if !items.isEmpty {
-            ShelfRow(screen: Self.screenID, shelf: shelf, title: title, count: items.count, items: items.map { TileModel($0) },
+            ShelfRow(screen: Self.screenID, shelf: shelf, title: title, count: items.count, items: tiles,
                      shape: .landscape, memory: router.focus, zoomNamespace: zoomNamespace,
                      onSelect: { tile in
                          if let item = items.first(where: { $0.id == tile.id }) {
@@ -95,7 +110,7 @@ public struct MyListScreen: View {
                 .foregroundStyle(Palette.textPrimary)
                 .padding(.horizontal, Spacing.screenEdge)
                 .accessibilityAddTraits(.isHeader)
-            PosterGrid(screen: Self.screenID, items: model.titles.map { TileModel($0) }, memory: router.focus,
+            PosterGrid(screen: Self.screenID, items: model.gridTiles, memory: router.focus,
                        zoomNamespace: zoomNamespace, onFocusChange: { _ in },
                        onSelect: { tile in
                            if let title = model.titles.first(where: { TileModel.tileID($0.id) == tile.id }) {
@@ -108,7 +123,10 @@ public struct MyListScreen: View {
                                           environment: environment, router: router)
                        })
                        .myListDefaultFocus(router.focus.verticalAnchor(screen: Self.screenID) == "grid", in: focusScope)
+                       .id(gridResetToken)
         }
+        // One screen tall: the grid's own scroller pages through titles while this one brings the section into view.
+        .containerRelativeFrame(.vertical, alignment: .top)
     }
 
     private var emptyState: some View {

@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import OroroCore
+import OroroDesign
 
 /// State behind the My List tab: Continue Watching, New Episodes (both capped at 30) and the saved titles.
 @MainActor @Observable public final class MyListViewModel {
@@ -9,9 +10,13 @@ import OroroCore
     public private(set) var continueWatching: [ShelfItem] = []
     public private(set) var newEpisodes: [ShelfItem] = []
     public private(set) var titles: [Title] = []
+    /// Tiles for the three sections, built once per update.
+    public private(set) var continueWatchingTiles: [TileModel] = []
+    public private(set) var newEpisodeTiles: [TileModel] = []
+    public private(set) var gridTiles: [TileModel] = []
     /// The library the rows were built from; menus read it.
     public private(set) var library = Library()
-    /// True once the first library snapshot has been applied.
+    /// True once a library snapshot has been applied against a loaded catalog.
     public private(set) var hasLoaded = false
 
     public var isEmpty: Bool { continueWatching.isEmpty && newEpisodes.isEmpty && titles.isEmpty }
@@ -24,16 +29,24 @@ import OroroCore
 
     public func update(library: Library, catalog: Catalog?, newEpisodeInfo: [Int: NewEpisodeInfo]) {
         self.library = library
-        hasLoaded = true
+        // No catalog yet means "not loaded", never "empty" (avoids an empty-state flash on cold start).
         guard let catalog else {
+            hasLoaded = false
             continueWatching = []
             newEpisodes = []
             titles = []
+            continueWatchingTiles = []
+            newEpisodeTiles = []
+            gridTiles = []
             return
         }
+        hasLoaded = true
         continueWatching = Array(LibraryQueries.continueWatching(library, catalog: catalog).prefix(Self.rowCap))
         newEpisodes = Array(LibraryQueries.newEpisodes(library, catalog: catalog, resolved: newEpisodeInfo).prefix(Self.rowCap))
         titles = LibraryQueries.myList(library, catalog: catalog)
+        continueWatchingTiles = continueWatching.map { TileModel($0) }
+        newEpisodeTiles = newEpisodes.map { TileModel($0) }
+        gridTiles = titles.map { TileModel($0) }
     }
 
     /// Applies the current library, then every change, until cancelled. `updates()` does not replay, so snapshot first.
