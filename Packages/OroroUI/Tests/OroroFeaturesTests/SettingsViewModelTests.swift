@@ -14,25 +14,28 @@ import Testing
         let model: SettingsViewModel
         let library: InMemoryLibraryStore
         let catalog: FakeCatalog
+        let credentials: InMemoryCredentialStore
+        let session: AppSession
         let usage: Usage
     }
 
     private func makeRig(library: Library = Library()) -> Rig {
         let store = InMemoryLibraryStore(library)
         let catalog = FakeCatalog(current: Samples.catalog)
+        let credentials = InMemoryCredentialStore(Credentials(email: "viewer@example.com", password: "hunter2"))
         let environment = AppEnvironment(
             api: FakeAPI(), catalog: catalog, library: store, details: FakeDetails(),
-            credentials: InMemoryCredentialStore(Credentials(email: "viewer@example.com", password: "hunter2")),
-            newEpisodes: FakeNewEpisodes()
+            credentials: credentials, newEpisodes: FakeNewEpisodes()
         )
         let usage = Usage()
+        let session = AppSession(environment: environment)
         let model = SettingsViewModel(
             environment: environment,
-            session: AppSession(environment: environment),
+            session: session,
             clearImages: { usage.clearCalls += 1; usage.bytes = 0 },
             imageUsage: { usage.bytes }
         )
-        return Rig(model: model, library: store, catalog: catalog, usage: usage)
+        return Rig(model: model, library: store, catalog: catalog, credentials: credentials, session: session, usage: usage)
     }
 
     @Test func loadReadsPreferencesAndAccount() async {
@@ -70,11 +73,19 @@ import Testing
 
     @Test func refreshCallsForceRefresh() async {
         let rig = makeRig()
-        let stamp = Date(timeIntervalSince1970: 1_700_000_500)
-        await rig.catalog.configure { $0.lastUpdatedDate = stamp }
+        let stale = Date(timeIntervalSince1970: 1_700_000_000)
+        await rig.catalog.configure { $0.lastUpdatedDate = stale }
+        await rig.model.load()
+        #expect(rig.model.lastUpdated == stale)
+        let before = Date()
         await rig.model.refreshCatalog()
         #expect(rig.model.isRefreshing == false)
-        #expect(rig.model.lastUpdated == stamp)
+        #expect(await rig.catalog.refreshCalls == 1)
+        #expect(await rig.catalog.lastRefreshForce == true)
+        // The fake stamps the refresh time; the model must show what the catalog now reports.
+        let reported = await rig.catalog.lastUpdated()
+        #expect(rig.model.lastUpdated == reported)
+        #expect((rig.model.lastUpdated ?? .distantPast) >= before)
     }
 
     @Test func clearImageCacheCallsThroughAndReloadsUsage() async {
@@ -106,5 +117,9 @@ import Testing
         #expect(rig.model.email == "viewer@example.com")
         await rig.model.signOut()
         #expect(rig.model.email == nil)
+        #expect(rig.credentials.load() == nil)
+        #expect(rig.credentials.clearCount == 1)
+        #expect(rig.session.state == .signedOut)
+        #expect(await rig.catalog.clearCalls == 1)
     }
 }
