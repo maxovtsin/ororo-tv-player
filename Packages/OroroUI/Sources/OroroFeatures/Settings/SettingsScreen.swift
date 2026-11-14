@@ -13,6 +13,16 @@ public struct SettingsScreen: View {
     @AppStorage(SurroundDebug.defaultsKey) private var surroundSignal = ""
     #endif
 
+    #if DEBUG && os(tvOS)
+    private var surroundSignalName: String {
+        switch surroundSignal {
+        case SurroundDebugSignal.speakerTest.rawValue: "Speaker test"
+        case SurroundDebugSignal.steadyTone.rawValue: "Steady tone"
+        default: "Off"
+        }
+    }
+    #endif
+
     public init() {}
 
     public var body: some View {
@@ -99,12 +109,15 @@ public struct SettingsScreen: View {
             }
             #if DEBUG && os(tvOS)
             Section {
-                Picker(selection: $surroundSignal) {
-                    Text(verbatim: "Off").tag("")
-                    Text(verbatim: "Speaker test").tag(SurroundDebugSignal.speakerTest.rawValue)
-                    Text(verbatim: "Steady tone").tag(SurroundDebugSignal.steadyTone.rawValue)
+                // A Picker row opens an empty view on a real Apple TV; one button cycles instead.
+                Button {
+                    switch surroundSignal {
+                    case "": surroundSignal = SurroundDebugSignal.speakerTest.rawValue
+                    case SurroundDebugSignal.speakerTest.rawValue: surroundSignal = SurroundDebugSignal.steadyTone.rawValue
+                    default: surroundSignal = ""
+                    }
                 } label: {
-                    Text(verbatim: "Surround test signal")
+                    Text(verbatim: "Surround test signal: \(surroundSignalName)")
                 }
             } header: {
                 Text(verbatim: "Debug")
