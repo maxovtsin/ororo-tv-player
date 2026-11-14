@@ -1,0 +1,4207 @@
+{
+  "movies": [
+    {
+      "id": 406,
+      "name": "Léon",
+      "imdb_id": "0110413",
+      "imdb_rating": 8.5,
+      "year": "1994",
+      "desc": "Mathilda, a 12-year-old girl, is reluctantly taken in by Léon, a professional assassin, after her family is murdered. Léon and Mathilda form an unusual relationship, as she becomes his protégée and learns the assassin's trade.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/406/jRJrQ72VLyEnVsvwfep8Xjlvu8c.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 132,
+      "updated_at": 1794521383,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/406/p1-600x900-5942261840d0-gE8S02QUOhVnAmYu4tcrBlMTujz.jpg"
+    },
+    {
+      "id": 6587,
+      "name": "Black Beauty 2020",
+      "imdb_id": "8484160",
+      "imdb_rating": 6.4,
+      "year": "2020",
+      "desc": "A wild horse and a teenage girl forge an unbreakable bond which keeps them connected for a lifetime. ",
+      "backdrop_url": null,
+      "array_genres": [
+        "Drama",
+        "Family"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 108,
+      "updated_at": 1791547849,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6587/p1-600x900-06423df49f6c-1qquJKgwSdoMpQGVkJ2HLFysQIg.jpg"
+    },
+    {
+      "id": 18,
+      "name": "Inglourious Basterds",
+      "imdb_id": "0361748",
+      "imdb_rating": 8.4,
+      "year": "2009",
+      "desc": "In Nazi-occupied France during World War II, a plan to assassinate Nazi leaders by a group of Jewish U.S. soldiers coincides with a theatre owner's vengeful plans for the same.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/18/8pEnePgGyfUqj8Qa6d91OZQ6Aih.jpg",
+      "array_genres": [
+        "Adventure",
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "US",
+        "DE"
+      ],
+      "resolution": "HD",
+      "length": 152,
+      "updated_at": 1792972905,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/18/p1-600x900-970b581a1874-6zYuTKyvcwmtNvXXvJZNT0IgBL0.jpg"
+    },
+    {
+      "id": 5488,
+      "name": "Spider-Man Into the Spider-Verse",
+      "imdb_id": "4633694",
+      "imdb_rating": 8.4,
+      "year": "2018",
+      "desc": "Miles Morales is juggling his life between being a high school student and being a spider-man. When Wilson \"Kingpin\" Fisk uses a super collider, others from across the Spider-Verse are transported to this dimension.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5488/qGQf2OHIkoh89K8XeKQzhxczf96.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Animation",
+        "Sci-Fi",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 116,
+      "updated_at": 1794144841,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5488/p1-600x900-5bd714438c37-iiZZdoQBEYBv6id8su7ImL0oCbD.jpg"
+    },
+    {
+      "id": 37,
+      "name": "Toy Story",
+      "imdb_id": "0114709",
+      "imdb_rating": 8.3,
+      "year": "1995",
+      "desc": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/37/3Rfvhy1Nl6sSGJwyjb0QiZzZYlB.jpg",
+      "array_genres": [
+        "Animation",
+        "Adventure",
+        "Comedy",
+        "Family",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 81,
+      "updated_at": 1793890035,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/37/p1-600x900-50f3c392de66-uMZqKhT4YA6mqo2yczoznv7IDmv.jpg"
+    },
+    {
+      "id": 5989,
+      "name": "The Hunt",
+      "imdb_id": "2106476",
+      "imdb_rating": 8.3,
+      "year": "2012",
+      "desc": "A teacher lives a lonely life, all the while struggling over his son’s custody. His life slowly gets better as he finds love and receives good news from his son, but his new luck is about to be brutally shattered by an innocent little lie.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5989/7zN7m5jEyrNxFYm2EbQJAZwAG5i.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "DK",
+        "SE"
+      ],
+      "resolution": "HD",
+      "length": 110,
+      "updated_at": 1792812773,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5989/p1-600x900-9d2c6abecffd-hD42EDHLap5UVmv9CZrUiTxH3rY.jpg"
+    },
+    {
+      "id": 124,
+      "name": "Intouchables",
+      "imdb_id": "1675434",
+      "imdb_rating": 8.5,
+      "year": "2011",
+      "desc": "After he becomes a quadriplegic from a paragliding accident, an aristocrat hires a young man from the projects to be his caretaker.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/124/bGksau9GGu0uJ8DJQ8DYc9JW5LM.jpg",
+      "array_genres": [
+        "Biography",
+        "Comedy",
+        "Drama"
+      ],
+      "array_countries": [
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 107,
+      "updated_at": 1793991066,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/124/p1-600x900-d52fe352887c-4mFsNQwbD0F237Tx7gAPotd0nbJ.jpg"
+    },
+    {
+      "id": 26,
+      "name": "The Dark Knight",
+      "imdb_id": "0468569",
+      "imdb_rating": 9.1,
+      "year": "2008",
+      "desc": "When Batman, Gordon and Harvey Dent launch an assault on the mob, they let the clown out of the box, the Joker, bent on turning Gotham on itself and bringing any heroes down to his level.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/26/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg",
+      "array_genres": [
+        "Action",
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 152,
+      "updated_at": 1794238548,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/26/p1-600x900-5becc2eeada3-1hRoyzDtpgMU7Dz4JF22RANzQO7.jpg"
+    },
+    {
+      "id": 8483,
+      "name": "The 76th Primetime Emmy Awards",
+      "imdb_id": "31241641",
+      "imdb_rating": 6.6,
+      "year": "2024",
+      "desc": "Ceremony to celebrate the 76th edition of the Primetime Emmy awards.",
+      "backdrop_url": null,
+      "array_genres": [
+        "TV Special"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 136,
+      "updated_at": 1791547960,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8483/p1-600x900-b5ac62b03dba-9tBeiaDP1vMlZi9X66Oa1S1aYlX.jpg"
+    },
+    {
+      "id": 414,
+      "name": "The Pianist",
+      "imdb_id": "0253474",
+      "imdb_rating": 8.5,
+      "year": "2002",
+      "desc": "A Polish Jewish musician struggles to survive the destruction of the Warsaw ghetto of World War II.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/414/dVr11o9or7AS8AMPfwjSpEU83iU.jpg",
+      "array_genres": [
+        "Biography",
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "FR",
+        "PL",
+        "DE",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 148,
+      "updated_at": 1792079463,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/414/p1-600x900-a86c976f8b3a-iunmxWkOi7Vk17Ob3G2HwwjgHsr.jpg"
+    },
+    {
+      "id": 6065,
+      "name": "Joker",
+      "imdb_id": "7286456",
+      "imdb_rating": 8.3,
+      "year": "2019",
+      "desc": "During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous psychopathic crime figure.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6065/hO7KbdvGOtDdeg0W4Y5nKEHeDDh.jpg",
+      "array_genres": [
+        "Crime",
+        "Thriller",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 121,
+      "updated_at": 1791532344,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6065/p1-600x900-a766986f12d8-udDclJoHjfjb8Ekgsd4FDteOkCU.jpg"
+    },
+    {
+      "id": 104,
+      "name": "Braveheart",
+      "imdb_id": "0112573",
+      "imdb_rating": 8.3,
+      "year": "1995",
+      "desc": "When his secret bride is executed for assaulting an English soldier who tried to rape her, a commoner begins a revolt and leads Scottish warriors against the cruel English tyrant who rules Scotland with an iron fist.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/104/vXhTr0cN54R0TbSD9iG5cuAEWcT.jpg",
+      "array_genres": [
+        "Action",
+        "Biography",
+        "Drama",
+        "History",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 177,
+      "updated_at": 1794195057,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/104/p1-600x900-06ef9572a516-2qAgGeYdLjelOEqjW9FYvPHpplC.jpg"
+    },
+    {
+      "id": 3492,
+      "name": "28 Days",
+      "imdb_id": "0191754",
+      "imdb_rating": 6.1,
+      "year": "2000",
+      "desc": "After getting into a car accident while drunk on the day of her sister's wedding, Gwen Cummings is given a choice between prison or a rehab center. She chooses rehab, but is extremely resistant to taking part in any of the treatment programs they have to offer, refusing to admit that she has an alcohol addiction.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3492/7beW8ftY4yVBdCu7gWKXogm0q22.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 103,
+      "updated_at": 1794513555,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3492/p1-600x900-5fca18b1243b-qTrrElHcONoix4hb4IpLiqEnjlb.jpg"
+    },
+    {
+      "id": 118,
+      "name": "Toy Story 3",
+      "imdb_id": "0435761",
+      "imdb_rating": 8.3,
+      "year": "2010",
+      "desc": "The toys are mistakenly delivered to a day-care center instead of the attic right before Andy leaves for college, and it's up to Woody to convince the other toys that they weren't abandoned and to return home.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/118/uAfhsySkr1UzQg1zdg3dZQRz9Fd.jpg",
+      "array_genres": [
+        "Animation",
+        "Adventure",
+        "Comedy",
+        "Family",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 102,
+      "updated_at": 1794078675,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/118/p1-600x900-7278fde33cff-tOwAAVeL1p3ls9dhOBo45ElodU3.jpg"
+    },
+    {
+      "id": 3029,
+      "name": "Wuthering Heights (2009)",
+      "imdb_id": "1238834",
+      "imdb_rating": 7.5,
+      "year": "2009",
+      "desc": "Foundling Heathcliff is raised by the wealthy Earnshaws in Yorkshire but in later life launches a vendetta against the family.",
+      "backdrop_url": null,
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [],
+      "resolution": "HD",
+      "length": 137,
+      "updated_at": 1792963627,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3029/p1-600x845-bb00ca659a6c-rZST53a1gfBxGs1B4WtA6wEA9Go.jpg"
+    },
+    {
+      "id": 279,
+      "name": "Star Wars Episode 6 Return of the Jedi",
+      "imdb_id": "0086190",
+      "imdb_rating": 8.3,
+      "year": "1983",
+      "desc": "After rescuing Han Solo from the palace of Jabba the Hutt, the rebels attempt to destroy the second Death Star, while Luke struggles to make Vader shake off of the dark side of the Force.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/279/psYeKwKclG4XaIop5suj1J0Kg2C.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 134,
+      "updated_at": 1794165645,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/279/p1-600x900-7408ffd3d904-jx5p0aHlbPXqe3AH9G15NvmWaqQ.jpg"
+    },
+    {
+      "id": 109,
+      "name": "The Lion King  (1994)",
+      "imdb_id": "0110357",
+      "imdb_rating": 8.5,
+      "year": "1994",
+      "desc": "Lion cub and future king Simba searches for his identity. His eagerness to please others and penchant for testing his boundaries sometimes gets him into trouble.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/109/yDaMQbBfyGzGWKxUsPMxzWVuJlY.jpg",
+      "array_genres": [
+        "Animation",
+        "Adventure",
+        "Drama",
+        "Family",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1794596232,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/109/p1-600x900-8a5b4bd11531-bKPtXn9n4M4s8vvZrbw40mYsefB.jpg"
+    },
+    {
+      "id": 1463,
+      "name": "August Rush",
+      "imdb_id": "0426931",
+      "imdb_rating": 7.4,
+      "year": "2007",
+      "desc": "A drama with fairy tale elements, where an orphaned musical prodigy uses his gift as a clue to finding his birth parents.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1463/3hU0tavXwvqydaoV728O6NbNiLP.jpg",
+      "array_genres": [
+        "Drama",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 113,
+      "updated_at": 1791522409,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1463/p1-600x900-22c161049f29-j8kUdhnIlYsgvL0u4EUKEzWUrbo.jpg"
+    },
+    {
+      "id": 30,
+      "name": "Forrest Gump",
+      "imdb_id": "0109830",
+      "imdb_rating": 8.8,
+      "year": "1994",
+      "desc": "Forrest Gump, while not intelligent, has accidentally been present at many historic moments, but his true love, Jenny Curran, eludes him.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/30/qdIMHd4sEfJSckfVJfKQvisL02a.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 142,
+      "updated_at": 1794596056,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/30/p1-600x900-908eafd69c2e-z4ROnCrL77ZMzT0MsNXY5j25wS2.jpg"
+    },
+    {
+      "id": 8792,
+      "name": "Forgotten Island",
+      "imdb_id": "36583977",
+      "imdb_rating": 7.5,
+      "year": "2026",
+      "desc": "While celebrating their last night together, high school graduates and best friends Jo and Raissa stumble upon a mysterious portal that transports them to the fantastical island of Nakali. When they discover that the memories of their entire friendship are the price for returning home, Jo and Raissa must race to find a way to leave the island before they forget each other forever.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8792/cNICUho5uiAGkfCAQq1ihyaMla4.jpg",
+      "array_genres": [
+        "Animation",
+        "Adventure",
+        "Fantasy",
+        "Comedy",
+        "Family"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 108,
+      "updated_at": 1794510678,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8792/p1-600x900-21394c1beb45-myd1K3gefdNAWFsGNRDdMeiK9Qg.jpg"
+    },
+    {
+      "id": 60,
+      "name": "Eternal Sunshine of the Spotless Mind",
+      "imdb_id": "0338013",
+      "imdb_rating": 8.3,
+      "year": "2004",
+      "desc": "A couple undergo a procedure to erase each other from their memories when their relationship turns sour, but it is only through the process of loss that they discover what they had to begin with.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/60/jz9Kep0xWjiA6QDHSsd43ASxNfj.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 107,
+      "updated_at": 1793721443,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/60/p1-600x900-0d4227ef07a5-7y3eYvTsGjxPYDtSnumCLIMDkrV.jpg"
+    },
+    {
+      "id": 41,
+      "name": "The Shining",
+      "imdb_id": "0081505",
+      "imdb_rating": 8.4,
+      "year": "1980",
+      "desc": "A family heads to an isolated hotel for the winter where an evil and spiritual presence influences the father into violence, while his psychic son s horrific forebodings from the past and of the future.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/41/AdKA2F1SzYPhSZdEbjH1Zh75UVQ.jpg",
+      "array_genres": [
+        "Horror"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 143,
+      "updated_at": 1794150925,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/41/p1-600x900-a66d0ab1e53f-9fgh3Ns1iRzlQNYuJyK0ARQZU7w.jpg"
+    },
+    {
+      "id": 142,
+      "name": "Good Will Hunting",
+      "imdb_id": "0119217",
+      "imdb_rating": 8.4,
+      "year": "1997",
+      "desc": "Will Hunting, a janitor at MIT, has a gift for mathematics but needs help from a psychologist to find direction in his life.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/142/bpV8wn48s82au37QyUJ51S7X2Vf.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 126,
+      "updated_at": 1793699322,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/142/p1-600x900-d8ad6d0aa543-jq8LjngZ7XZEQge5JFTdOGMrHyZ.jpg"
+    },
+    {
+      "id": 397,
+      "name": "Final Destination 3",
+      "imdb_id": "0414982",
+      "imdb_rating": 5.9,
+      "year": "2006",
+      "desc": "In this third installment of the Final Destination series, a student's premonition of a deadly rollercoaster ride saves her life and a lucky few, but not from death itself which ks out those who escaped their fate.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/397/upPtpWzVrUD8XPpoHh2CPTRk36o.jpg",
+      "array_genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "array_countries": [
+        "DE",
+        "US",
+        "CA"
+      ],
+      "resolution": "HD",
+      "length": 92,
+      "updated_at": 1791520408,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/397/p1-600x900-11bd94af858a-fO7QneBmdE9dEJUewiYMfsEp3IL.jpg"
+    },
+    {
+      "id": 278,
+      "name": "Star Wars Episode 4 A New Hope",
+      "imdb_id": "0076759",
+      "imdb_rating": 8.6,
+      "year": "1977",
+      "desc": "Luke Skywalker joins forces with a Jedi Knight, a cocky pilot, a wookiee and two droids to save the universe from the Empire's world-destroying battle-station, while also attempting to rescue Princess Leia from the evil Darth Vader.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/278/zqkmTXzjkAgXmEWLRsY4UpTWCeo.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 124,
+      "updated_at": 1794083189,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/278/p1-600x900-febfe2339043-tvSlBzAdRE29bZe5yYWrJ2ds137.jpg"
+    },
+    {
+      "id": 425,
+      "name": "The Dark Knight Rises",
+      "imdb_id": "1345836",
+      "imdb_rating": 8.4,
+      "year": "2012",
+      "desc": "Eight years after the Joker's reign of anarchy, the Dark Knight is forced to return from his imposed exile to save Gotham City from the brutal guerrilla terrorist Bane with the help of the enigmatic Catwoman.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/425/c3OHQncTAnKFhdOTX7D3LTW6son.jpg",
+      "array_genres": [
+        "Action",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 164,
+      "updated_at": 1794247539,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/425/p1-600x900-1c3f41b25ad7-dEYnvnUfXrqvqeRSqvIEtmzhoA8.jpg"
+    },
+    {
+      "id": 841,
+      "name": "Looper",
+      "imdb_id": "1276104",
+      "imdb_rating": 7.4,
+      "year": "2012",
+      "desc": "In 2074, when the mob wants to get rid of someone, the target is sent into the past, where a hired gun awaits - someone like Joe - who one day learns the mob wants to 'close the loop' by sending back Joe's future self for assassination.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/841/8UiZP1dTIPRYkIcwR84zZTwgKpZ.jpg",
+      "array_genres": [
+        "Action",
+        "Crime",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "CN"
+      ],
+      "resolution": "HD",
+      "length": 118,
+      "updated_at": 1791521430,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/841/p1-600x900-89d5f7517870-o4qXZMrZlfuTfwwNGMyTcx6p2uO.jpg"
+    },
+    {
+      "id": 1111,
+      "name": "Alien",
+      "imdb_id": "0078748",
+      "imdb_rating": 8.4,
+      "year": "1979",
+      "desc": "The commercial vessel Nostromo receives a distress call from an unexplored planet. After searching for survivors, the crew heads home only to realize that a deadly bioform has joined them.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1111/AmR3JG1VQVxU8TfAvljUhfSFUOx.jpg",
+      "array_genres": [
+        "Horror",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 115,
+      "updated_at": 1793475619,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1111/p1-600x900-198c18396bec-2h00HrZs89SL3tXB4nbkiM7BKHs.jpg"
+    },
+    {
+      "id": 1750,
+      "name": "Memento",
+      "imdb_id": "0209144",
+      "imdb_rating": 8.4,
+      "year": "2000",
+      "desc": "A man creates a strange system to help him remember things; so he can hunt for the murderer of his wife without his short-term memory loss being an obstacle.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1750/q2CtXYjp9IlnfBcPktNkBPsuAEO.jpg",
+      "array_genres": [
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 113,
+      "updated_at": 1791523009,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1750/p1-600x900-6004773211c7-fQMSaP88cf1nz4qwuNEEFtazuDM.jpg"
+    },
+    {
+      "id": 4851,
+      "name": "Peaceful Warrior",
+      "imdb_id": "0438315",
+      "imdb_rating": 7.2,
+      "year": "2006",
+      "desc": "A chance encounter with a stranger changes the life of a college gymnast.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4851/fz01dMfFKCBCEhDvbHbkFdgL6j3.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "DE",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 121,
+      "updated_at": 1794175536,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4851/p1-600x900-8a5115f446ab-7uFQ2NS8gaG2o5uohPUlFwmpizA.jpg"
+    },
+    {
+      "id": 1180,
+      "name": "One Flew Over the Cuckoo's Nest",
+      "imdb_id": "0073486",
+      "imdb_rating": 8.6,
+      "year": "1975",
+      "desc": "Upon admittance to a mental institution, a brash rebel rallies the patients to take on the oppressive head nurse.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1180/qUq3QTr2KLvGIcN0GaaaYx9bbyH.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 133,
+      "updated_at": 1793039782,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1180/p1-600x900-8b565b3befc4-2Sns5oMb356JNdBHgBETjIpRYy9.jpg"
+    },
+    {
+      "id": 417,
+      "name": "The Lord of the Rings The Fellowship of the Ring",
+      "imdb_id": "0120737",
+      "imdb_rating": 8.9,
+      "year": "2001",
+      "desc": "A meek hobbit of the Shire and eight companions set out on a journey to Mount Doom to destroy the One Ring and the dark lord Sauron.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/417/tqj7NKj11keFuLzPsBDMUq2dOUO.jpg",
+      "array_genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "NZ",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 228,
+      "updated_at": 1794570404,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/417/p1-600x900-5bc86f84fca9-bxVxZb5O9OxCO0oRUNdCnpy9NST.jpg"
+    },
+    {
+      "id": 8524,
+      "name": "Roofman",
+      "imdb_id": "4627382",
+      "imdb_rating": 6.9,
+      "year": "2025",
+      "desc": "A former Army Ranger and struggling father turns to robbing McDonald’s restaurants by cutting holes in their roofs, earning him the nickname 'Roofman'. After escaping prison, he secretly lives inside a Toys “R” Us for six months, surviving undetected while planning his next move. But when he falls for a divorced mom drawn to his undeniable charm, his double life begins to unravel, setting off a compelling and suspenseful game of cat and mouse as his past closes in.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8524/4TP8wF7Yf5pg4ypjF0bjN1c6yN2.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "Crime"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 125,
+      "updated_at": 1794571370,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8524/p1-600x900-d7dc5d26c8d4-pUpFD3Oq1eN5mdF9MDwCwH874P8.jpg"
+    },
+    {
+      "id": 1761,
+      "name": "The Big Short",
+      "imdb_id": "1596363",
+      "imdb_rating": 7.8,
+      "year": "2015",
+      "desc": "Four denizens in the world of high-finance predict the credit and housing bubble collapse of the mid-2000s, and decide to take on the big banks for their greed and lack of foresight.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1761/i7UCf0ysjbYYaqcSKUox9BJz4Kp.jpg",
+      "array_genres": [
+        "Biography",
+        "Comedy",
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 130,
+      "updated_at": 1793904329,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1761/p1-600x900-243888e96827-p11Ftd4VposrAzthkhF53ifYZRl.jpg"
+    },
+    {
+      "id": 1700,
+      "name": "Lawrence of Arabia",
+      "imdb_id": "0056172",
+      "imdb_rating": 8.3,
+      "year": "1962",
+      "desc": "The story of TE Lawrence, the English officer who successfully united and lead the diverse, often warring, Arab tribes during World War 1 in order to fight the Turks.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1700/mx2jS5Kaa5rmaldEFzKeKpDN9Q2.jpg",
+      "array_genres": [
+        "Adventure",
+        "Biography",
+        "Drama",
+        "History",
+        "War"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 207,
+      "updated_at": 1793045273,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1700/p1-600x900-452b9c6990ac-j21UXCOq0EbV8EPTtmPn1CGePfB.jpg"
+    },
+    {
+      "id": 1552,
+      "name": "Singin' in the Rain",
+      "imdb_id": "0045152",
+      "imdb_rating": 8.3,
+      "year": "1952",
+      "desc": "A silent film production company and cast make a difficult transition to sound.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1552/mxf8hJJkHTCqZP3m4o8E1TtwHHs.jpg",
+      "array_genres": [
+        "Comedy",
+        "Music",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 102,
+      "updated_at": 1793946100,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1552/p1-600x900-1e6ee41688c6-s39odBPtyutGBnEfBIpdm0fpRwv.jpg"
+    },
+    {
+      "id": 7810,
+      "name": "Human 2015",
+      "imdb_id": "3327994",
+      "imdb_rating": 8.6,
+      "year": "2015",
+      "desc": "A collection of stories about and images of our world, offering an immersion to the core of what it means to be human. Through these stories full of love and happiness, as well as hatred and violence, it brings us face to face with the Other, making us reflect on our lives. From stories of everyday experiences to accounts of the most unbelievable lives, these poignant encounters share a rare sincerity and underline who we are – our darker side, but also what is most noble in us, and what is universal. Our Earth is shown at its most sublime through never-before-seen aerial images accompanied by soaring music, resulting in an ode to the beauty of the world, providing a moment to draw breath and for introspection. This film is a politically engaged work which allows us to embrace the human condition and to reflect on the meaning of our existence.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7810/c0gtBfDyOrba9e5wnFjrxn8rxQr.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 133,
+      "updated_at": 1791536515,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7810/p1-600x900-a68c7bc92772-vdZgH8cr73DJTLwvyzFpmm9l3xV.jpg"
+    },
+    {
+      "id": 5635,
+      "name": "We Have Always Lived in the Castle",
+      "imdb_id": "5952138",
+      "imdb_rating": 5.6,
+      "year": "2019",
+      "desc": "An isolated family, having already lost four members to poisoning, uses rituals and talismans to keep itself away from hostile townspeople.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5635/fFI2MuuA2gRRFuYVKMdVWojPmHW.jpg",
+      "array_genres": [
+        "Drama",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "GB",
+        "IE",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 95,
+      "updated_at": 1793134915,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5635/p1-600x900-e3dd01b7c9d1-ejp1MQSlekBjH3bBJrBlWItpmQW.jpg"
+    },
+    {
+      "id": 5792,
+      "name": "Avengers Endgame",
+      "imdb_id": "4154796",
+      "imdb_rating": 8.4,
+      "year": "2019",
+      "desc": "After the devastating events of Avengers: Infinity War, the universe is in ruins due to the efforts of the Mad Titan, Thanos. With the help of remaining allies, the Avengers must assemble once more in order to undo Thanos' actions and restore order to the universe once and for all, no matter what consequences may be in store.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5792/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg",
+      "array_genres": [
+        "Adventure",
+        "Sci-Fi",
+        "Action"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 181,
+      "updated_at": 1794461085,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5792/p1-600x900-47809ea6d36d-or06FN3Dka5tukK1e9sl16pB3iy.jpg"
+    },
+    {
+      "id": 4922,
+      "name": "Batman: The Dark Knight Returns, Part 2",
+      "imdb_id": "2166834",
+      "imdb_rating": 8.3,
+      "year": "2013",
+      "desc": "Batman has stopped the reign of terror that The Mutants had cast upon his city.  Now an old foe wants a reunion and the government wants The Man of Steel to put a stop to Batman.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4922/9Eh5xzWTpJeZM1FGCblWKZ8GTpw.jpg",
+      "array_genres": [
+        "Action",
+        "Animation",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 75,
+      "updated_at": 1791529881,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4922/p1-600x900-dec24010a29a-wPeorCnD9MRR2S9Dzh4OpIgNLiv.jpg"
+    },
+    {
+      "id": 7669,
+      "name": "Spider-Man Across the Spider-Verse",
+      "imdb_id": "9362722",
+      "imdb_rating": 8.5,
+      "year": "2023",
+      "desc": "After reuniting with Gwen Stacy, Brooklyn’s full-time, friendly neighborhood Spider-Man is catapulted across the Multiverse, where he encounters the Spider Society, a team of Spider-People charged with protecting the Multiverse’s very existence. But when the heroes clash on how to handle a new threat, Miles finds himself pitted against the other Spiders and must set out on his own to save those he loves most.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7669/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg",
+      "array_genres": [
+        "Animation",
+        "Action",
+        "Adventure",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 140,
+      "updated_at": 1794604073,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7669/p1-600x900-0102a4450811-8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg"
+    },
+    {
+      "id": 4891,
+      "name": "Spirited Away",
+      "imdb_id": "0245429",
+      "imdb_rating": 8.6,
+      "year": "2001",
+      "desc": "A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4891/Ab8mkHmkYADjU7wQiOkia9BzGvS.jpg",
+      "array_genres": [
+        "Animation",
+        "Family",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "JP"
+      ],
+      "resolution": "HD",
+      "length": 124,
+      "updated_at": 1794596212,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4891/p1-600x900-d5d23448c270-dL11DBPcRhWWnJcFXl9A07MrqTI.jpg"
+    },
+    {
+      "id": 401,
+      "name": "Interstellar",
+      "imdb_id": "0816692",
+      "imdb_rating": 8.7,
+      "year": "2014",
+      "desc": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/401/pbrkL804c8yAv3zBZR4QPEafpAR.jpg",
+      "array_genres": [
+        "Adventure",
+        "Drama",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 169,
+      "updated_at": 1793730756,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/401/p1-600x900-595b64a2af90-nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"
+    },
+    {
+      "id": 7280,
+      "name": "Futurama: Bender's Game",
+      "imdb_id": "1054486",
+      "imdb_rating": 7.2,
+      "year": "2008",
+      "desc": "When Leela is insulted by a group of space-rednecks (like regular rednecks, but in space) she enters the Planet Express ship in a demolition derby.  She emerges victorious, but when she brings the damaged ship home and the Professor sees the fuel gauge, he's enraged by the hit he's going to take at the Dark Matter pump.  Now the crew have to find a way to break Mom's stranglehold on starship fuel, even if they have to wade through a Lord of the Rings-inspired fantasy-land to do it!",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7280/rjK7Fri42mn77bOnN3355XHC7eq.jpg",
+      "array_genres": [
+        "Animation",
+        "Comedy",
+        "Sci-Fi",
+        "TV Movie"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 87,
+      "updated_at": 1793989901,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7280/p1-600x900-1a2baee47afd-bx8OVOBn5WP9TJJuOpRzyMCdzzb.jpg"
+    },
+    {
+      "id": 31,
+      "name": "Schindler's List",
+      "imdb_id": "0108052",
+      "imdb_rating": 9.0,
+      "year": "1993",
+      "desc": "In Poland during World War II, Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/31/zb6fM1CX41D9rF9hdgclu0peUmy.jpg",
+      "array_genres": [
+        "Biography",
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 186,
+      "updated_at": 1793590293,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/31/p1-600x900-c15f78c3338e-yPisjyLweCl1tbgwgtzBCNCBle.jpg"
+    },
+    {
+      "id": 1983,
+      "name": "Paths of Glory",
+      "imdb_id": "0050825",
+      "imdb_rating": 8.4,
+      "year": "1957",
+      "desc": "After refusing to attack an enemy position, a general accuses the soldiers of cowardice and their commanding officer must defend them.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1983/3G9YiVm0bQB1XyyyiDzfeNCiFLw.jpg",
+      "array_genres": [
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1792936732,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1983/p1-600x900-a177ff2daf34-f3DEXseCs3WBtvCv9pVPCtoluuG.jpg"
+    },
+    {
+      "id": 7910,
+      "name": "Dune: Part Two",
+      "imdb_id": "15239678",
+      "imdb_rating": 8.4,
+      "year": "2024",
+      "desc": "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, Paul endeavors to prevent a terrible future only he can foresee.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7910/8uVKfOJUhmybNsVh089EqLHUYEG.jpg",
+      "array_genres": [
+        "Sci-Fi",
+        "Adventure"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 165,
+      "updated_at": 1794093572,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7910/p1-600x900-2775e5e03bd2-1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg"
+    },
+    {
+      "id": 121,
+      "name": "The Godfather Part II",
+      "imdb_id": "0071562",
+      "imdb_rating": 9.0,
+      "year": "1974",
+      "desc": "The early life and career of Vito Corleone in 1920s New York is portrayed while his son, Michael, expands and tightens his grip on his crime syndicate stretching from Lake Tahoe, Nevada to pre-revolution 1958 Cuba.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/121/poec6RqOKY9iSiIUmfyfPfiLtvB.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 202,
+      "updated_at": 1791893984,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/121/p1-600x900-833caf0549ae-tHbMIIF51rguMNSastqoQwR0sBs.jpg"
+    },
+    {
+      "id": 32,
+      "name": "American History X",
+      "imdb_id": "0120586",
+      "imdb_rating": 8.5,
+      "year": "1998",
+      "desc": "A former neo-nazi skinhead tries to prevent his younger brother from going down the same wrong path that he did.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/32/9LSsSPbP715XT9B7acIZzantPyX.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 118,
+      "updated_at": 1793664609,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/32/p1-600x900-176aa3c0e6c9-fXepRAYOx1qC3wju7XdDGx60775.jpg"
+    },
+    {
+      "id": 2759,
+      "name": "Dr. Strangelove or How I Learned to Stop Worrying and Love the Bomb",
+      "imdb_id": "0057012",
+      "imdb_rating": 8.3,
+      "year": "1964",
+      "desc": "An insane general triggers a path to nuclear holocaust that a war room full of politicians and generals frantically try to stop.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2759/sTp8K0SfcC2RQef1Tu160z3niHO.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "SD",
+      "length": 94,
+      "updated_at": 1794505335,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2759/p1-600x900-1ca4c804d9d9-tviJ68Wj4glQk3CPMvdvExYHxX.jpg"
+    },
+    {
+      "id": 994,
+      "name": "Percy Jackson Sea of Monsters",
+      "imdb_id": "1854564",
+      "imdb_rating": 5.7,
+      "year": "2013",
+      "desc": "In order to restore their dying safe haven, the son of Poseidon and his friends embark on a quest to the Sea of Monsters to find the mythical Golden Fleece while trying to stop an ancient evil from rising.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/994/zkKKtYfvoGbK4yl4aPfLf65bUO8.jpg",
+      "array_genres": [
+        "Adventure",
+        "Family",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 106,
+      "updated_at": 1794063746,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/994/p1-600x900-1a70e693790c-cjNvhte8I318miZucl9MIFFyWQJ.jpg"
+    },
+    {
+      "id": 16,
+      "name": "Se7en",
+      "imdb_id": "0114369",
+      "imdb_rating": 8.6,
+      "year": "1995",
+      "desc": "Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his modus operandi.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/16/i5H7zusQGsysGQ8i6P361Vnr0n2.jpg",
+      "array_genres": [
+        "Crime",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 126,
+      "updated_at": 1794596171,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/16/p1-600x900-b7f6b8d2b511-zgB9CCTDlXRv50Z70ZI4elJtNEk.jpg"
+    },
+    {
+      "id": 43,
+      "name": "Django Unchained",
+      "imdb_id": "1853728",
+      "imdb_rating": 8.5,
+      "year": "2012",
+      "desc": "With the help of a German bounty hunter, a freed slave sets out to rescue his wife from a brutal Mississippi plantation owner.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/43/n2eUT4zQA2yYcKOgAFidgOyiFoH.jpg",
+      "array_genres": [
+        "Western"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 165,
+      "updated_at": 1794596216,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/43/p1-600x900-1070136ee0a0-5WJnxuw41sddupf8cwOxYftuvJG.jpg"
+    },
+    {
+      "id": 8801,
+      "name": "The Odyssey",
+      "imdb_id": "33764258",
+      "imdb_rating": 8.4,
+      "year": "2026",
+      "desc": "Odysseus, the legendary King of Ithaca, embarks on a long and perilous journey home following the Trojan War. Throughout his voyage, he is forced to confront the whims of gods, mythological monsters, and trials that stretch both his cunning and his humanity to the breaking point.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8801/iDiTY1wA35YWzTmXLTtqaxtN6tc.jpg",
+      "array_genres": [
+        "Adventure",
+        "Action",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 172,
+      "updated_at": 1794607907,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8801/p1-600x900-e2108fa281a9-krVa7rKCQb4OBfsr2LTJv4rTz5q.jpg"
+    },
+    {
+      "id": 141,
+      "name": "Saving Private Ryan",
+      "imdb_id": "0120815",
+      "imdb_rating": 8.6,
+      "year": "1998",
+      "desc": "Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/141/bdD39MpSVhKjxarTxLSfX6baoMP.jpg",
+      "array_genres": [
+        "Action",
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 169,
+      "updated_at": 1793660272,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/141/p1-600x900-dfb922607157-gc7IN6bWNaWXv4vI6cxSmeB7PeO.jpg"
+    },
+    {
+      "id": 112,
+      "name": "Requiem for a Dream",
+      "imdb_id": "0180093",
+      "imdb_rating": 8.3,
+      "year": "2000",
+      "desc": "The drug-induced utopias of four Coney Island people are shattered when their addictions become stronger.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/112/g1U311jgL4DJbGgvIZgiCfHp44Q.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 101,
+      "updated_at": 1794172590,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/112/p1-600x900-1e050e4084c1-muym4jTjdLx7E6as09d1wlC3sOB.jpg"
+    },
+    {
+      "id": 2875,
+      "name": "Incendies",
+      "imdb_id": "1255953",
+      "imdb_rating": 8.3,
+      "year": "2010",
+      "desc": "Twins journey to the Middle East to discover their family history, and fulfill their mother's last wishes.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2875/jNICaPciTja37SkbSZh4XCsA0Q6.jpg",
+      "array_genres": [
+        "Drama",
+        "Mystery",
+        "War"
+      ],
+      "array_countries": [
+        "CA",
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 130,
+      "updated_at": 1791525380,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2875/p1-600x900-9a7d58eac3af-sEUG3qjxwHjxkzuO7plrRHhOZUH.jpg"
+    },
+    {
+      "id": 36,
+      "name": "WALL E",
+      "imdb_id": "0910970",
+      "imdb_rating": 8.4,
+      "year": "2008",
+      "desc": "In the distant future, a small waste collecting robot inadvertently embarks on a space journey that will ultimately decide the fate of mankind.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/36/fK5ssgvtI43z19FoWigdlqgpLRE.jpg",
+      "array_genres": [
+        "Animation",
+        "Adventure",
+        "Family",
+        "Romance",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 98,
+      "updated_at": 1793641127,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/36/p1-600x900-d3623a4f336e-9cJETuLMc6R0bTWRA5i7ctY9bxk.jpg"
+    },
+    {
+      "id": 7663,
+      "name": "A Very English Christmas",
+      "imdb_id": "28505029",
+      "imdb_rating": 4.9,
+      "year": "2023",
+      "desc": "Christmas in the English countryside wasn’t on Kate’s meticulously planned festive calendar until her half-sister Harriet, who was brought up in England, announces her plan to get married on Christmas Eve. Kate teams up with Harriet’s co-Christmas market owner Dylan to bring order to this whirlwind wedding, but will Kate find her own love in the heart of England this Christmas?",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7663/8eLpNv3FTXosQiogcfitoE0tXAu.jpg",
+      "array_genres": [
+        "TV Movie",
+        "Comedy",
+        "Romance"
+      ],
+      "array_countries": [
+        "CA",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 89,
+      "updated_at": 1791536252,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7663/p1-600x900-605777b6bd5a-gZVGCg9RWTev6whA430Ehwvm0h0.jpg"
+    },
+    {
+      "id": 1468,
+      "name": "Apocalypse Now",
+      "imdb_id": "0078788",
+      "imdb_rating": 8.4,
+      "year": "1979",
+      "desc": "During the Vietnam War, Captain Willard is sent on a dangerous mission into Cambodia to assassinate a renegade colonel who has set himself up as a god among a local tribe.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1468/9Qs9oyn4iE8QtQjGZ0Hp2WyYNXT.jpg",
+      "array_genres": [
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 196,
+      "updated_at": 1792182676,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1468/p1-600x900-b1406ec05340-l8dn7rKbjP36PtHsViHGpzf5ey7.jpg"
+    },
+    {
+      "id": 28,
+      "name": "Gladiator",
+      "imdb_id": "0172495",
+      "imdb_rating": 8.5,
+      "year": "2000",
+      "desc": "When a Roman general is betrayed and his family murdered by an emperor's corrupt son, he comes to Rome as a gladiator to k revenge.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/28/3ZVEtQxVPpEp5LNpAULDcxadTU3.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Drama"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 170,
+      "updated_at": 1792707278,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/28/p1-600x900-0ba9d18b8d02-6WBIzCgmDCYrqh64yDREGeDk9d3.jpg"
+    },
+    {
+      "id": 3,
+      "name": "The Matrix",
+      "imdb_id": "0133093",
+      "imdb_rating": 8.7,
+      "year": "1999",
+      "desc": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3/oMsxZEvz9a708d49b6UdZK1KAo5.jpg",
+      "array_genres": [
+        "Action",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US",
+        "AU"
+      ],
+      "resolution": "HD",
+      "length": 136,
+      "updated_at": 1794596152,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3/p1-600x900-6c699dfe3ae3-lZpWprJqbIFpEV5uoHfoK0KCnTW.jpg"
+    },
+    {
+      "id": 100,
+      "name": "The Lord of the Rings The Two Towers",
+      "imdb_id": "0167261",
+      "imdb_rating": 8.8,
+      "year": "2002",
+      "desc": "While Frodo and Sam edge closer to Mordor with the help of the shifty Gollum, the divided fellowship makes a stand against Sauron's new ally, Saruman, and his hordes of Isengard.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/100/nS4picOwj15APKzJeBCk6EBcMG5.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US",
+        "NZ"
+      ],
+      "resolution": "HD",
+      "length": 235,
+      "updated_at": 1794316434,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/100/p1-600x900-426db922ac41-5o5fv1dHG7vWoH2hmqwihVPBoBm.jpg"
+    },
+    {
+      "id": 135,
+      "name": "Catch Me If You Can",
+      "imdb_id": "0264464",
+      "imdb_rating": 8.1,
+      "year": "2002",
+      "desc": "A true story about Frank Abagnale Jr., who, before his 19th birthday, successfully conned millions of dollars' worth of checks as a Pan Am pilot, doctor, and legal prosecutor.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/135/Ag6qhzsJd3k1NKuNrG9RmhZDMh7.jpg",
+      "array_genres": [
+        "Biography",
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US",
+        "CA"
+      ],
+      "resolution": "HD",
+      "length": 140,
+      "updated_at": 1794386164,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/135/p1-600x900-ec224944f4f6-MywWCQGJNUr5kivAQ7eseCG7rm.jpg"
+    },
+    {
+      "id": 4109,
+      "name": "Once Upon a Time in the West",
+      "imdb_id": "0064116",
+      "imdb_rating": 8.5,
+      "year": "1968",
+      "desc": "This classic western masterpiece is an epic film about a widow whose land and life are in danger as the railroad is getting closer and closer to taking them over. A mysterious harmonica player joins forces with a desperado to protect the woman and her land.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4109/vmryZ1Bkko8P2utNaJeO2Yo2Bx4.jpg",
+      "array_genres": [
+        "Western"
+      ],
+      "array_countries": [
+        "IT",
+        "ES",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 166,
+      "updated_at": 1791921097,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4109/p1-600x900-d324324e1f7c-rVAHRtAMhV8QVXQMQ8NxNbZXCDp.jpg"
+    },
+    {
+      "id": 3563,
+      "name": "Coco",
+      "imdb_id": "2380307",
+      "imdb_rating": 8.4,
+      "year": "2017",
+      "desc": "Despite his family’s baffling generations-old ban on music, Miguel dreams of becoming an accomplished musician like his idol, Ernesto de la Cruz. Desperate to prove his talent, Miguel finds himself in the stunning and colorful Land of the Dead following a mysterious chain of events. Along the way, he meets charming trickster Hector, and together, they set off on an extraordinary journey to unlock the real story behind Miguel's family history.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3563/askg3SMvhqEl4OL52YuvdtY40Yb.jpg",
+      "array_genres": [
+        "Adventure",
+        "Animation",
+        "Comedy",
+        "Family"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 105,
+      "updated_at": 1793541911,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3563/p1-600x889-d7f1ceccbb2c-eKi8dIrr8voobbaGzDpe8w0PVbC.jpg"
+    },
+    {
+      "id": 377,
+      "name": "The Game",
+      "imdb_id": "0119174",
+      "imdb_rating": 7.7,
+      "year": "1997",
+      "desc": "In honor of his birthday, San Francisco banker Nicholas Van Orton, a financial genius and a cold-hearted loner, receives an unusual present from his younger brother, Conrad: a gift certificate to play a unique kind of game. In nary a nanosecond, Nicholas finds himself consumed by a dangerous set of ever-changing rules, unable to distinguish where the charade ends and reality begins.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/377/k7GM13qRYSour3lk90Dq1EwdpoW.jpg",
+      "array_genres": [
+        "Drama",
+        "Thriller",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 128,
+      "updated_at": 1794259594,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/377/p1-600x900-866adeda745d-4UOa079915QjiTA2u5hT2yKVgUu.jpg"
+    },
+    {
+      "id": 4272,
+      "name": "Up",
+      "imdb_id": "1049413",
+      "imdb_rating": 8.3,
+      "year": "2009",
+      "desc": "Carl Fredricksen spent his entire life dreaming of exploring the globe and experiencing life to its fullest. But at age 78, life seems to have passed him by, until a twist of fate (and a persistent 8-year old Wilderness Explorer named Russell) gives him a new lease on life.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4272/hGGC9gKo7CFE3fW07RA587e5kol.jpg",
+      "array_genres": [
+        "Animation",
+        "Comedy",
+        "Family",
+        "Adventure"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 96,
+      "updated_at": 1794113374,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4272/p1-600x900-867c21fdb042-nk11pvocdb5zbFhX5oq5YiLPYMo.jpg"
+    },
+    {
+      "id": 6016,
+      "name": "Downton Abbey",
+      "imdb_id": "1606375",
+      "imdb_rating": 8.7,
+      "year": "2019",
+      "desc": "The beloved Crawleys and their intrepid staff prepare for the most important moment of their lives. A royal visit from the King and Queen of England will unleash scandal, romance and intrigue that will leave the future of Downton hanging in the balance.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6016/vnedp9tKITHxTKrqCGGKF0Mtl0G.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 122,
+      "updated_at": 1794572517,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6016/p1-600x900-5b3a38e8afd9-pWt1iRuhNpeVDNP2QiUT2C5OiBt.jpg"
+    },
+    {
+      "id": 448,
+      "name": "The Lord of the Rings The Return of the King",
+      "imdb_id": "0167260",
+      "imdb_rating": 9.0,
+      "year": "2003",
+      "desc": "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/448/2u7zbn8EudG6kLlBzUYqP8RyFU4.jpg",
+      "array_genres": [
+        "Adventure",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US",
+        "NZ"
+      ],
+      "resolution": "HD",
+      "length": 263,
+      "updated_at": 1794008480,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/448/p1-600x900-1546f6db7bcb-50LoR9gJhbWZ5PpoHgi8MNTYgzd.jpg"
+    },
+    {
+      "id": 7907,
+      "name": "Parasite",
+      "imdb_id": "6751668",
+      "imdb_rating": 8.5,
+      "year": "2019",
+      "desc": "All unemployed, Ki-taek's family takes peculiar interest in the wealthy and glamorous Parks for their livelihood until they get entangled in an unexpected incident.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7907/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
+      "array_genres": [
+        "Comedy",
+        "Thriller",
+        "Drama"
+      ],
+      "array_countries": [
+        "KR"
+      ],
+      "resolution": "HD",
+      "length": 132,
+      "updated_at": 1794604682,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7907/p1-600x900-c068926ea037-7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
+    },
+    {
+      "id": 4598,
+      "name": "Avengers Infinity War",
+      "imdb_id": "4154756",
+      "imdb_rating": 8.4,
+      "year": "2018",
+      "desc": "As the Avengers and their allies have continued to protect the world from threats too large for any one hero to handle, a new danger has emerged from the cosmic shadows: Thanos. A despot of intergalactic infamy, his goal is to collect all six Infinity Stones, artifacts of unimaginable power, and use them to inflict his twisted will on all of reality. Everything the Avengers have fought for has led up to this moment - the fate of Earth and existence itself has never been more uncertain.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4598/mDfJG3LC3Dqb67AZ52x3Z0jU0uB.jpg",
+      "array_genres": [
+        "Adventure",
+        "Sci-Fi",
+        "Fantasy",
+        "Action"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 149,
+      "updated_at": 1794081933,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4598/p1-600x900-78622c9895cf-7WsyChQLEftFiDOVTGkv3hFpyyt.jpg"
+    },
+    {
+      "id": 2465,
+      "name": "Star Trek Beyond",
+      "imdb_id": "2660888",
+      "imdb_rating": 7.0,
+      "year": "2016",
+      "desc": "The USS Enterprise crew explores the furthest reaches of uncharted space, where they encounter a new ruthless enemy who puts them and everything the Federation stands for to the test.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2465/m4F1KRK5jAoQHi2mKDFE2jFKEIb.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "HK",
+        "CN"
+      ],
+      "resolution": "HD",
+      "length": 122,
+      "updated_at": 1794493916,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2465/p1-600x900-e0eb0886f9c0-mLrQMqyZgLeP8FrT5LCobKAiqmK.jpg"
+    },
+    {
+      "id": 7931,
+      "name": "Abigail",
+      "imdb_id": "27489557",
+      "imdb_rating": 6.5,
+      "year": "2024",
+      "desc": "After a group of would-be criminals kidnap the 12 year old ballerina daughter of a powerful underworld figure, all they have to do to collect a $50 million ransom is watch the girl overnight. In an isolated mansion, the captors start to dwindle, one by one, and they discover, to their mounting horror, that they’re locked inside with no normal little girl.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7931/ySgY4jBvZ6qchrxKnBg4M8tZp8V.jpg",
+      "array_genres": [
+        "Horror",
+        "Thriller",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 109,
+      "updated_at": 1793667877,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7931/p1-600x900-026286b145ab-5Uq8P6MPj9Ppsns5t82AiCiUaWE.jpg"
+    },
+    {
+      "id": 1987,
+      "name": "The Apartment",
+      "imdb_id": "0053604",
+      "imdb_rating": 8.3,
+      "year": "1960",
+      "desc": "A man tries to rise in his company by letting its executives use his apartment for trysts, but complications and a romance of his own ensue.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1987/vRTKNKNWLZ22fAgPa5kY8wT2b1F.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 125,
+      "updated_at": 1792936442,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1987/p1-600x900-5d58144c6ebf-8nrQKQjD6z0SJouKHQapXzmjFc6.jpg"
+    },
+    {
+      "id": 8540,
+      "name": "I Swear",
+      "imdb_id": "31514146",
+      "imdb_rating": 8.3,
+      "year": "2025",
+      "desc": "Diagnosed with Tourette Syndrome at 15, John Davidson navigates his way against the odds through troubled teenage years and into adulthood, finding inspiration in the kindness of others to discover his true purpose in life.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8540/fe6kkxaxn0mCU2gl1vfU44IYWsy.jpg",
+      "array_genres": [
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "GB",
+        "IE"
+      ],
+      "resolution": "HD",
+      "length": 120,
+      "updated_at": 1794406160,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8540/p1-600x900-d294f6088de1-vUwyhNWBKkSwK8ELvEeBRwV724h.jpg"
+    },
+    {
+      "id": 6417,
+      "name": "Hubie Halloween",
+      "imdb_id": "10682266",
+      "imdb_rating": 5.3,
+      "year": "2020",
+      "desc": "Hubie Dubois who, despite his devotion to his hometown of Salem, Massachusetts (and its legendary Halloween celebration), is a figure of mockery for kids and adults alike. But this year, something really is going bump in the night, and it’s up to Hubie to save Halloween.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6417/aOeshAxAhiDVIiHsXVFmF6bgclh.jpg",
+      "array_genres": [
+        "Comedy",
+        "Fantasy",
+        "Mystery",
+        "Horror"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 103,
+      "updated_at": 1791533276,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6417/p1-600x900-2719ced5d05d-dbhC6qRydXyRmpUdcl9bL9rARya.jpg"
+    },
+    {
+      "id": 113,
+      "name": "The Departed",
+      "imdb_id": "0407887",
+      "imdb_rating": 8.5,
+      "year": "2006",
+      "desc": "An undercover cop and a mole in the police attempt to identify each other while infiltrating an Irish gang in South Boston.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/113/6WRrGYalXXveItfpnipYdayFkQB.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "HK"
+      ],
+      "resolution": "HD",
+      "length": 151,
+      "updated_at": 1793822492,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/113/p1-600x900-414b3bd248fa-tGLO9zw5ZtCeyyEWgbYGgsFxC6i.jpg"
+    },
+    {
+      "id": 280,
+      "name": "Star Wars Episode 5 The Empire Strikes Back",
+      "imdb_id": "0080684",
+      "imdb_rating": 8.7,
+      "year": "1980",
+      "desc": "After the rebels have been brutally overpowered by the Empire on their newly established base, Luke Skywalker takes advanced Jedi training with Master Yoda, while his friends are pursued by Darth Vader as part of his plan to capture Luke.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/280/aJCtkxLLzkk1pECehVjKHA2lBgw.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 127,
+      "updated_at": 1791520084,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/280/p1-600x900-ec420bb6eb30-6u1fYtxG5eqjhtCPDx04pJphQRW.jpg"
+    },
+    {
+      "id": 3774,
+      "name": "The Trouble with Harry",
+      "imdb_id": "0048750",
+      "imdb_rating": 7.0,
+      "year": "1955",
+      "desc": "Trouble erupts in a small, quiet New England town when a man's body is found in the woods. The problem is that almost everyone in town thinks that they had something to do with his death.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3774/i5MaRm0FsJIpXVLAvrMsMt5YQ5p.jpg",
+      "array_genres": [
+        "Comedy",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 99,
+      "updated_at": 1793502621,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3774/p1-600x900-c1612d04620b-tXq2vB69rv6uqqkyiqfxci0TMgZ.jpg"
+    },
+    {
+      "id": 25,
+      "name": "The Shawshank Redemption",
+      "imdb_id": "0111161",
+      "imdb_rating": 9.3,
+      "year": "1994",
+      "desc": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/25/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 142,
+      "updated_at": 1793810915,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/25/p1-600x900-8f47c45d4381-9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg"
+    },
+    {
+      "id": 1889,
+      "name": "Just Like Heaven",
+      "imdb_id": "0425123",
+      "imdb_rating": 6.7,
+      "year": "2005",
+      "desc": "A lonely landscape architect falls for the spirit of the beautiful woman who used to live in his new apartment.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1889/k63j5qexRlpD3wxzETKfuZRVWiT.jpg",
+      "array_genres": [
+        "Comedy",
+        "Fantasy",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 94,
+      "updated_at": 1792908057,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1889/p1-600x900-d241a95eb5e0-d25cTIEuTSMsbaG9ltIxHkKReBl.jpg"
+    },
+    {
+      "id": 5992,
+      "name": "Klaus",
+      "imdb_id": "4729430",
+      "imdb_rating": 8.2,
+      "year": "2019",
+      "desc": "When Jesper distinguishes himself as the Postal Academy's worst student, he is sent to Smeerensburg, a small village located on a icy island above the Arctic Circle, where grumpy inhabitants barely exchange words, let alone letters. Jesper is about to give up and abandon his duty as a postman when he meets local teacher Alva and Klaus, a mysterious carpenter who lives alone in a cabin full of handmade toys.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5992/2u1YG0pgm5bIOXO2OVWLNdMl23f.jpg",
+      "array_genres": [
+        "Animation",
+        "Family",
+        "Adventure",
+        "Comedy"
+      ],
+      "array_countries": [
+        "ES"
+      ],
+      "resolution": "HD",
+      "length": 98,
+      "updated_at": 1793585142,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5992/p1-600x900-66e7b7b5d167-q125RHUDgR4gjwh1QkfYuJLYkL.jpg"
+    },
+    {
+      "id": 39,
+      "name": "The Prestige",
+      "imdb_id": "0482571",
+      "imdb_rating": 8.5,
+      "year": "2006",
+      "desc": "The rivalry between two magicians becomes  exacerbated by their attempt to perform the ultimate illusion.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/39/xBDE2d6HM1aBKQRu4IT7SfPD9fs.jpg",
+      "array_genres": [
+        "Drama",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 130,
+      "updated_at": 1792340390,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/39/p1-600x900-11ab8d3d99fc-5MXyQfz8xUP3dIFPTubhTsbFY6N.jpg"
+    },
+    {
+      "id": 8477,
+      "name": "Unknown Number The High School Catfish",
+      "imdb_id": "37674426",
+      "imdb_rating": 6.7,
+      "year": "2025",
+      "desc": "Vulgar, taunting texts blow up the phones of a teen and her boyfriend. Who's sending them — and why? This twisty documentary reveals the shocking answer.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8477/fPLUMQFdjHZWe38lgxPSwuBi062.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 94,
+      "updated_at": 1793667910,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8477/p1-600x900-05a00c2025cd-nu3LtgefE2lsgYw1hxHZFoBXk9U.jpg"
+    },
+    {
+      "id": 4334,
+      "name": "Unsane",
+      "imdb_id": "7153766",
+      "imdb_rating": 6.4,
+      "year": "2018",
+      "desc": "A woman is involuntarily committed to a mental institution amid uncertainty as to whether her greatest fear is real or delusional.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4334/5u0ImRdr8Z6uyDfmSWcThXEb8cl.jpg",
+      "array_genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 98,
+      "updated_at": 1791528470,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4334/p1-600x900-8cc514de21aa-1M1U5K4Vf1Cbtrjl9EkGNWpqahf.jpg"
+    },
+    {
+      "id": 20,
+      "name": "Inception",
+      "imdb_id": "1375666",
+      "imdb_rating": 8.8,
+      "year": "2010",
+      "desc": "A skilled extractor is offered a chance to regain his old life as payment for a task considered to be impossible.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/20/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Mystery",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 148,
+      "updated_at": 1794596038,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/20/p1-600x900-1d2a7b6cd5e5-qmDpIHrmpJINaRKAfWQfftjCdyi.jpg"
+    },
+    {
+      "id": 42,
+      "name": "The Green Mile",
+      "imdb_id": "0120689",
+      "imdb_rating": 8.6,
+      "year": "1999",
+      "desc": "The lives of guards on Death Row are affected by one of their charges: a black man accused of child murder and rape, yet who has a mysterious gift.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/42/l6hQWH9eDksNJNiXWYRkWqikOdu.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 188,
+      "updated_at": 1792427989,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/42/p1-600x900-d505df3cea28-3yJUlOtVa09CYJocwBU8eAryja0.jpg"
+    },
+    {
+      "id": 407,
+      "name": "The Godfather",
+      "imdb_id": "0068646",
+      "imdb_rating": 9.2,
+      "year": "1972",
+      "desc": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/407/tmU7GeKVybMWFButWEGl2M4GeiP.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 177,
+      "updated_at": 1793101142,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/407/p1-600x900-a6454cd72816-d4KNaTrltq6bpkFS01pYtyXa09m.jpg"
+    },
+    {
+      "id": 608,
+      "name": "Gangs of New York",
+      "imdb_id": "0217505",
+      "imdb_rating": 7.5,
+      "year": "2002",
+      "desc": "In 1863, Amsterdam Vallon returns to the Five Points area of New York City king revenge against Bill the Butcher, his father's killer.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/608/a2Aj5ksEo2HOUH3FbGyZCtaJM4C.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "US",
+        "IT"
+      ],
+      "resolution": "HD",
+      "length": 166,
+      "updated_at": 1791520847,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/608/p1-600x900-b52118f35cf3-ytKo2tLvKUd9Kbs0poXSQh6ft7d.jpg"
+    },
+    {
+      "id": 7178,
+      "name": "James Acaster Cold Lasagne Hate Myself 1999",
+      "imdb_id": "13446472",
+      "imdb_rating": 8.6,
+      "year": "2020",
+      "desc": "On December 17th 2019, I, James Acaster, filmed my 2019 tour show Cold Lasagne Hate Myself 1999 at EartH in Hackney. It was a show about the best year of my life (1999) and the worst year of my life (2017), I wore a very nifty jacket for it and I looked extremely cool.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7178/uoBTyyILPjHzgHUxfFJw8UPNPPC.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "SD",
+      "length": 127,
+      "updated_at": 1791534969,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7178/p1-600x900-dfc2ef09882e-dzRahuPe6GlM9gKtRUQ33oCsjgH.jpg"
+    },
+    {
+      "id": 4099,
+      "name": "TT3D: Closer to the Edge",
+      "imdb_id": "1698010",
+      "imdb_rating": 7.9,
+      "year": "2011",
+      "desc": "By vividly recounting the TT's legendary rivalries and the Isle of Man's unique road racing history, this 3D feature documentary discovers why modern TT riders still risk their lives to win the world's most dangerous race. The Isle of Man Tourist Trophy is the greatest motorcycle road race in the world, the ultimate challenge for rider and machine. It has always called for a commitment far beyond any other racing event, and many have made the ultimate sacrifice in their quest for victory. A story about freedom of choice, the strength of human spirit and the will to win. It's also an examination of what motivates those rare few, this elite band of brothers who risk everything to win.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4099/7wqvISZl4TYey6CQ4iwZu0k2kA7.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 103,
+      "updated_at": 1794245634,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4099/p1-600x900-c6a8dc2dc91a-fTlrP23ynrczXnyG03bDSASv5Ra.jpg"
+    },
+    {
+      "id": 415,
+      "name": "The Silence of the Lambs",
+      "imdb_id": "0102926",
+      "imdb_rating": 8.6,
+      "year": "1991",
+      "desc": "A young F.B.I. cadet must confide in an incarcerated and manipulative killer to receive his help on catching another serial killer who skins his victims.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/415/mfwq2nMBzArzQ7Y9RKE8SKeeTkg.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 118,
+      "updated_at": 1793573204,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/415/p1-600x900-0fc8f0384d90-qjAyTj2BSth1EQ89vNfo0JYVPFN.jpg"
+    },
+    {
+      "id": 147,
+      "name": "Terminator 2",
+      "imdb_id": "0103064",
+      "imdb_rating": 8.6,
+      "year": "1991",
+      "desc": "A cyborg, identical to the one who failed to kill Sarah Connor, must now protect her teenage son, John, from a  advanced cyborg, made out of liquid metal.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/147/xKb6mtdfI5Qsggc44Hr9CCUDvaj.jpg",
+      "array_genres": [
+        "Action",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 153,
+      "updated_at": 1794225975,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/147/p1-600x900-afb26064a2ac-2y4dmgWYRMYXdD1UyJVcn2HSd1D.jpg"
+    },
+    {
+      "id": 1444,
+      "name": "A Lot Like Love",
+      "imdb_id": "0391304",
+      "imdb_rating": 6.6,
+      "year": "2005",
+      "desc": "On a flight from Los Angeles to New York, Oliver and Emily make a connection, only to decide that they are poorly suited to be together...",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1444/kRpzc3knsyOzLFOi4C4ZUbLPScu.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 102,
+      "updated_at": 1791522430,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1444/p1-600x900-411e98679578-anrhVr6lZqesL1HDgmX06Oo86R.jpg"
+    },
+    {
+      "id": 27,
+      "name": "Fight Club",
+      "imdb_id": "0137523",
+      "imdb_rating": 8.8,
+      "year": "1999",
+      "desc": "An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker and they form an underground fight club that evolves into something much, much ...",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/27/hZkgoQYus5vegHoetLkCJzb17zJ.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US",
+        "DE"
+      ],
+      "resolution": "HD",
+      "length": 139,
+      "updated_at": 1794596046,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/27/p1-600x900-b54a48f116f3-811DjJTon9gD6hZ8nCjSitaIXFQ.jpg"
+    },
+    {
+      "id": 131,
+      "name": "Back to the Future",
+      "imdb_id": "0088763",
+      "imdb_rating": 8.5,
+      "year": "1985",
+      "desc": "A teenager is accidentally sent 30 years into the past in a time-traveling DeLorean invented by his friend, Dr. Emmett Brown, and must make sure his high-school-age parents unite in order to save his own existence.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/131/5bzPWQ2dFUl2aZKkp7ILJVVkRed.jpg",
+      "array_genres": [
+        "Adventure",
+        "Comedy",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 115,
+      "updated_at": 1794596243,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/131/p1-600x900-b10a3adf0155-pTpxQB1N0waaSc3OSn0e9oc8kx9.jpg"
+    },
+    {
+      "id": 4600,
+      "name": "First Reformed",
+      "imdb_id": "6053438",
+      "imdb_rating": 7.1,
+      "year": "2018",
+      "desc": "A pastor of a small church in upstate New York starts to spiral out of control after a soul-shaking encounter with an unstable environmental activist and his pregnant wife.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4600/b5BLqJ6pqMtziBQFd89StwvE7D8.jpg",
+      "array_genres": [
+        "Thriller",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 113,
+      "updated_at": 1791529093,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4600/p1-600x900-4861288d3b9e-p2UylV0hPefEuWPFMo1r56vu2nb.jpg"
+    },
+    {
+      "id": 125,
+      "name": "Samsara",
+      "imdb_id": "0770802",
+      "imdb_rating": 8.4,
+      "year": "2011",
+      "desc": "Filmed over nearly five years in twenty-five countries on five continents, and shot on seventy-millimetre film, Samsara transports us to the varied worlds of sacred grounds, disaster zones, industrial complexes, and natural wonders.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/125/tbSjemOf1nXPOjWELdaeZ7qj1iX.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "US",
+        "ID",
+        "SG",
+        "TH",
+        "KE",
+        "DK",
+        "BR",
+        "JO",
+        "AE",
+        "SA",
+        "ZA",
+        "IT",
+        "GH",
+        "EG",
+        "CN",
+        "JP"
+      ],
+      "resolution": "SD",
+      "length": 102,
+      "updated_at": 1791603139,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/125/p1-600x900-d62dd7ad9c3f-48DZ4MewllwsQ3tOsky5GhOcuBT.jpg"
+    },
+    {
+      "id": 6396,
+      "name": "Fallen",
+      "imdb_id": "0119099",
+      "imdb_rating": 7.0,
+      "year": "1998",
+      "desc": "Homicide detective John Hobbes witnesses the execution of serial killer Edgar Reese. Soon after the execution the killings start again, and they are very similar to Reese's style.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6396/tQcZse6duoXJSvkTL1rskgjyFsO.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Action",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 124,
+      "updated_at": 1793559383,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6396/p1-600x900-42c67820ed73-wfzlDHojkX8NuTRMBeZG9FjEhOV.jpg"
+    },
+    {
+      "id": 795,
+      "name": "Halloween 4: The Return of Michael Myers",
+      "imdb_id": "0095271",
+      "imdb_rating": 5.8,
+      "year": "1988",
+      "desc": "Ten years after his original massacre, the invalid Michael Myers awakens and returns to Haddonfield to kill his seven-year-old niece on Halloween. Can Dr. Loomis stop him?",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/795/zE4I9YvrrMUfwDZ3zLiN10eRZxG.jpg",
+      "array_genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1792701700,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/795/p1-600x900-80d02d1e93a4-oudmrV1WljSJMpgwq6K4VzbIMMK.jpg"
+    },
+    {
+      "id": 858,
+      "name": "Indiana Jones and the Raiders of the Lost Ark",
+      "imdb_id": "0082971",
+      "imdb_rating": 8.4,
+      "year": "1981",
+      "desc": "Archaeologist and adventurer Indiana Jones is hired by the US government to find the Ark of the Covenant before the Nazis.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/858/f3XrGXd34Ru7o39LUwWvk5igEV7.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 115,
+      "updated_at": 1792483112,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/858/p1-600x900-aa0eec8f5503-44sKJOGP3fTm4QXBcIuqu0RkdP7.jpg"
+    },
+    {
+      "id": 1023,
+      "name": "The Cabin in the Woods",
+      "imdb_id": "1259521",
+      "imdb_rating": 7.0,
+      "year": "2012",
+      "desc": "Five friends go for a break at a remote cabin in the woods, where they get  than they bargained for. Together, they must discover the truth behind the cabin in the woods.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1023/5iiVfPS6LsAqmVQVOzhyCHhCFgU.jpg",
+      "array_genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 95,
+      "updated_at": 1793804286,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1023/p1-600x900-9a7b14ea3788-t8cW3FSCDYCaWRiNHSvI6SDuWeA.jpg"
+    },
+    {
+      "id": 1219,
+      "name": "Man on Fire",
+      "imdb_id": "0328107",
+      "imdb_rating": 7.7,
+      "year": "2004",
+      "desc": "In Mexico City, a former assassin swears vengeance on those who committed an unspeakable act against the family he was hired to protect.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1219/lITyO4KDUIg7AujFKC3uCZMMskz.jpg",
+      "array_genres": [
+        "Action",
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 146,
+      "updated_at": 1791522078,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1219/p1-600x900-272779ac8500-qAbRLPe8T7ehKzr1Tgo78T7ASrS.jpg"
+    },
+    {
+      "id": 2300,
+      "name": "Senna",
+      "imdb_id": "1424432",
+      "imdb_rating": 8.4,
+      "year": "2010",
+      "desc": "A documentary on Brazilian Formula One racing driver Ayrton Senna, who won the F1 world championship three times before his death at age 34.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2300/ycNyvi9gk4ZI2NLk4KBbseNZbfN.jpg",
+      "array_genres": [
+        "Documentary",
+        "Biography",
+        "Sport"
+      ],
+      "array_countries": [
+        "GB",
+        "FR",
+        "US"
+      ],
+      "resolution": "SD",
+      "length": 162,
+      "updated_at": 1791524107,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2300/p1-600x900-7e5e099d9d8b-vglg05ioBqt9J6RtolLKjxvRmtJ.jpg"
+    },
+    {
+      "id": 2374,
+      "name": "Legion",
+      "imdb_id": "1038686",
+      "imdb_rating": 5.3,
+      "year": "2010",
+      "desc": "When a group of strangers at a dusty roadside diner come under attack by demonic forces, their only chance for survival lies with an archangel named Michael, who informs a pregnant waitress that her unborn child is humanity's last hope.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2374/jGyIsNQBQ17G92ZxuTErrMl6W1e.jpg",
+      "array_genres": [
+        "Action",
+        "Fantasy",
+        "Horror"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 100,
+      "updated_at": 1791524239,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2374/p1-600x900-7fe872a42dec-mXJJPsVfQdf0OWxgoWgDUFyzJQo.jpg"
+    },
+    {
+      "id": 1464,
+      "name": "Psycho",
+      "imdb_id": "0054215",
+      "imdb_rating": 8.5,
+      "year": "1960",
+      "desc": "A Phoenix secretary steals $40,000 from her employer's client, goes on the run and checks into a remote motel run by a young man under the domination of his mother.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1464/uif5fUshJrXyyDzfpzp1DLw3N0S.jpg",
+      "array_genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 108,
+      "updated_at": 1792260276,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1464/p1-600x900-80f8ea9c260c-oVXm1eBwkgBsOlzTgsMtgkPB2Ha.jpg"
+    },
+    {
+      "id": 465,
+      "name": "Saw III",
+      "imdb_id": "0489270",
+      "imdb_rating": 6.2,
+      "year": "2006",
+      "desc": "Jigsaw kidnaps a doctor to keep him alive while he watches his new apprentice put an unlucky citizen through a brutal test.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/465/qx8Pb3nVnHLBizI9792pbRN5nnm.jpg",
+      "array_genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US",
+        "CA"
+      ],
+      "resolution": "HD",
+      "length": 113,
+      "updated_at": 1791520516,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/465/p1-600x900-857534343e7f-zHMw9xGrNlrDsuK6Lnx5NlL72Eu.jpg"
+    },
+    {
+      "id": 1561,
+      "name": "Rear Window",
+      "imdb_id": "0047396",
+      "imdb_rating": 8.4,
+      "year": "1954",
+      "desc": "A wheelchair-bound photographer spies on his neighbours from his apartment window and becomes convinced one of them has committed murder.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1561/zGs5tZOlvc9cprdcU6kDOVNpujf.jpg",
+      "array_genres": [
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 112,
+      "updated_at": 1793673920,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1561/p1-600x875-b6b79ba08f29-fjIVHiAaBUEtBbHgRLoTgeY8Ter.jpg"
+    },
+    {
+      "id": 5848,
+      "name": "Old Boys",
+      "imdb_id": "5724948",
+      "imdb_rating": 6.1,
+      "year": "2018",
+      "desc": "In the school-set re-working of Cyrano, an awkward but imaginative pupil helps the handsome but spectacularly dim school-hero pursue the fiery daughter of a visiting French teacher.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5848/zaaln8WdQqzWGbHVKUVyPSPrzmL.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "GB",
+        "SE"
+      ],
+      "resolution": "HD",
+      "length": 95,
+      "updated_at": 1791531903,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5848/p1-600x900-d9781953f114-3CeLDFEGXfOQJeGyNafhC0jas5g.jpg"
+    },
+    {
+      "id": 2228,
+      "name": "Witness for the Prosecution",
+      "imdb_id": "0051201",
+      "imdb_rating": 8.4,
+      "year": "1957",
+      "desc": "A veteran British barrister must defend his client in a murder trial that has surprise after surprise.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2228/AetjwIIITWQ5ueKKk9LQNaOFwVa.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 116,
+      "updated_at": 1792133626,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2228/p1-600x900-6f96b22552c7-heY0CCUqN4DY3X30thssZkvWZwx.jpg"
+    },
+    {
+      "id": 2287,
+      "name": "Star Wars Episode VII - The Force Awakens",
+      "imdb_id": "2488496",
+      "imdb_rating": 7.7,
+      "year": "2015",
+      "desc": "Three decades after the defeat of the Galactic Empire, a new threat arises. The First Order attempts to rule the galaxy and only a ragtag group of heroes can stop them, along with the help of the Resistance.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2287/8BTsTfln4jlQrLXUBquXJ0ASQy9.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 138,
+      "updated_at": 1794507395,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2287/p1-600x900-dbac8321bb0d-weUSwMdQIa3NaXVzwUoIIcAi85d.jpg"
+    },
+    {
+      "id": 2905,
+      "name": "Lady Macbeth",
+      "imdb_id": "4291600",
+      "imdb_rating": 6.8,
+      "year": "2016",
+      "desc": "In 19th-century rural England, a young bride who has been sold into marriage discovers an unstoppable desire within herself as she enters into an affair with a worker on her estate.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2905/wztoDoglCOuiEfzl1FS6mglBioF.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1791525349,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2905/p1-600x900-5e62dd8f09c0-xWTJbhTwSTJmhLlX5xAOxPhdnXc.jpg"
+    },
+    {
+      "id": 3501,
+      "name": "One Million Years B.C.",
+      "imdb_id": "0060782",
+      "imdb_rating": 5.7,
+      "year": "1966",
+      "desc": "As the Earth wrestles with its agonising birth, the peoples of this barren and desolate world struggle to survive. Driven by animal instinct they compete against the harsh conditions, their giant predators, and warring tribes. When two people from opposing clans fall in love, existing conventions are shattered forever as each tribe struggles for supremacy and Man embarks on his tortuous voyage of civilisation.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3501/rYKTvq6xsrc81Gie9Pjeb29I4EZ.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 91,
+      "updated_at": 1791526645,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3501/p1-600x900-94d431a2ee10-bcXo4fWv3jquSnu0VI8PA2cf1xe.jpg"
+    },
+    {
+      "id": 2780,
+      "name": "The Light Between Oceans",
+      "imdb_id": "2547584",
+      "imdb_rating": 7.2,
+      "year": "2016",
+      "desc": "A lighthouse keeper and his wife living off the coast of Western Australia raise a baby they rescue from a drifting rowing boat.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2780/s72jkxT7xPbfGxnE1lETq5OywvY.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "GB",
+        "NZ",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 132,
+      "updated_at": 1791525107,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2780/p1-600x900-9092eab318c5-pEFRzXtLmxYNjGd0XqJDHPDFKB2.jpg"
+    },
+    {
+      "id": 3730,
+      "name": "Entourage",
+      "imdb_id": "0387199",
+      "imdb_rating": 8.4,
+      "year": "2015",
+      "desc": "Movie star Vincent Chase, together with his boys, Eric, Turtle and Johnny, are back…and back in business with super agent-turned-studio head Ari Gold. Some of their ambitions have changed, but the bond between them remains strong as they navigate the capricious and often cutthroat world of Hollywood.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3730/uzobkEgGCfVzmXyXKH6Nbrby4Rm.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 104,
+      "updated_at": 1793418751,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3730/p1-600x900-3d1701f69a75-lR4dwcfgCBMklKjiQXuFzRM3gfl.jpg"
+    },
+    {
+      "id": 6489,
+      "name": "Jerry Seinfeld: 23 Hours to Kill",
+      "imdb_id": "12117854",
+      "imdb_rating": 6.7,
+      "year": "2020",
+      "desc": "Jerry Seinfeld takes the stage in New York and tackles talking vs. texting, bad buffets vs. so-called \"great\" restaurants and the magic of Pop Tarts.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6489/rKUGoBSlzY4E2tgBsgwR2pj4eRX.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 60,
+      "updated_at": 1791533381,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6489/p1-600x900-828c6723841b-rvUDx41TcLKaSop7uD3KsXoqyB.jpg"
+    },
+    {
+      "id": 326,
+      "name": "Whiplash",
+      "imdb_id": "2582802",
+      "imdb_rating": 8.5,
+      "year": "2014",
+      "desc": "A promising young drummer enrolls at a cut-throat music conservatory where his dreams of greatness are mentored by an instructor who will stop at nothing to realize a student's potential.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/326/vNXGrknx4GjWLgmuNTftWZluIUl.jpg",
+      "array_genres": [
+        "Drama",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 106,
+      "updated_at": 1794596248,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/326/p1-600x900-cb2ded96f07e-lIv1QinFqz4dlp5U4lQ6HaiskOZ.jpg"
+    },
+    {
+      "id": 2398,
+      "name": "Knight of Cups",
+      "imdb_id": "2101383",
+      "imdb_rating": 5.6,
+      "year": "2015",
+      "desc": "A writer indulging in all that Los Angeles and Las Vegas has to offer undertakes a search for love and self via a series of adventures with six different women.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2398/8vqQs9VMBECtDJJNnS0ZgVGTLCQ.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "SD",
+      "length": 118,
+      "updated_at": 1791524295,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2398/p1-600x900-800f1affad31-sYjRSEM9f7wKcHx9Hu0Lh6JCWT6.jpg"
+    },
+    {
+      "id": 2955,
+      "name": "Rosencrantz & Guildenstern Are Dead",
+      "imdb_id": "0100519",
+      "imdb_rating": 7.3,
+      "year": "1990",
+      "desc": "Two minor characters from the play 'Hamlet' stumble around unaware of their scripted lives and unable to deviate from them.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2955/ks1fjyfEJTuOYSzCNCKx3GWm5yG.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "array_countries": [
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 117,
+      "updated_at": 1791687749,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2955/p1-600x900-e2e75d5a99d6-85W0AoRbaLUsZIrnfN68PP9UcTD.jpg"
+    },
+    {
+      "id": 6732,
+      "name": "David Attenborough: A Life on Our Planet",
+      "imdb_id": "11989890",
+      "imdb_rating": 8.9,
+      "year": "2020",
+      "desc": "The story of life on our planet by the man who has seen more of the natural world than any other. In more than 90 years, Attenborough has visited every continent on the globe, exploring the wild places of our planet and documenting the living world in all its variety and wonder. Addressing the biggest challenges facing life on our planet, the film offers a powerful message of hope for future generations.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6732/hHL4pwGzYS4njLpXhIjfc9skAQJ.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 83,
+      "updated_at": 1793819242,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6732/p1-600x889-150dda00cf4f-zSKwyUDKDHiFU5syTTvQRDcGBPS.jpg"
+    },
+    {
+      "id": 3027,
+      "name": "Two for the Money",
+      "imdb_id": "0417217",
+      "imdb_rating": 6.2,
+      "year": "2005",
+      "desc": "After suffering a career-ending knee injury, a former college football star aligns himself with one of the most renowned touts in the sports-gambling business.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3027/bXYUq1h2GyEQhPkHSkaecCyJTBz.jpg",
+      "array_genres": [
+        "Drama",
+        "Sport",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 122,
+      "updated_at": 1791525615,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3027/p1-600x900-b4bd1eb1c23d-6Oc8AubEs3YwqBRGi5of8QkLA33.jpg"
+    },
+    {
+      "id": 3186,
+      "name": "12 Angry Men",
+      "imdb_id": "0050083",
+      "imdb_rating": 9.0,
+      "year": "1957",
+      "desc": "The defense and the prosecution have rested and the jury is filing into the jury room to decide if a young Spanish-American is guilty or innocent of murdering his father. What begins as an open and shut case soon becomes a mini-drama of each of the jurors' prejudices and preconceptions about the trial, the accused, and each other.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3186/qqHQsStV6exghCM7zbObuYBiYxw.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 96,
+      "updated_at": 1794325697,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3186/p1-600x900-43ec0d88f351-3W0v956XxSG5xgm7LB6qu8ExYJ2.jpg"
+    },
+    {
+      "id": 3189,
+      "name": "The Mountain Between Us",
+      "imdb_id": "2226597",
+      "imdb_rating": 6.4,
+      "year": "2017",
+      "desc": "Stranded after a tragic plane crash, two strangers must forge a connection to survive the extreme elements of a remote snow covered mountain. When they realize help is not coming, they embark on a perilous journey across the wilderness.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3189/p7mUT8Usu1kNlfd1ugk6FwKejlo.jpg",
+      "array_genres": [
+        "Romance",
+        "Adventure",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 111,
+      "updated_at": 1792268136,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3189/p1-600x889-6d747e6409b1-3XNfYTW4XGscI81nXMSWGsQ8cpu.jpg"
+    },
+    {
+      "id": 3322,
+      "name": "Wilson",
+      "imdb_id": "1781058",
+      "imdb_rating": 5.9,
+      "year": "2017",
+      "desc": "Middle-aged and divorced, Wilson finds himself lonely, smug and obsessed with his past.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3322/cZr5milmwj3hLbcMxZc4yszwn0O.jpg",
+      "array_genres": [
+        "Drama",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 94,
+      "updated_at": 1791526262,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3322/p1-600x900-86901ca9cdf2-m63h5MxevYrKn3720hVgKZAx86S.jpg"
+    },
+    {
+      "id": 2856,
+      "name": "The Great Dictator",
+      "imdb_id": "0032553",
+      "imdb_rating": 8.4,
+      "year": "1940",
+      "desc": "Dictator Adenoid Hynkel tries to expand his empire while a poor Jewish barber tries to avoid persecution from Hynkel's regime.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2856/8AMKZODrCvWe2sCy9Ts7VsLcKd6.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 125,
+      "updated_at": 1791525248,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2856/p1-600x900-b66f200bddd3-hK2KsU0lNiYRqIrYJcC3x63dPnH.jpg"
+    },
+    {
+      "id": 3446,
+      "name": "Dracula Dead and Loving It",
+      "imdb_id": "0112896",
+      "imdb_rating": 5.9,
+      "year": "1995",
+      "desc": "When a lawyer shows up at the vampire's doorstep, he falls prey to his charms and joins him in his search for fresh blood. Enter Dr. van Helsing, who may be the only one able to vanquish the count.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3446/mWINg2BwQ2RBNIN8WSMjNbkih3d.jpg",
+      "array_genres": [
+        "Comedy",
+        "Horror"
+      ],
+      "array_countries": [
+        "FR",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 85,
+      "updated_at": 1794253055,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3446/p1-600x900-2705ee84c194-xve4cgfYItnOhtzLYoTwTVy5FGr.jpg"
+    },
+    {
+      "id": 7001,
+      "name": "White Hot The Rise and Fall of Abercrombie and Fitch",
+      "imdb_id": "19034522",
+      "imdb_rating": 5.8,
+      "year": "2022",
+      "desc": "All the cool kids were wearing it. This documentary explores A&F's pop culture reign in the late '90s and early 2000s and how it thrived on exclusion.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7001/10r0a9tfKBnegvgVfbYBsJnfkNa.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1791534662,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7001/p1-600x900-79a86dc0c465-zbA8GgIBRsVoAO1uEvS6k2rqVAV.jpg"
+    },
+    {
+      "id": 7096,
+      "name": "Glorious",
+      "imdb_id": "12724306",
+      "imdb_rating": 5.6,
+      "year": "2022",
+      "desc": "After a breakup, Wes ends up at a remote rest stop. He finds himself locked inside the bathroom with a mysterious figure speaking from an adjacent stall. Soon Wes realizes he is involved in a situation more terrible than he could imagine.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7096/up8mHTvnn92bqcq3paWbFdWWXXz.jpg",
+      "array_genres": [
+        "Horror",
+        "Fantasy",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 78,
+      "updated_at": 1793475553,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7096/p1-600x900-1f86dbb6d271-gttZLC3yhLFx1EnfjEUaDb2YAwl.jpg"
+    },
+    {
+      "id": 2626,
+      "name": "Jackie",
+      "imdb_id": "1619029",
+      "imdb_rating": 6.6,
+      "year": "2016",
+      "desc": "Following the assassination of President John F. Kennedy, First Lady Jacqueline Kennedy fights through grief and trauma to regain her faith, console her children, and define her husband's historic legacy.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2626/lF41LYBSLVpZ61rZci471pqi6UW.jpg",
+      "array_genres": [
+        "Biography",
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "CL",
+        "FR",
+        "US",
+        "HK"
+      ],
+      "resolution": "HD",
+      "length": 100,
+      "updated_at": 1791524832,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2626/p1-600x900-d14696c43b1d-iMkl2Akc1f4CSJCieVwczM4KjZR.jpg"
+    },
+    {
+      "id": 3775,
+      "name": "The Cove",
+      "imdb_id": "1313104",
+      "imdb_rating": 8.4,
+      "year": "2009",
+      "desc": "The Cove tells the amazing true story of how an elite team of individuals, films makers and free divers embarked on a covert mission to penetrate the hidden cove in Japan, shining light on a dark and deadly secret. The shocking discoveries were only the tip of the iceberg.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3775/gpyu3jQeMQeUFAVjCSrVCrYYK3f.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 91,
+      "updated_at": 1791527322,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3775/p1-600x900-7c12716af8aa-9giC3yXFPMl5Gmy5HGd0BYvWSWS.jpg"
+    },
+    {
+      "id": 4462,
+      "name": "Drugstore Cowboy",
+      "imdb_id": "0097240",
+      "imdb_rating": 7.2,
+      "year": "1989",
+      "desc": "Bob Hughes is the leader of a \"family\" of drug addicts consisting of his wife, Dianne, and another couple who feed their habit by robbing drug stores as they travel across the country.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4462/ydrBuCEfMI4rxh3QFlJfXwqHEY4.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 101,
+      "updated_at": 1791528736,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4462/p1-600x900-c9d806f8a97f-zS5kDGjVGHHryzuG9HjazYLXSTO.jpg"
+    },
+    {
+      "id": 1609,
+      "name": "Blade II",
+      "imdb_id": "0187738",
+      "imdb_rating": 6.7,
+      "year": "2002",
+      "desc": "Blade forms an uneasy alliance with the vampire council in order to combat the Reaper vampires who feed on vampires.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1609/g8cjJHZFeZQ5GRbFiDp5jXgfOZW.jpg",
+      "array_genres": [
+        "Action",
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "DE"
+      ],
+      "resolution": "HD",
+      "length": 116,
+      "updated_at": 1791522647,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1609/p1-600x900-5af0c14c42d9-jlURNpXCMK830CsGRd939PJLh8c.jpg"
+    },
+    {
+      "id": 4221,
+      "name": "Marjorie Prime",
+      "imdb_id": "4978710",
+      "imdb_rating": 6.3,
+      "year": "2017",
+      "desc": "A service which creates holographic projections of late family members allows an elderly woman to spend time with a younger version of her deceased husband.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4221/w1ER1Sf57M9QTU2pOEdP5cHeCxD.jpg",
+      "array_genres": [
+        "Drama",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 99,
+      "updated_at": 1791528298,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4221/p1-600x900-b5d1d11b9dea-rvTZFjcNvzPFYJnmdrvSrGvqx67.jpg"
+    },
+    {
+      "id": 2701,
+      "name": "Hustle & Flow",
+      "imdb_id": "0410097",
+      "imdb_rating": 7.3,
+      "year": "2005",
+      "desc": "With help from his friends, a Memphis pimp in a mid-life crisis attempts to become a successful hip-hop emcee.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2701/7B05PWjXIW7uiO3x5ZpmuTQJsIO.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 116,
+      "updated_at": 1791525057,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2701/p1-600x900-3554bb442ce7-2LCm2B02i7dNDWqoOBDmiZTEuyl.jpg"
+    },
+    {
+      "id": 4051,
+      "name": "The Phantom of the Opera at the Royal Albert Hall",
+      "imdb_id": "2077886",
+      "imdb_rating": 8.8,
+      "year": "2011",
+      "desc": "A disfigured musical genius, hidden away in the Paris Opera House, terrorises the opera company for the unwitting benefit of a young protégée whom he trains and loves. The 25th anniversary of the first public performance of Phantom of the Opera was celebrated with a grand performance at the Royal Albert Hall in London.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4051/hjmKqTwOIwN52RBGM72bLSq9Gay.jpg",
+      "array_genres": [
+        "Drama",
+        "Music",
+        "Romance"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 159,
+      "updated_at": 1794600617,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4051/p1-600x900-992f436486c3-1vf1ryVPBSV2J8dOfCmyv3u0Vu4.jpg"
+    },
+    {
+      "id": 4489,
+      "name": "Fletch",
+      "imdb_id": "0089155",
+      "imdb_rating": 6.9,
+      "year": "1985",
+      "desc": "A veritable chameleon, investigative reporter Irwin \"Fletch\" Fletcher might drive his editor up the wall, but he always produces great pieces for the newspaper. When his next story is about the drug trade taking place on the beach, Fletch goes undercover as a homeless man. Unaware of Fletch's true identity, businessman Alan Stanwyk offers Fletch $50,000 to kill him. Intrigued, Fletch decides to unearth the full story behind the offer.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4489/lviuNQGRNFDng0iJlkc34w9q86Q.jpg",
+      "array_genres": [
+        "Comedy",
+        "Crime",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 98,
+      "updated_at": 1791528791,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4489/p1-600x900-1bc89696cc95-t8VjThRC6uKvjR5jVlhj5bBBUUy.jpg"
+    },
+    {
+      "id": 4178,
+      "name": "Little Ashes",
+      "imdb_id": "1104083",
+      "imdb_rating": 6.3,
+      "year": "2008",
+      "desc": "About the young life and loves of artist Salvador Dalí, filmmaker Luis Buñuel and writer Federico García Lorca.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4178/vrTYjOMSgxB4jVrW01U2jy7plbQ.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "ES",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 112,
+      "updated_at": 1791528205,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4178/p1-600x900-e7aad629aaae-DvdUqUQemOLMDnJU9zMPhZ4MBq.jpg"
+    },
+    {
+      "id": 4760,
+      "name": "Sharpe's Gold",
+      "imdb_id": "0114417",
+      "imdb_rating": 7.2,
+      "year": "1995",
+      "desc": "Sharpe is sent on a mission to exchange rifles for deserters with a strange band of Spanish guerillas. He also has to chaperone two women looking for their missing husband.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4760/z5Ux9258a7RUBwlRH6iEOmVkoCO.jpg",
+      "array_genres": [
+        "TV Movie",
+        "Adventure",
+        "Action",
+        "War",
+        "History"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 106,
+      "updated_at": 1791529378,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4760/p1-600x900-b84678bcedb1-5ijDOi7MvZ2dvAu9z1CIM8nJ6mI.jpg"
+    },
+    {
+      "id": 6460,
+      "name": "Folklore: The Long Pond Studio Sessions",
+      "imdb_id": "13524234",
+      "imdb_rating": 8.4,
+      "year": "2020",
+      "desc": "An intimate concert film, in which Taylor Swift performs each song from her album 'folklore' in order, as she reveals the meaning and the stories behind all 17 tracks for the very first time.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6460/xndolqiw6jMhDDkkw1UPuD1xfrT.jpg",
+      "array_genres": [
+        "Music",
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 106,
+      "updated_at": 1791533277,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6460/p1-600x900-a4b4899d4d1e-4iroJUn8YuQBekDwGy7r61YHXiu.jpg"
+    },
+    {
+      "id": 4030,
+      "name": "Mackenna's Gold",
+      "imdb_id": "0064615",
+      "imdb_rating": 6.7,
+      "year": "1969",
+      "desc": "The gangster Colorado kidnaps Marshal McKenna. He believes that McKenna has seen a map which leads to a rich vein of gold in the mountains and forces him to show him the way. But they're not the only ones who're after the gold; soon they meet a group of \"honorable\" citizens and the cavalry crosses their way too - and that is even before they enter Indian territory.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4030/osqSUfyy3P2PwIRpi0C8XNFADfz.jpg",
+      "array_genres": [
+        "Adventure",
+        "Action",
+        "Western"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 128,
+      "updated_at": 1791527895,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4030/p1-600x900-912632b27322-cMYf7OQup0qlbD3oJB8PjFwTeiC.jpg"
+    },
+    {
+      "id": 7691,
+      "name": "Beats 2019",
+      "imdb_id": "8530978",
+      "imdb_rating": 6.4,
+      "year": "2019",
+      "desc": "An agoraphobic hip-hop prodigy and a disgraced former music manager cross paths in Chicago’s South Side and help each other face demons of their pasts.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7691/gdb1kP1O4DeORvYCD3sElP76dpT.jpg",
+      "array_genres": [
+        "Drama",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 110,
+      "updated_at": 1791536219,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7691/p1-600x900-af24f9a77a71-b8P13nIvkkizVBzd2RpegsRt5zP.jpg"
+    },
+    {
+      "id": 4315,
+      "name": "Pacific Rim: Uprising",
+      "imdb_id": "2557478",
+      "imdb_rating": 5.6,
+      "year": "2018",
+      "desc": "It has been ten years since The Battle of the Breach and the oceans are still, but restless. Vindicated by the victory at the Breach, the Jaeger program has evolved into the most powerful global defense force in human history. The PPDC now calls upon the best and brightest to rise up and become the next generation of heroes when the Kaiju threat returns.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4315/oMaj75G2WFw66xI1TREg1hrToSg.jpg",
+      "array_genres": [
+        "Action",
+        "Fantasy",
+        "Sci-Fi",
+        "Adventure"
+      ],
+      "array_countries": [
+        "CN",
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 110,
+      "updated_at": 1791528406,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4315/p1-600x900-35ecaa4df6b6-v5HlmJK9bdeHxN2QhaFP1ivjX3U.jpg"
+    },
+    {
+      "id": 5352,
+      "name": "Sunset Boulevard",
+      "imdb_id": "0043014",
+      "imdb_rating": 8.4,
+      "year": "1950",
+      "desc": "A hack screenwriter writes a screenplay for a former silent film star who has faded into Hollywood obscurity.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5352/p47ihFj4A7EpBjmPHdTj4ipyq1S.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 110,
+      "updated_at": 1794091158,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5352/p1-600x900-bd17c723dbfb-oFwzvRgfxJc0FUr2mwYTi10dk3G.jpg"
+    },
+    {
+      "id": 4492,
+      "name": "Escape from New York",
+      "imdb_id": "0082340",
+      "imdb_rating": 7.1,
+      "year": "1981",
+      "desc": "In 1997, the island of Manhattan has been walled off and turned into a giant maximum security prison within which the country's worst criminals are left to form their own anarchic society. However, when the President of the United States crash lands on the island, the authorities turn to a former soldier and current convict, Snake Plissken, to rescue him.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4492/qcCo2yV6xoak7tMI9YfGSoJgxKW.jpg",
+      "array_genres": [
+        "Sci-Fi",
+        "Action"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 99,
+      "updated_at": 1791528772,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4492/p1-600x856-c8f1e9118a8f-m1xx0wtWXTL82VJmA1Y5DHndL3H.jpg"
+    },
+    {
+      "id": 4599,
+      "name": "Alpha Dog",
+      "imdb_id": "0426883",
+      "imdb_rating": 6.9,
+      "year": "2006",
+      "desc": "Johnny Truelove likes to see himself as tough. He's the son of an underworld figure and a drug dealer. Johnny also likes to get tough when things don't go his way. When Jake Mazursky fails to pay up for Johnny, things get worse for the Mazursky family, as Johnny and his 'gang' kidnap Jake's 15 year old brother and holds him hostage. Problem now is what to do with 'stolen boy?'",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4599/36IfgaCd1iwe1sQgnm5FXlhaJfE.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 112,
+      "updated_at": 1791529008,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4599/p1-600x900-0a6c2610b7c2-t9pirEsDxe102mSQGoDZWBbdcCD.jpg"
+    },
+    {
+      "id": 1126,
+      "name": "Goodfellas",
+      "imdb_id": "0099685",
+      "imdb_rating": 8.7,
+      "year": "1990",
+      "desc": "Henry Hill and his friends work their way up through the mob hierarchy.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1126/sw7mordbZxgITU877yTpZCud90M.jpg",
+      "array_genres": [
+        "Biography",
+        "Crime",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 145,
+      "updated_at": 1794404550,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1126/p1-600x900-bb609fa851f7-ckDwlkT8V71rQxqmxFgzS91rjlR.jpg"
+    },
+    {
+      "id": 1735,
+      "name": "The Hot Chick",
+      "imdb_id": "0302640",
+      "imdb_rating": 5.6,
+      "year": "2002",
+      "desc": "An attractive and popular teenager who is mean-spirited toward others finds herself in the body of an older man, and must find a way to get back to her original body.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1735/vK8uTRjiNkJ7P2VINNLxYWiiw0z.jpg",
+      "array_genres": [
+        "Comedy",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 104,
+      "updated_at": 1792995841,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1735/p1-600x900-3749809edaec-7VxJmoWobDdARhEkU8mIiZwWEj8.jpg"
+    },
+    {
+      "id": 5607,
+      "name": "The Professor and the Madman",
+      "imdb_id": "5932728",
+      "imdb_rating": 7.2,
+      "year": "2019",
+      "desc": "Professor James Murray begins work compiling words for the first edition of the Oxford English Dictionary in the mid 19th century, and receives over 10,000 entries from a patient at Broadmoor Criminal Lunatic Asylum, Dr. William Minor.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5607/fxolSrEERC0VOyeycBOPOOUvu0V.jpg",
+      "array_genres": [
+        "Drama",
+        "History",
+        "Mystery"
+      ],
+      "array_countries": [
+        "IE",
+        "US",
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 124,
+      "updated_at": 1791921441,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5607/p1-600x900-8bf76ac1db7c-gtGCDLhfjW96qVarwctnuTpGOtD.jpg"
+    },
+    {
+      "id": 7806,
+      "name": "This Is Me…Now",
+      "imdb_id": "30215084",
+      "imdb_rating": 4.0,
+      "year": "2024",
+      "desc": "An intimate, fantastical and narrative-driven reflection of Jennifer Lopez's journey of self-healing and self-love in an immersive world where music and visuals intertwine, revealing the challenges faced and the triumphs achieved.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7806/nBZzOG1ho4a4hikxRiL2ZR3H0r.jpg",
+      "array_genres": [
+        "Drama",
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 65,
+      "updated_at": 1793667959,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7806/p1-600x900-13832fed5dba-zxx0krg13e0k2c2RLoOvxJCEQQy.jpg"
+    },
+    {
+      "id": 7855,
+      "name": "Road House 2024",
+      "imdb_id": "3359350",
+      "imdb_rating": 6.2,
+      "year": "2024",
+      "desc": "Ex-UFC fighter Dalton takes a job as a bouncer at a Florida Keys roadhouse, only to discover that this paradise is not all it seems.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7855/fFdlyeC8qPROUqM8ydR9INXAG17.jpg",
+      "array_genres": [
+        "Action",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 123,
+      "updated_at": 1793667656,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7855/p1-600x900-5d7f174c5cfb-bXi6IQiQDHD00JFio5ZSZOeRSBh.jpg"
+    },
+    {
+      "id": 5258,
+      "name": "Queen: Days of Our Lives",
+      "imdb_id": "1977894",
+      "imdb_rating": 8.4,
+      "year": "2011",
+      "desc": "In 1971, four college students got together to form a rock band. Since then, that certain band called Queen have released 26 albums and sold over 300 million records worldwide. The popularity of Freddie Mercury, Brian May, Roger Taylor and John Deacon is stronger than ever 40 years on. But it was no bed of roses. No pleasure cruise. Queen had their share of kicks in the face, but they came through and this is how they did it, set against the backdrop of brilliant music and stunning live performances from every corner of the globe. In this film, for the first time, it is the band that tells their story. Featuring brand new interviews with the band and unseen archive footage (including their recently unearthed, first ever TV performance), it is a compelling story told with intelligence, wit, plenty of humor and painful honesty.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5258/dXl3zlrPYA1f3rikYsZIAlC7B6X.jpg",
+      "array_genres": [
+        "Documentary",
+        "Music"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 118,
+      "updated_at": 1793641565,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5258/p1-600x900-3274f7c4a880-pVey981JDna7qO4hPudH1ah48hB.jpg"
+    },
+    {
+      "id": 5581,
+      "name": "Interstate 60 Episodes of the Road",
+      "imdb_id": "0165832",
+      "imdb_rating": 7.5,
+      "year": "2002",
+      "desc": "An aspiring painter meets various characters and learns valuable lessons while traveling across America.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5581/2YH0I8xwhAXy0YoeazBD8pGj2b.jpg",
+      "array_genres": [
+        "Adventure",
+        "Comedy",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "CA",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 111,
+      "updated_at": 1793803570,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5581/p1-600x900-5533d092c9e2-x6YCgO1u4eIvt5PXNJyFeoxh1Lw.jpg"
+    },
+    {
+      "id": 4996,
+      "name": "Charlie Bartlett",
+      "imdb_id": "0423977",
+      "imdb_rating": 6.9,
+      "year": "2008",
+      "desc": "Awkward teenager Charlie Bartlett has trouble fitting in at a new high school. Charlie needs some friends fast, and decides that the best way to find them is to appoint himself the resident psychiatrist. He becomes one of the most popular guys in school by doling out advice and, occasionally, medication, to the student body.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/4996/iXZaWYp4YlAJp8aZsiGtkUtUVzi.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 96,
+      "updated_at": 1791530006,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/4996/p1-600x900-983c98640dcf-xCirDLSaQwuPhKyQ2kP9AGLidQ0.jpg"
+    },
+    {
+      "id": 5089,
+      "name": "License to Drive",
+      "imdb_id": "0095519",
+      "imdb_rating": 6.4,
+      "year": "1988",
+      "desc": "Teenager Les Anderson thinks his life can't get any worse after he flunks his driver's exam, but he's wrong. Even though he didn't receive his license, Les refuses to break his date with the cool Mercedes Lane, and he decides to lift his family's prize luxury car for the occasion. Unfortunately, Mercedes sneaks some booze along and passes out drunk, and a confused Les makes the bad decision of enlisting his rebellious friend, Dean, to help.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5089/pcSzwprchRgBjX14PgGqMEH4tFG.jpg",
+      "array_genres": [
+        "Comedy",
+        "Family"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 89,
+      "updated_at": 1791530215,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5089/p1-600x900-d81d145840d4-fIEH2uWrR2KkFuYKnL56f0PQFrP.jpg"
+    },
+    {
+      "id": 5348,
+      "name": "The Good, The Bad and The Ugly",
+      "imdb_id": "0060196",
+      "imdb_rating": 8.8,
+      "year": "1966",
+      "desc": "While the Civil War rages between the Union and the Confederacy, three men – a quiet loner, a ruthless hit man and a Mexican bandit – comb the American Southwest in search of a strongbox containing $200,000 in stolen gold.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5348/eoCSp75lxatmIa6aGqfnzwtbttd.jpg",
+      "array_genres": [
+        "Western"
+      ],
+      "array_countries": [
+        "US",
+        "IT",
+        "ES",
+        "DE"
+      ],
+      "resolution": "HD",
+      "length": 178,
+      "updated_at": 1791790411,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5348/p1-600x900-7f5f8f6f7ed1-wfPHdfofBD5PN96dV96a51B3Ja2.jpg"
+    },
+    {
+      "id": 5182,
+      "name": "Peppermint",
+      "imdb_id": "6850820",
+      "imdb_rating": 6.5,
+      "year": "2018",
+      "desc": "A grieving mother transforms herself into a vigilante following the murders of her husband and daughter, eluding the authorities to deliver her own personal brand of justice.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5182/wCZXqPget92sP8j03WPyldtQ90f.jpg",
+      "array_genres": [
+        "Action",
+        "Thriller",
+        "Drama"
+      ],
+      "array_countries": [
+        "HK",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 101,
+      "updated_at": 1791742849,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5182/p1-600x900-2c0df2acb481-jrzxS0vcbzIIay1sdYm0rgI2QfJ.jpg"
+    },
+    {
+      "id": 5280,
+      "name": "What's New Pussycat?",
+      "imdb_id": "0059903",
+      "imdb_rating": 6.0,
+      "year": "1965",
+      "desc": "A playboy who refuses to give up his hedonistic lifestyle to settle down and marry his true love seeks help from a demented psychoanalyst who is having romantic problems of his own.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5280/rq8908sDqtyEGiRagGtPYuWSwFb.jpg",
+      "array_genres": [
+        "Comedy",
+        "Romance"
+      ],
+      "array_countries": [
+        "FR",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 108,
+      "updated_at": 1791530623,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5280/p1-600x900-8bf0601de45b-5QsTdfGULylwm5RNSXAdZuqYcgo.jpg"
+    },
+    {
+      "id": 5351,
+      "name": "It's a Wonderful Life",
+      "imdb_id": "0038650",
+      "imdb_rating": 8.6,
+      "year": "1946",
+      "desc": "A holiday favourite for generations...  George Bailey has spent his entire life giving to the people of Bedford Falls.  All that prevents rich skinflint Mr. Potter from taking over the entire town is George's modest building and loan company.  But on Christmas Eve the business's $8,000 is lost and George's troubles begin.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5351/ch3lDc4xQ9MpsNEpnRhvR8PIxxK.jpg",
+      "array_genres": [
+        "Drama",
+        "Family",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 130,
+      "updated_at": 1793486500,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5351/p1-600x900-3200120f3a44-rgj6QjdyCeDrO9KGt1kusGyhvb2.jpg"
+    },
+    {
+      "id": 6169,
+      "name": "What Ever Happened to Baby Jane?",
+      "imdb_id": "0056687",
+      "imdb_rating": 8.0,
+      "year": "1962",
+      "desc": "Two aging film actresses live as virtual recluses in an old Hollywood mansion. Jane Hudson, a successful child star, cares for her crippled sister Blanche, whose career in later years eclipsed that of Jane. Now the two live together, their relationship affected by simmering subconscious thoughts of mutual envy, hate and revenge.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6169/gkXL5ka6ciU4A4KYSvLIAXtvh7k.jpg",
+      "array_genres": [
+        "Drama",
+        "Horror",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 133,
+      "updated_at": 1791532606,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6169/p1-600x900-0fb10c874b3e-t2hPlHc2pFweBqQgrsNfSLNIv1j.jpg"
+    },
+    {
+      "id": 5428,
+      "name": "City Lights",
+      "imdb_id": "0021749",
+      "imdb_rating": 8.5,
+      "year": "1931",
+      "desc": "City Lights is the first silent film that Charlie Chaplin directed after he established himself with sound accompanied films. The film is about a penniless man who falls in love with a flower girl.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5428/n0Cju2Eu3VyrUFl32thblHFWznA.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 87,
+      "updated_at": 1794375744,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5428/p1-600x900-36983c70ec95-bXNvzjULc9jrOVhGfjcc64uKZmZ.jpg"
+    },
+    {
+      "id": 5462,
+      "name": "Night School",
+      "imdb_id": "6781982",
+      "imdb_rating": 5.6,
+      "year": "2018",
+      "desc": "Teddy Walker is a successful salesman whose life takes an unexpected turn when he accidentally blows up his place of employment. Forced to attend night school to get his GED, Teddy soon finds himself dealing with a group of misfit students, his former high school nemesis and a feisty teacher who doesn't think he's too bright.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5462/lIgl1Y9DhTcvnqoFSsVtG7CgOij.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 116,
+      "updated_at": 1791531004,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5462/p1-600x900-1f332647c184-uQVIQDc3foTPodZw0ie1Or0CXBn.jpg"
+    },
+    {
+      "id": 5833,
+      "name": "Wine Country",
+      "imdb_id": "8169446",
+      "imdb_rating": 5.5,
+      "year": "2019",
+      "desc": "A group of friends head to the land of oaky Chardonnays and big, bold Cabernet Sauvignons for one member of the squad’s 50th birthday party.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5833/txfEqZ0eT5tcPcWnj1XJ6LLKoAZ.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 103,
+      "updated_at": 1791531933,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5833/p1-600x900-3339ef960fce-mi5l29DQFdwrTXxbqM2OLbs830H.jpg"
+    },
+    {
+      "id": 7002,
+      "name": "Bo Burnham: Inside",
+      "imdb_id": "14544192",
+      "imdb_rating": 8.6,
+      "year": "2021",
+      "desc": "Stuck in COVID-19 lockdown, US comedian and musician Bo Burnham attempts to stay sane and happy by writing, shooting and performing a one-man comedy special.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7002/9sfVyE3sP2dkCwDyV7UlYP5TAAR.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 87,
+      "updated_at": 1792779920,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7002/p1-600x900-72cefd4cfa4f-ku1UvTWYvhFQbSesOD6zteY7bXT.jpg"
+    },
+    {
+      "id": 5712,
+      "name": "Holy Man",
+      "imdb_id": "0120701",
+      "imdb_rating": 5.0,
+      "year": "1998",
+      "desc": "Eddie Murphy stars as an over-the-top television evangelist who finds a way to turn television home shopping into a religious experience, and takes America by storm.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5712/bab3M73GxIf0UfxPeXG1GsGjnXu.jpg",
+      "array_genres": [
+        "Drama",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 113,
+      "updated_at": 1791531569,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5712/p1-600x900-9f40526fa1bc-11mINUUPFtqEBdsbayBenOaTWbP.jpg"
+    },
+    {
+      "id": 5823,
+      "name": "Atlas Shrugged: Part III",
+      "imdb_id": "2800038",
+      "imdb_rating": 4.3,
+      "year": "2014",
+      "desc": "Approaching collapse, the nation's economy is quickly eroding. As crime and fear take over the countryside, the government continues to exert its brutal force against the nation's most productive who are mysteriously vanishing - leaving behind a wake of despair. One man has the answer. One woman stands in his way. Some will stop at nothing to control him. Others will stop at nothing to save him. He swore by his life. They swore to find him.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5823/xGd7vtT9AQAe9uq15GlCaCLKUKo.jpg",
+      "array_genres": [
+        "Drama",
+        "Sci-Fi",
+        "Mystery"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 99,
+      "updated_at": 1791531847,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5823/p1-600x900-97452902fa2e-mJ1KZcBj9RmVynnkrHwjclbwQbd.jpg"
+    },
+    {
+      "id": 5922,
+      "name": "Skin",
+      "imdb_id": "6043142",
+      "imdb_rating": 6.8,
+      "year": "2018",
+      "desc": "A destitute young man, raised by racist skinheads and notorious among white supremacists, turns his back on hatred and violence to transform his life, with the help of a black activist and the woman he loves.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/5922/etyZEgWCf46AzKKDMQcLoiYKwec.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 118,
+      "updated_at": 1791532033,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/5922/p1-600x900-ff5acb3d86f2-7ryH8Noh6VKE4L42yhpR5jqIGsF.jpg"
+    },
+    {
+      "id": 7337,
+      "name": "Taylor Swift Reputation Stadium Tour",
+      "imdb_id": "9426852",
+      "imdb_rating": 8.5,
+      "year": "2018",
+      "desc": "Taylor Swift takes the stage in Dallas for the Reputation Stadium Tour and celebrates a monumental night of music, memories and visual magic.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7337/ySaK6hpbCc2OE13ac7ovhgWwR5u.jpg",
+      "array_genres": [
+        "Music"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 125,
+      "updated_at": 1793641340,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7337/p1-600x900-13fcf50c0da6-u6oXUTtOuJRPdUgUuPAVVJPSKCo.jpg"
+    },
+    {
+      "id": 6029,
+      "name": "The Daytrippers",
+      "imdb_id": "0116041",
+      "imdb_rating": 7.1,
+      "year": "1996",
+      "desc": "Eliza D'Amico thinks her marriage to Louis is going great, until she finds a mysterious love note to her husband. Concerned, she goes to her mother for advice. Eliza, her parents, her sister Jo and Jo's boyfriend all pile into a station wagon, to go to the city to confront Louis with the letter. On the way, the five explore their relations with each other, and meet many interesting people.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6029/oJTzl2UIwqNSUrS2CvNUJ4S7Mny.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama",
+        "Mystery"
+      ],
+      "array_countries": [
+        "CA",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 87,
+      "updated_at": 1791532261,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6029/p1-600x900-7ce8e2ae3b19-bDmconT9Fj0dnXdV5LaGAxXrVFN.jpg"
+    },
+    {
+      "id": 6579,
+      "name": "The Salvation",
+      "imdb_id": "2720680",
+      "imdb_rating": 6.7,
+      "year": "2014",
+      "desc": "In 1870s America, a peaceful American settler kills his family's murderer which unleashes the fury of a notorious gang leader. His cowardly fellow townspeople then betray him, forcing him to hunt down the outlaws alone.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6579/8LhafIrfYQDAv7g5gvRdoKOQ69E.jpg",
+      "array_genres": [
+        "Drama",
+        "Western"
+      ],
+      "array_countries": [
+        "DK",
+        "ZA",
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 92,
+      "updated_at": 1791533664,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6579/p1-600x900-68fc9f472867-7PTSd46m4JQmx9SDozzcM9u7Qmh.jpg"
+    },
+    {
+      "id": 6236,
+      "name": "Sicko",
+      "imdb_id": "0386032",
+      "imdb_rating": 8.0,
+      "year": "2007",
+      "desc": "Sicko is a Michael Moore documentary about the corrupt health care system in The United States who's main goal is to make profit even if it means losing peoples lives. \"The more people you deny health insurance the more money we make\" is the business model for health care providers in America.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6236/e7BKRLuCH4ig4wyWWHhd037QtNJ.jpg",
+      "array_genres": [
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 123,
+      "updated_at": 1791532829,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6236/p1-600x900-95737b6a5ad8-8PxUhW78Oy4DWZNRyUkKYmhGUaH.jpg"
+    },
+    {
+      "id": 6320,
+      "name": "3000 Miles To Graceland",
+      "imdb_id": "0233142",
+      "imdb_rating": 6.0,
+      "year": "2001",
+      "desc": "It was an ingenious enough plan: rob the Riviera Casino's count room during an Elvis impersonator convention. But Thomas Murphy decided to keep all the money for himself and shot all his partners, including recently-freed ex-con Michael Zane. With $3.2 million at stake, the Marshals Service closing in, Michael must track down Murphy.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6320/n5va4SrbpA9i7CLB3pcgvhnvk6l.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Comedy",
+        "Crime",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 124,
+      "updated_at": 1791533040,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6320/p1-600x900-80a7b770e3d2-3T3ZTTwHOj0c0AiZ7O5P2eiaBnJ.jpg"
+    },
+    {
+      "id": 6418,
+      "name": "Brahms: The Boy II",
+      "imdb_id": "9173418",
+      "imdb_rating": 4.7,
+      "year": "2020",
+      "desc": "After a family moves into the Heelshire Mansion, their young son soon makes friends with a life-like doll called Brahms.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6418/jeiVmutYPZyQRSYk7OvyWENGIrA.jpg",
+      "array_genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 87,
+      "updated_at": 1791643007,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6418/p1-600x900-c4a8d8bf3118-tIpGQ9uuII7QVFF0GHCFTJFfXve.jpg"
+    },
+    {
+      "id": 6525,
+      "name": "Flora & Ulysses",
+      "imdb_id": "8521736",
+      "imdb_rating": 6.2,
+      "year": "2021",
+      "desc": "When Flora rescues a squirrel she names Ulysses, she is amazed to discover he possesses unique superhero powers, which take them on an adventure of humorous complications that ultimately change Flora's life--and her outlook--forever.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6525/tHjoTxM4SMgazi3Y2X8mmAtONVL.jpg",
+      "array_genres": [
+        "Family",
+        "Adventure",
+        "Comedy",
+        "Fantasy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 95,
+      "updated_at": 1791533473,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6525/p1-600x900-6879c989a030-syobJCxZcIJl0OpjNroZSQKa1kW.jpg"
+    },
+    {
+      "id": 7018,
+      "name": "Chaos Walking",
+      "imdb_id": "2076822",
+      "imdb_rating": 5.7,
+      "year": "2021",
+      "desc": "Two unlikely companions embark on a perilous adventure through the badlands of an unexplored planet as they try to escape a dangerous and disorienting reality, where all inner thoughts are seen and heard by everyone.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7018/ovggmAOu1IbPGTQE8lg4lBasNC7.jpg",
+      "array_genres": [
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "CA",
+        "HK",
+        "LU",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 108,
+      "updated_at": 1791534701,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7018/p1-600x900-3abed9c2dd08-9kg73Mg8WJKlB9Y2SAJzeDKAnuB.jpg"
+    },
+    {
+      "id": 6766,
+      "name": "Bill & Ted Face the Music",
+      "imdb_id": "1086064",
+      "imdb_rating": 5.9,
+      "year": "2020",
+      "desc": "Yet to fulfill their rock and roll destiny, the now middle-aged best friends Bill and Ted set out on a new adventure when a visitor from the future warns them that only their song can save life as we know it. Along the way, they are helped by their daughters, a new batch of historical figures and a few music legends—to seek the song that will set their world right and bring harmony to the universe.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6766/oazPqs1z78LcIOFslbKtJLGlueo.jpg",
+      "array_genres": [
+        "Comedy",
+        "Sci-Fi",
+        "Adventure"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 91,
+      "updated_at": 1791534001,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6766/p1-600x900-ceb4d85d9b1b-4V2nTPfeB59TcqJcUfQ9ziTi7VN.jpg"
+    },
+    {
+      "id": 6805,
+      "name": "Dave Chappelle: Killin' Them Softly",
+      "imdb_id": "0251654",
+      "imdb_rating": 8.7,
+      "year": "2000",
+      "desc": "Dave Chappelle returns for a stand-up to D.C. and riffs on politics, police, race relations, drugs, Sesame Street and more.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6805/xnOyJuppTQWgUtlMpUET4r3D8Ek.jpg",
+      "array_genres": [
+        "Comedy",
+        "Documentary"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 57,
+      "updated_at": 1794524409,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6805/p1-600x900-8bd1d53e1dd8-xQAwaRVkaYtgEbFzsUrYzduJsOd.jpg"
+    },
+    {
+      "id": 6885,
+      "name": "The Nest",
+      "imdb_id": "8338762",
+      "imdb_rating": 6.2,
+      "year": "2020",
+      "desc": "Rory is an ambitious entrepreneur who brings his American wife and kids to his native country, England, to explore new business opportunities. After abandoning the sanctuary of their safe American suburban surroundings, the family is plunged into the despair of an archaic '80s Britain and their unaffordable new life in an English manor house threatens to destroy the family.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6885/pbvsoMOOgzqJCpUCnHWwbZqw98D.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "CA",
+        "IE",
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 107,
+      "updated_at": 1791534320,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6885/p1-600x900-385d9d4ff387-mSTrRgXGzu2t1jVhTexIqwSHlk7.jpg"
+    },
+    {
+      "id": 7156,
+      "name": "The Inhabitant",
+      "imdb_id": "13635702",
+      "imdb_rating": 4.4,
+      "year": "2022",
+      "desc": "Like any other teenage girl, Tara is just surviving high school — yet her father and mother seem strangely distant. Amidst a nearby spree of gruesome ax murders, Tara has sightings of terrifying entities, forcing her to question her own sanity and shocking ancestry.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7156/u3tYPd0s6uvLvgEqWVUQSM8pe47.jpg",
+      "array_genres": [
+        "Thriller",
+        "Horror"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 97,
+      "updated_at": 1791534958,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7156/p1-600x900-2b32a6b39cb6-kmC9FrsqwSwsiR9TyEaTFFgxmxK.jpg"
+    },
+    {
+      "id": 7191,
+      "name": "Airborne",
+      "imdb_id": "0106233",
+      "imdb_rating": 6.3,
+      "year": "1993",
+      "desc": "Good-natured teen surfer Mitchell Goosen finds himself staying with his aunt and uncle in Cincinnati, Ohio when his parents head to Australia for work. There he meets his cousin, Wiley, and together they try to navigate the perils of high school—avoid the bullies, get the girl, and win a little respect.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7191/byQFTtskbR9COpluK1p3oImdsBt.jpg",
+      "array_genres": [
+        "Action",
+        "Adventure",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 90,
+      "updated_at": 1791535099,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7191/p1-600x900-4555de2a5f7c-3xOcKPYXQMv0fbo9mbZFM1HJEZM.jpg"
+    },
+    {
+      "id": 8771,
+      "name": "Hadestown: The Musical",
+      "imdb_id": "36307021",
+      "imdb_rating": 8.4,
+      "year": "2026",
+      "desc": "The tragic love of Orpheus and Eurydice is intertwined with the complex relationship of Hades and Persephone. Eurydice, struggling with poverty, is lured to the industrial underworld of Hadestown by Hades, while Orpheus, a struggling musician, ventures down below to bring her back. (Filmed live at the Lyric Theatre, London, featuring the core five original Broadway cast members.)",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8771/n2Lx80fUrEp8OZOjfBNx0a7d37u.jpg",
+      "array_genres": [
+        "Drama",
+        "Fantasy",
+        "Romance"
+      ],
+      "array_countries": [
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 141,
+      "updated_at": 1793667752,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8771/p1-600x900-a26ea54f2ea2-iJNVygzkuOSCOdCPNI1nLSeF7sz.jpg"
+    },
+    {
+      "id": 7320,
+      "name": "The Woman King",
+      "imdb_id": "8093700",
+      "imdb_rating": 6.9,
+      "year": "2022",
+      "desc": "The story of the Agojie, the all-female unit of warriors who protected the African Kingdom of Dahomey in the 1800s with skills and a fierceness unlike anything the world has ever seen, and General Nanisca as she trains the next generation of recruits and readies them for battle against an enemy determined to destroy their way of life.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7320/xTsERrOCW15OIYl5aPX7Jbj38wu.jpg",
+      "array_genres": [
+        "Action",
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "CA",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 134,
+      "updated_at": 1794249846,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7320/p1-600x900-8af7fe3fe97a-438QXt1E3WJWb3PqNniK0tAE5c1.jpg"
+    },
+    {
+      "id": 7466,
+      "name": "Ragtime",
+      "imdb_id": "0082970",
+      "imdb_rating": 7.3,
+      "year": "1981",
+      "desc": "A young black pianist becomes embroiled in the lives of an upper-class white family set among the racial tensions, infidelity, violence, and other nostalgic events in early 1900s New York City.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7466/sDWA1fRfY9QNQFu4MpJYQSMrcoc.jpg",
+      "array_genres": [
+        "Drama",
+        "History"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 155,
+      "updated_at": 1791535764,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7466/p1-600x900-01da527292ea-vRjyakxRrMfj6sgyUJte9mVI1D9.jpg"
+    },
+    {
+      "id": 7497,
+      "name": "A West Wing Special to Benefit When We All Vote",
+      "imdb_id": "13180026",
+      "imdb_rating": 8.4,
+      "year": "2020",
+      "desc": "Taped at Los Angeles’ iconic Orpheum Theatre, this staged presentation of The West Wing’s “Hartsfield’s Landing” episode stars core cast members along with special guest stars. Act Breaks feature commentary from former First Lady Michelle Obama, President Bill Clinton and Lin-Manuel Miranda who share messages about the vital importance of making our voices heard in every election.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7497/r8xZ7dJVFhQqsFeVg1EL40fjtsr.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [],
+      "resolution": "HD",
+      "length": 63,
+      "updated_at": 1794447309,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7497/p1-600x900-7b42c2991ad4-wmqqLKSm7d6Wwjupm4sOUodnAg9.jpg"
+    },
+    {
+      "id": 7557,
+      "name": "Cinderella 2021",
+      "imdb_id": "10155932",
+      "imdb_rating": 4.4,
+      "year": "2021",
+      "desc": "Cinderella, an orphaned girl with an evil stepmother, has big dreams and with the help of her Fabulous Godmother, she perseveres to make them come true.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7557/3EmwUuGBp44hTzZGJqpzyiAmAVT.jpg",
+      "array_genres": [
+        "Fantasy",
+        "Romance",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 112,
+      "updated_at": 1791535900,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7557/p1-600x900-df2080345a84-clDFqATL4zcE7LzUwkrVj3zHvk7.jpg"
+    },
+    {
+      "id": 7733,
+      "name": "Wonder Boys",
+      "imdb_id": "0185014",
+      "imdb_rating": 7.2,
+      "year": "2000",
+      "desc": "Grady is a 50-ish English professor who hasn't had a thing published in years—not since he wrote his award winning 'Great American Novel' 7 years ago. This weekend proves even worse than he could imagine as he finds himself reeling from one misadventure to another in the company of a new wonder boy author.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7733/f6axPiSzkPa2ErTtTxBUGfCLFPd.jpg",
+      "array_genres": [
+        "Comedy",
+        "Drama"
+      ],
+      "array_countries": [
+        "DE",
+        "JP",
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 111,
+      "updated_at": 1794215987,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7733/p1-600x900-9f210b4369cf-vGOdSLaZmu42qqwDUMgrfctJ65M.jpg"
+    },
+    {
+      "id": 8099,
+      "name": "His Three Daughters",
+      "imdb_id": "28491891",
+      "imdb_rating": 7.1,
+      "year": "2024",
+      "desc": "Emotions run high when three estranged sisters reunite in a cramped New York City apartment to watch over their ailing father during his final days.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8099/6MuKvMcnNdgbfhc7HRGDbDSJuR7.jpg",
+      "array_genres": [
+        "Drama",
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 104,
+      "updated_at": 1793667986,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8099/p1-600x900-156963f33ecf-yTIHBPLQyzhgz1c2spak3btJxsg.jpg"
+    },
+    {
+      "id": 8429,
+      "name": "Critical Thinking",
+      "imdb_id": "7870102",
+      "imdb_rating": 6.5,
+      "year": "2020",
+      "desc": "Based on a true story from 1998, five Latino and Black teenagers from the toughest underserved ghetto in Miami fight their way into the National Chess Championship under the guidance of their unconventional but inspirational teacher.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/8429/bjLaMtcBxVOqwbaWzuThFwnMnkt.jpg",
+      "array_genres": [
+        "Drama"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 110,
+      "updated_at": 1791538018,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/8429/p1-600x900-28a296896006-l1OR2xTnOOX95KGrS3dm5YQopy5.jpg"
+    },
+    {
+      "id": 2695,
+      "name": "Cape Fear",
+      "imdb_id": "0101540",
+      "imdb_rating": 7.3,
+      "year": "1991",
+      "desc": "A convicted rapist, released from prison after serving a fourteen-year sentence, stalks the family of the lawyer who originally defended him.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2695/ntgpger7OwFNlEldxuvvFHDKzjW.jpg",
+      "array_genres": [
+        "Crime",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "SD",
+      "length": 127,
+      "updated_at": 1791524972,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2695/p1-600x900-7659a3b05d89-4KvrvcqckdupXXO2YnANtyG7QLK.jpg"
+    },
+    {
+      "id": 111,
+      "name": "Pulp Fiction",
+      "imdb_id": "0110912",
+      "imdb_rating": 8.8,
+      "year": "1994",
+      "desc": "The lives of two mob hit men, a boxer, a gangster's wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/111/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 154,
+      "updated_at": 1794596082,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/111/p1-600x900-97a5a02fff58-dM2w364MScsjFf8pfMbaWUcWrR.jpg"
+    },
+    {
+      "id": 1123,
+      "name": "Aliens",
+      "imdb_id": "0090605",
+      "imdb_rating": 8.4,
+      "year": "1986",
+      "desc": "The planet from Alien (1979) has been colonized, but contact is lost. This time, the rescue team has impressive firepower, but will it be enough?",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1123/jMBpJFRtrtIXymer93XLavPwI3P.jpg",
+      "array_genres": [
+        "Action",
+        "Horror",
+        "Sci-Fi"
+      ],
+      "array_countries": [
+        "GB",
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 154,
+      "updated_at": 1793483087,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1123/p1-600x900-1ebdc654339e-nORMXEkYEbzkU5WkMWMgRDJwjSZ.jpg"
+    },
+    {
+      "id": 1144,
+      "name": "Apt Pupil",
+      "imdb_id": "0118636",
+      "imdb_rating": 6.7,
+      "year": "1998",
+      "desc": "A boy blackmails his neighbour after suspecting him to be a Nazi war criminal.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1144/xQpsxWPaAZW77G1L2Nzi2EAhizZ.jpg",
+      "array_genres": [
+        "Drama",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 111,
+      "updated_at": 1791521935,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1144/p1-600x900-a709b5c8219c-6AAdkNH1JQtpiWQxeHb1GTCKHVS.jpg"
+    },
+    {
+      "id": 1585,
+      "name": "Casablanca",
+      "imdb_id": "0034583",
+      "imdb_rating": 8.5,
+      "year": "1942",
+      "desc": "In Casablanca, Morocco in December 1941, a cynical American expatriate meets a former lover, with unforeseen complications.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1585/rrsG3xYrWifoduZtsIZ4ntoDfBY.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance",
+        "War"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "SD",
+      "length": 102,
+      "updated_at": 1793900903,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1585/p1-600x900-15a4ad02c578-wOBKAoUJZb5qTsWv5XXvVV2vUzz.jpg"
+    },
+    {
+      "id": 3624,
+      "name": "Searching for Sugar Man",
+      "imdb_id": "2125608",
+      "imdb_rating": 8.2,
+      "year": "2012",
+      "desc": "Two South Africans set out to discover what happened to their unlikely musical hero, the mysterious 1970s rock 'n' roller, Rodriguez. The film won Best Documentary at the 85th Academy Awards.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/3624/8RafTGqYqAN9FJzvC75USKmJCso.jpg",
+      "array_genres": [
+        "Documentary",
+        "Music"
+      ],
+      "array_countries": [
+        "SE"
+      ],
+      "resolution": "HD",
+      "length": 86,
+      "updated_at": 1793434105,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/3624/p1-600x900-a26ed8b2fe14-7Jr5J3pdgEnQymHNge20XUM3YlV.jpg"
+    },
+    {
+      "id": 6121,
+      "name": "Jay and Silent Bob Reboot",
+      "imdb_id": "6521876",
+      "imdb_rating": 5.6,
+      "year": "2019",
+      "desc": "Jay and Silent Bob embark on a cross-country mission to stop Hollywood from rebooting the film based on their comic book counterparts Bluntman and Chronic.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6121/68I3UBIXgcCpXXEimkvnMQZFKGa.jpg",
+      "array_genres": [
+        "Comedy"
+      ],
+      "array_countries": [
+        "US"
+      ],
+      "resolution": "HD",
+      "length": 105,
+      "updated_at": 1791532564,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6121/p1-600x900-f9c304382525-3hLTjzInrHgbcaedjnWNEPOinDi.jpg"
+    },
+    {
+      "id": 6457,
+      "name": "Daniel Sloss: X",
+      "imdb_id": "11081044",
+      "imdb_rating": 8.4,
+      "year": "2019",
+      "desc": "Daniel Sloss discusses a variety of topics, from his love of children, to being a man, in this tastefully dark comedy special.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/6457/2HM08mXddEunEqvJVckVjPp85vc.jpg",
+      "array_genres": [
+        "Comedy",
+        "Documentary"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 88,
+      "updated_at": 1791533304,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/6457/p1-600x900-c1a7fe411d4a-b3DxLUvcp5hRXtTa4pv2wRAuY4P.jpg"
+    },
+    {
+      "id": 7877,
+      "name": "DarkGame",
+      "imdb_id": "5613018",
+      "imdb_rating": 4.6,
+      "year": "2024",
+      "desc": "A determined detective is in a race against time to stop a twisted game show on the dark web, where captives are forced to compete for their lives.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/7877/wXIt9mBVOT5DWAuinEkiM7Zph7d.jpg",
+      "array_genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "array_countries": [
+        "GB"
+      ],
+      "resolution": "HD",
+      "length": 100,
+      "updated_at": 1793668066,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/7877/p1-600x900-eab9b1963c2a-kaARRhlsuJGnpOGeDmIhraxmOxi.jpg"
+    },
+    {
+      "id": 1030,
+      "name": "Amadeus",
+      "imdb_id": "0086879",
+      "imdb_rating": 8.4,
+      "year": "1984",
+      "desc": "The incredible story of Wolfgang Amadeus Mozart, told by his peer and secret rival Antonio Salieri - now confined to an insane asylum.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1030/szJSH8XbGQcZR3Vtn90jKnEb5Ee.jpg",
+      "array_genres": [
+        "Biography",
+        "Drama",
+        "History",
+        "Music"
+      ],
+      "array_countries": [
+        "US",
+        "FR"
+      ],
+      "resolution": "HD",
+      "length": 180,
+      "updated_at": 1791521761,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1030/p1-600x900-05c33c5a081f-flnoqdC38mbaulAeptjynOFO7yi.jpg"
+    },
+    {
+      "id": 2717,
+      "name": "Persuasion",
+      "imdb_id": "0844330",
+      "imdb_rating": 7.4,
+      "year": "2007",
+      "desc": "Royal Navy captain Wentworth was haughtily turned down eight years ago as suitor of pompous baronet Sir Walter Elliot's daughter Anne...",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/2717/wYuuvNzIcQPKGoK03JgPZ2IkB0A.jpg",
+      "array_genres": [
+        "Drama",
+        "Romance"
+      ],
+      "array_countries": [
+        "GB",
+        "US"
+      ],
+      "resolution": "SD",
+      "length": 92,
+      "updated_at": 1793349315,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/2717/p1-600x900-a8dd67db01bc-yuNvkLBq1jwQztpolLWbenvzNVQ.jpg"
+    },
+    {
+      "id": 1385,
+      "name": "The Usual Suspects",
+      "imdb_id": "0114814",
+      "imdb_rating": 8.5,
+      "year": "1995",
+      "desc": "A sole survivor tells of the twisty events leading up to a horrific gun battle on a boat, which begin when five criminals meet at a mingly random police lineup.",
+      "backdrop_url": "https://uploads.ororo-mirror.tv/uploads/movie/backdrop/1385/7S7PE3vK9Eh5uzCYBDGk5qTJeYW.jpg",
+      "array_genres": [
+        "Crime",
+        "Drama",
+        "Mystery",
+        "Thriller"
+      ],
+      "array_countries": [
+        "US",
+        "DE"
+      ],
+      "resolution": "HD",
+      "length": 106,
+      "updated_at": 1794610086,
+      "poster_thumb": "https://ororo.tv/uploads/movie/poster/1385/p1-600x900-b6882e8d7756-jgJoRWltoS17nD5MAQ1yK2Ztefw.jpg"
+    }
+  ]
+}
