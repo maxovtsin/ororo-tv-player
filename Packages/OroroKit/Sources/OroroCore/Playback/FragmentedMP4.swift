@@ -87,7 +87,11 @@ extension FragmentedMP4 {
         var cursor = Cursor(bytes, tfhd.payload)
         let flags = try cursor.u32() & 0xFF_FFFF
         var header = TrackFragmentHeader(trackID: try cursor.u32(), baseDataOffset: moofStart)
-        if flags & 0x01 != 0 { header.baseDataOffset = try cursor.offset() }
+        if flags & 0x01 != 0 {
+            header.baseDataOffset = try cursor.offset()
+            // Bounded here so the data-offset and sample-size additions in `readTrackRun` cannot overflow.
+            guard header.baseDataOffset <= bytes.count else { throw Failure.malformed }
+        }
         if flags & 0x02 != 0 { try cursor.skip(4) } // sample description index
         if flags & 0x08 != 0 { header.defaultDuration = try cursor.u32() }
         if flags & 0x10 != 0 { header.defaultSize = try cursor.u32() }

@@ -59,6 +59,16 @@ import Testing
         #expect(throws: FragmentedMP4.Failure.malformed) { try FragmentedMP4.parseAudioSegment(Data([0, 0, 0, 8, 0x6D, 0x6F])) }
         #expect(throws: FragmentedMP4.Failure.malformed) { try FragmentedMP4.surroundInitSegment(from: Data(repeating: 0, count: 64)) }
     }
+
+    @Test func rejectsBaseDataOffsetsOutsideTheSegment() {
+        // Near Int.max: adding the trun data offset or a sample size must not overflow.
+        for perSampleDurations in [true, false] {
+            let hostile = HandBuilt.segment(fragments: [
+                .init(baseTime: 0, sizes: [3], perSampleDurations: perSampleDurations, baseDataOffset: 0x7FFF_FFFF_FFFF_FFF0)
+            ])
+            #expect(throws: FragmentedMP4.Failure.malformed) { try FragmentedMP4.parseAudioSegment(hostile) }
+        }
+    }
 }
 
 /// Fixtures built byte by byte, and readers that deliberately share no code with `FragmentedMP4`.
@@ -68,6 +78,8 @@ private enum HandBuilt {
         var sizes: [Int]
         var perSampleDurations: Bool
         var duration: UInt32 = 1024
+        /// Written as a `tfhd` base-data-offset (flag 0x01) when set.
+        var baseDataOffset: UInt64?
     }
 
     struct Missing: Error {}
@@ -79,14 +91,16 @@ private enum HandBuilt {
         for (index, spec) in fragments.enumerated() {
             let mfhd = MP4Bytes.box("mfhd", MP4Bytes.be32(0) + MP4Bytes.be32(UInt32(index + 1)))
             let tfhd: Data, tfdt: Data, trunFlags: UInt32, perSample: Data
+            let baseFlag: UInt32 = spec.baseDataOffset == nil ? 0 : 0x01
+            let trackAndBase = MP4Bytes.be32(1) + (spec.baseDataOffset.map(MP4Bytes.be64) ?? Data())
             if spec.perSampleDurations {
-                tfhd = MP4Bytes.box("tfhd", MP4Bytes.be32(0x02_0000) + MP4Bytes.be32(1))
+                tfhd = MP4Bytes.box("tfhd", MP4Bytes.be32(0x02_0000 | baseFlag) + trackAndBase)
                 tfdt = MP4Bytes.box("tfdt", MP4Bytes.be32(0x0100_0000) + MP4Bytes.be64(spec.baseTime))
                 trunFlags = 0x301
                 perSample = spec.sizes.reduce(into: Data()) { $0 += MP4Bytes.be32(spec.duration) + MP4Bytes.be32(UInt32($1)) }
             } else {
                 let defaults = MP4Bytes.be32(spec.duration) + MP4Bytes.be32(UInt32(spec.sizes[0]))
-                tfhd = MP4Bytes.box("tfhd", MP4Bytes.be32(0x02_0018) + MP4Bytes.be32(1) + defaults)
+                tfhd = MP4Bytes.box("tfhd", MP4Bytes.be32(0x02_0018 | baseFlag) + trackAndBase + defaults)
                 tfdt = MP4Bytes.box("tfdt", MP4Bytes.be32(0) + MP4Bytes.be32(UInt32(spec.baseTime)))
                 trunFlags = 0x001
                 perSample = Data()
