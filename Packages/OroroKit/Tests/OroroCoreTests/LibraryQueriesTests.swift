@@ -51,6 +51,26 @@ import Testing
         #expect(items[2].episode == nil)
     }
 
+    @Test func continueWatchingHandBuiltLibraryPrefersLatestInProgress() throws {
+        let t0 = Samples.now
+        var lib = Library()
+        // Show 101: two progress entries (latest wins) and an up-next (in-progress wins, activity = max of both).
+        lib.progress = [
+            ProgressEntry(playable: episode(show: 101, number: 2), showID: 101, season: 1, number: 2,
+                          position: 300, duration: 3000, updatedAt: t0.addingTimeInterval(10)),
+            ProgressEntry(playable: episode(show: 101, number: 1), showID: 101, season: 1, number: 1,
+                          position: 600, duration: 3000, updatedAt: t0),
+            ProgressEntry(playable: PlayableID(kind: .movie, id: 1001), position: 600, duration: 6000, updatedAt: t0.addingTimeInterval(20))
+        ]
+        lib.upNext[101] = UpNextEntry(ref: ref(show: 101, number: 5), setAt: t0.addingTimeInterval(30))
+
+        let items = LibraryQueries.continueWatching(lib, catalog: catalog)
+        #expect(items.map(\.id) == ["show-101", "movie-1001"])
+        #expect(items[0] == ShelfItem(title: try show(101), progress: 0.1, episode: ref(show: 101, number: 2),
+                                      playable: episode(show: 101, number: 2)))
+        #expect(LibraryQueries.resumeTarget(showID: 101, library: lib) == ref(show: 101, number: 2))
+    }
+
     @Test func newEpisodeDetectedWhenNewestVideoAdvances() throws {
         var lib = Library()
         let seen = try newest(101)

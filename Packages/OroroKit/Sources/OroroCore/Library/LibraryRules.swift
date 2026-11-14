@@ -53,11 +53,20 @@ public extension Library {
         markStarted(show, now: now)
     }
 
-    /// Sets the watched flag and drops any in-progress position for that playable.
+    /// Sets the watched flag (moving an already-watched id to the end, so pruning drops the least recent first),
+    /// drops any in-progress position for that playable, and clears any up-next pointing at that episode.
+    ///
+    /// For Continue Watching use `finish(_:show:next:now:)` when the next episode is known;
+    /// for New Episodes also call `dismissNewEpisodes(showID:newestVideo:)`.
     mutating func markWatched(_ p: PlayableID) {
         switch p.kind {
-        case .episode: if !watchedEpisodes.contains(p.id) { watchedEpisodes.append(p.id) }
-        case .movie: if !watchedMovies.contains(p.id) { watchedMovies.append(p.id) }
+        case .episode:
+            watchedEpisodes.removeAll { $0 == p.id }
+            watchedEpisodes.append(p.id)
+            upNext = upNext.filter { $0.value.ref.episodeID != p.id }
+        case .movie:
+            watchedMovies.removeAll { $0 == p.id }
+            watchedMovies.append(p.id)
         }
         progress.removeAll { $0.playable == p }
     }

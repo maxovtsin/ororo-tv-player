@@ -5,7 +5,8 @@ public enum LibraryQueries {
     static let newEpisodesCap = 30
 
     /// One item per in-progress movie and one per show (its latest in-progress episode, else its up-next),
-    /// sorted by last activity, newest first. A show with new episodes gets `badge: .new`.
+    /// sorted by last activity, newest first (a show's activity is the later of its progress `updatedAt` and
+    /// up-next `setAt`). A show with new episodes gets `badge: .new`.
     public static func continueWatching(_ library: Library, catalog: Catalog) -> [ShelfItem] {
         var rows: [(activity: Date, item: ShelfItem)] = []
         let newShows = Set(showsWithNewEpisodes(library, catalog: catalog).map(\.id.id))
@@ -33,7 +34,7 @@ public enum LibraryQueries {
                     badge: badge,
                     playable: entry.playable
                 )
-                rows.append((entry.updatedAt, item))
+                rows.append((max(entry.updatedAt, library.upNext[showID]?.setAt ?? .distantPast), item))
             } else if let next = library.upNext[showID] {
                 let item = ShelfItem(
                     title: title,

@@ -131,6 +131,27 @@ import Testing
         #expect(lib.isWatched(episode1))
     }
 
+    @Test func markWatchedUpNextEpisodeLeavesContinueWatching() {
+        var lib = Library()
+        lib.finish(episode1, show: context(1), next: EpisodeRef(episodeID: episode2.id, season: 1, number: 2), now: Samples.now)
+        #expect(LibraryQueries.continueWatching(lib, catalog: Samples.catalog).map(\.playable) == [episode2])
+        lib.markWatched(episode2)
+        #expect(lib.upNext[101] == nil)
+        #expect(LibraryQueries.continueWatching(lib, catalog: Samples.catalog).isEmpty)
+    }
+
+    @Test func markWatchedAgainMovesIdToEnd() {
+        var lib = Library()
+        lib.markWatched(movie)
+        lib.markWatched(PlayableID(kind: .movie, id: 1002))
+        lib.markWatched(movie)
+        #expect(lib.watchedMovies == [1002, 1001])
+        lib.markWatched(episode1)
+        lib.markWatched(episode2)
+        lib.markWatched(episode1)
+        #expect(lib.watchedEpisodes == [episode2.id, episode1.id])
+    }
+
     @Test func removeFromContinueWatchingKeepsWatchedFlags() {
         var lib = Library()
         lib.finish(episode1, show: context(1), next: EpisodeRef(episodeID: episode2.id, season: 1, number: 2), now: Samples.now)
@@ -155,6 +176,17 @@ import Testing
         #expect(lib.resumePosition(movie) == nil)
         #expect(lib.resumePosition(episode1) == nil)
         #expect(lib.fraction(episode1) == nil)
+    }
+
+    @Test func resumePositionExactBoundariesAreExcluded() {
+        var lib = Library()
+        lib.recordProgress(movie, show: nil, position: 60, duration: 6000, now: Samples.now)
+        #expect(lib.resumePosition(movie) == nil)
+        lib.recordProgress(movie, show: nil, position: 5700, duration: 6000, now: Samples.now)
+        #expect(lib.fraction(movie) == 0.95)
+        #expect(lib.resumePosition(movie) == nil)
+        lib.recordProgress(movie, show: nil, position: 5699, duration: 6000, now: Samples.now)
+        #expect(lib.resumePosition(movie) == 5699)
     }
 
     @Test func shouldMarkWatchedAtThreshold() {
