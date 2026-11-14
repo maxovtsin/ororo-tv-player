@@ -1,9 +1,11 @@
 import AVFoundation
-import Combine
 import OroroCore
 
 /// `PlayerEngine` over `AVPlayer`. Maps AVFoundation state to `PlayerEvent`s for `PlaybackSession`.
 /// Never logs or stores the stream URL.
+///
+/// Observation uses block-based KVO and NotificationCenter observers, never Combine's `publisher(for:).values`:
+/// on a real HLS item that async sequence never delivered `.readyToPlay`, which left every video black.
 @MainActor final class AVPlayerEngine: PlayerEngine {
     enum Failure: Error { case itemFailed, readyTimedOut }
 
@@ -16,8 +18,9 @@ import OroroCore
 
     private let continuation: AsyncStream<PlayerEvent>.Continuation
     private var timeObserver: Any?
-    private var statusTask: Task<Void, Never>?
-    private var itemTasks: [Task<Void, Never>] = []
+    private var statusObservation: NSKeyValueObservation?
+    private var itemObservation: NSKeyValueObservation?
+    private var itemNotificationTokens: [any NSObjectProtocol] = []
     private var stallTask: Task<Void, Never>?
     private var lastStatus: AVPlayer.TimeControlStatus?
     /// Set by `play()` / `pause()` so the resulting status change is not reported as remote input.
@@ -90,8 +93,8 @@ import OroroCore
         guard !isStopped else { return }
         isStopped = true
         tearDownItem()
-        statusTask?.cancel()
-        statusTask = nil
+        statusObservation?.invalidate()
+        statusObservation = nil
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
         player.pause()
@@ -103,15 +106,14 @@ import OroroCore
     // MARK: - Observation
 
     private func observeTimeControlStatus() {
-        let statuses = player.publisher(for: \.timeControlStatus).removeDuplicates().values
-        statusTask = Task { [weak self] in
-            for await status in statuses {
-                self?.handle(status)
-            }
+        statusObservation = player.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] player, _ in
+            let status = player.timeControlStatus
+            Self.onMain { self?.handle(status) }
         }
     }
 
     private func handle(_ status: AVPlayer.TimeControlStatus) {
+        guard !isStopped, status != lastStatus else { return }
         let previous = lastStatus
         lastStatus = status
         if status != .waitingToPlayAtSpecifiedRate { stopStallCounter() }
@@ -135,26 +137,38 @@ import OroroCore
     }
 
     private func observe(_ item: AVPlayerItem) {
+        itemObservation = item.observe(\.status, options: [.new]) { [weak self] item, _ in
+            guard item.status == .failed else { return }
+            Self.onMain { self?.continuation.yield(.failed) }
+        }
         let center = NotificationCenter.default
-        let failures = item.publisher(for: \.status).filter { $0 == .failed }.map { _ in () }
-            .merge(with: center.publisher(for: AVPlayerItem.failedToPlayToEndTimeNotification, object: item).map { _ in () })
-            .values
-        let ends = center.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: item).map { _ in () }.values
-        let selections = center.publisher(for: AVPlayerItem.mediaSelectionDidChangeNotification, object: item)
-            .map { _ in () }.values
-        let jumps = center.publisher(for: AVPlayerItem.timeJumpedNotification, object: item).map { _ in () }.values
-
-        itemTasks = [
-            Task { [weak self] in for await _ in failures { self?.continuation.yield(.failed) } },
-            Task { [weak self] in for await _ in ends { self?.continuation.yield(.ended) } },
-            Task { [weak self] in for await _ in selections { self?.selectionChanged() } },
-            Task { [weak self] in for await _ in jumps { self?.timeJumped() } }
+        func on(_ name: Notification.Name, _ action: @escaping @MainActor (AVPlayerEngine) -> Void) -> any NSObjectProtocol {
+            center.addObserver(forName: name, object: item, queue: .main) { [weak self] _ in
+                Self.onMain { if let self { action(self) } }
+            }
+        }
+        itemNotificationTokens = [
+            on(AVPlayerItem.failedToPlayToEndTimeNotification) { $0.continuation.yield(.failed) },
+            on(AVPlayerItem.didPlayToEndTimeNotification) { $0.continuation.yield(.ended) },
+            on(AVPlayerItem.mediaSelectionDidChangeNotification) { $0.selectionChanged() },
+            on(AVPlayerItem.timeJumpedNotification) { $0.timeJumped() }
         ]
     }
 
+    /// Runs `work` on the main actor: inline when already on the main thread (keeps KVO order), else hops.
+    nonisolated private static func onMain(_ work: @escaping @MainActor @Sendable () -> Void) {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { work() }
+        } else {
+            Task { @MainActor in work() }
+        }
+    }
+
     private func tearDownItem() {
-        itemTasks.forEach { $0.cancel() }
-        itemTasks = []
+        itemObservation?.invalidate()
+        itemObservation = nil
+        itemNotificationTokens.forEach { NotificationCenter.default.removeObserver($0) }
+        itemNotificationTokens = []
         stopStallCounter()
         legibleGroup = nil
         selectedLanguage = nil
@@ -230,33 +244,70 @@ import OroroCore
         return seconds.isFinite ? max(seconds, 0) : 0
     }
 
-    /// Waits for `.readyToPlay`; throws `Failure.readyTimedOut` after `timeout`, `CancellationError` when cancelled.
-    private static func waitUntilReady(_ item: AVPlayerItem, timeout: Duration = readyTimeout) async throws {
-        let wait = Task { @MainActor in
-            for await status in item.publisher(for: \.status).values {
-                switch status {
-                case .readyToPlay: return
-                case .failed: throw Failure.itemFailed
-                default: continue
-                }
-            }
-            throw CancellationError()
+    /// Waits for `.readyToPlay` (current status first, then KVO); throws `Failure.itemFailed`,
+    /// `Failure.readyTimedOut` after `timeout`, or `CancellationError` when cancelled.
+    static func waitUntilReady(_ item: AVPlayerItem, timeout: Duration = readyTimeout) async throws {
+        switch item.status {
+        case .readyToPlay: return
+        case .failed: throw Failure.itemFailed
+        default: break
         }
-        let timer = Task {
-            try await Task.sleep(for: timeout)
-            wait.cancel()
-        }
-        defer { timer.cancel() }
-        do {
-            try await withTaskCancellationHandler {
-                try await wait.value
-            } onCancel: {
-                wait.cancel()
+        let waiter = ReadyWaiter()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+                waiter.begin(item: item, timeout: timeout, continuation: continuation)
             }
-        } catch is CancellationError {
-            // The wait was cancelled either by the caller or by the timer.
-            if Task.isCancelled { throw CancellationError() }
-            throw Failure.readyTimedOut
+        } onCancel: {
+            Task { @MainActor in waiter.finish(.failure(CancellationError())) }
+        }
+    }
+
+}
+
+/// One `waitUntilReady`: resumes its continuation exactly once (ready, failed, timed out or cancelled).
+@MainActor private final class ReadyWaiter {
+    private var continuation: CheckedContinuation<Void, any Error>?
+    private var observation: NSKeyValueObservation?
+    private var timer: Task<Void, Never>?
+    private var isFinished = false
+
+    func begin(item: AVPlayerItem, timeout: Duration, continuation: CheckedContinuation<Void, any Error>) {
+        guard !isFinished else {
+            continuation.resume(throwing: CancellationError())
+            return
+        }
+        self.continuation = continuation
+        observation = item.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
+            let status = item.status
+            if Thread.isMainThread {
+                MainActor.assumeIsolated { self?.statusChanged(status) }
+            } else {
+                Task { @MainActor in self?.statusChanged(status) }
+            }
+        }
+        timer = Task { [weak self] in
+            try? await Task.sleep(for: timeout)
+            guard !Task.isCancelled else { return }
+            self?.finish(.failure(AVPlayerEngine.Failure.readyTimedOut))
+        }
+    }
+
+    func finish(_ result: Result<Void, any Error>) {
+        guard !isFinished else { return }
+        isFinished = true
+        observation?.invalidate()
+        observation = nil
+        timer?.cancel()
+        timer = nil
+        continuation?.resume(with: result)
+        continuation = nil
+    }
+
+    private func statusChanged(_ status: AVPlayerItem.Status) {
+        switch status {
+        case .readyToPlay: finish(.success(()))
+        case .failed: finish(.failure(AVPlayerEngine.Failure.itemFailed))
+        default: break
         }
     }
 }
