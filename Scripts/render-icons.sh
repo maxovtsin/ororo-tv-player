@@ -20,6 +20,9 @@ if [[ ! -x "$CHROME" ]]; then
   exit 1
 fi
 
+# file:// URL of the page, percent-encoded so paths with spaces or '#' work.
+PAGE_URL="file://$(python3 -I -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$PAGE")"
+
 PROFILE="$(mktemp -d)"
 trap 'rm -rf "$PROFILE"' EXIT
 
@@ -74,7 +77,7 @@ render() {
   "$CHROME" --headless=new --hide-scrollbars --allow-file-access-from-files \
     --user-data-dir="$PROFILE" --default-background-color=00000000 \
     --window-size="$w,$h" --force-device-scale-factor="$scale" --virtual-time-budget=5000 \
-    --screenshot="$out" "file://$PAGE?art=$art&layer=$layer&w=$w&h=$h" >/dev/null 2>&1
+    --screenshot="$out" "$PAGE_URL?art=$art&layer=$layer&w=$w&h=$h" >/dev/null 2>&1
   [[ -s "$out" ]] || { echo "error: Chrome did not write $out" >&2; exit 1; }
   if [[ $layer == back || $art == ios ]]; then flatten "$out"; fi
   echo "  ${out#"$ROOT/"}"
@@ -94,6 +97,7 @@ render topshelfwide flat 2320 720 1 "$TV/Top Shelf Image Wide.imageset/topshelf-
 render topshelfwide flat 2320 720 2 "$TV/Top Shelf Image Wide.imageset/topshelf-wide@2x.png"
 render ios flat 1024 1024 1 "$IOS/AppIcon-1024.png"
 for scale in 1 2 3; do
-  render wordmark front 600 200 "$scale" "$WORDMARK/wordmark@${scale}x.png"
+  # 960×320 pt base: the tvOS loading screen shows it 960 pt wide, so it is never upscaled.
+  render wordmark front 960 320 "$scale" "$WORDMARK/wordmark@${scale}x.png"
 done
 echo "Done."
