@@ -52,7 +52,8 @@ public struct ShelfRow: View {
         VStack(alignment: .leading, spacing: Spacing.s) {
             header
             ScrollView(.horizontal) {
-                LazyHStack(spacing: Spacing.l) {
+                // Top-aligned: a landscape tile is artwork + caption, the See All tile artwork only.
+                LazyHStack(alignment: .top, spacing: Spacing.l) {
                     ForEach(items) { item in
                         tile(item)
                     }
