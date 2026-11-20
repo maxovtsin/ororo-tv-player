@@ -22,7 +22,7 @@ import Testing
     )
 
     private func model(_ query: BrowseQuery, compute: BrowseGridViewModel.Compute? = nil) -> BrowseGridViewModel {
-        BrowseGridViewModel(query: query, catalog: catalog, debounce: .zero, locale: locale,
+        BrowseGridViewModel(query: query, catalog: catalog, locale: locale,
                             compute: compute ?? { BrowseEngine.apply($0, to: $1) })
     }
 
@@ -126,39 +126,18 @@ import Testing
         #expect(model.query == BrowseQuery(kind: .show, genre: "Drama", sort: .alphabetical))
     }
 
-    @Test func footerTextForShowAndMovie() async {
+    @Test func tileCaptionShowsYearAndRating() async {
         let shows = model(.default(.show))
         await shows.settle()
-        shows.focusChanged("show-1")
-        await shows.settle()
-        #expect(shows.focused?.id.id == 1)
-        #expect(shows.footerText == "Alpha · IMDb 8.3 · 2019 · Ongoing")
-        shows.focusChanged("show-2")
-        await shows.settle()
-        #expect(shows.footerText == "Bravo · IMDb 6.1 · 2011 · Ended")
-        shows.focusChanged(nil)
-        await shows.settle()
-        #expect(shows.focused == nil)
-        #expect(shows.footerText == nil)
+        let tile = shows.tiles.first { $0.id == "show-1" }
+        #expect(tile?.title == "Alpha")
+        #expect(tile?.subtitle == "2019 · ★ 8.3")
 
         let movies = model(.default(.movie))
         await movies.settle()
-        movies.focusChanged("movie-11")
-        await movies.settle()
-        #expect(movies.footerText == "Echo · IMDb 8.8 · 2018")
-        movies.focusChanged("movie-12")
-        await movies.settle()
-        #expect(movies.footerText == "Foxtrot")
-    }
-
-    @Test func footerIsDebounced() async {
-        let model = BrowseGridViewModel(query: .default(.show), catalog: catalog, debounce: .seconds(3600), locale: locale)
-        await model.settle()
-        model.focusChanged("show-1")
-        await Task.yield()
-        #expect(model.focused?.id.id == 1)
-        #expect(model.footerText == nil) // still waiting out the debounce
-        model.focusChanged(nil) // cancels the pending update
+        #expect(movies.tiles.first { $0.id == "movie-11" }?.subtitle == "2018 · ★ 8.8")
+        // No year and no rating: no subtitle line.
+        #expect(movies.tiles.first { $0.id == "movie-12" }?.subtitle == nil)
     }
 
     @Test func emptyResultIsReported() async {

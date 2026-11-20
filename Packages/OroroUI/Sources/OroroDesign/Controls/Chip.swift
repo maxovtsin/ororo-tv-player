@@ -19,7 +19,7 @@ public struct Chip: View {
                 .lineLimit(1)
                 .padding(.horizontal, Spacing.s)
         }
-        .glassControl(prominent: isSelected)
+        .glassSelectable(isSelected: isSelected)
         .buttonBorderShape(.capsule)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }

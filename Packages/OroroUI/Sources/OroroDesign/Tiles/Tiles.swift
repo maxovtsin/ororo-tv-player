@@ -33,6 +33,13 @@ public enum TileMetrics {
         }
     }
 
+    /// A poster `width` points wide (2:3); nil is the standard poster size.
+    static func posterSize(width: CGFloat?) -> CGSize {
+        let standard = size(.poster)
+        guard let width else { return standard }
+        return CGSize(width: width, height: (width * standard.height / standard.width).rounded())
+    }
+
     static let cornerRadius: CGFloat = 12
     static let focusScale: CGFloat = 1.08
 }
@@ -70,18 +77,37 @@ private struct ProgressBar: View {
     }
 }
 
-/// 2:3
+/// 2:3. In a grid, `width` sizes the tile to its column and `showsCaption` adds title + subtitle below the artwork.
 public struct PosterTile: View {
     private let model: TileModel
     private let isFocused: Bool
+    private let width: CGFloat?
+    private let showsCaption: Bool
 
-    public init(_ model: TileModel, isFocused: Bool) {
+    public init(_ model: TileModel, isFocused: Bool, width: CGFloat? = nil, showsCaption: Bool = false) {
         self.model = model
         self.isFocused = isFocused
+        self.width = width
+        self.showsCaption = showsCaption
     }
 
     public var body: some View {
-        let size = TileMetrics.size(.poster)
+        let size = TileMetrics.posterSize(width: width)
+        VStack(alignment: .leading, spacing: 0) {
+            artwork(size: size)
+                .modifier(TileChrome(isFocused: isFocused))
+            if showsCaption {
+                TileCaption(model: model, isFocused: isFocused, compact: true)
+                    // Clears the artwork's focus scale so the caption never sits under it.
+                    .padding(.top, size.height * (TileMetrics.focusScale - 1) / 2 + Spacing.xs)
+                    .frame(width: size.width, alignment: .leading)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(model.accessibilityLabel)
+    }
+
+    private func artwork(size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
             if model.posterURL != nil {
                 RemoteImage(url: model.posterURL, pointSize: size)
@@ -92,13 +118,34 @@ public struct PosterTile: View {
         .frame(width: size.width, height: size.height)
         .clipped()
         .overlay(alignment: .topLeading) { badgeView }
-        .modifier(TileChrome(isFocused: isFocused))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(model.accessibilityLabel)
     }
 
     @ViewBuilder private var badgeView: some View {
         if let badge = model.badge { Badge(badge).padding(Spacing.s) }
+    }
+}
+
+/// Title and subtitle below a tile's artwork, brightened on focus.
+private struct TileCaption: View {
+    let model: TileModel
+    let isFocused: Bool
+    /// Poster grids: a smaller title, so narrow columns fit more of it.
+    var compact = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text(verbatim: model.title)
+                .font(compact ? Typography.tileTitle : Typography.headline)
+                .lineLimit(1)
+            if let subtitle = model.subtitle {
+                Text(verbatim: subtitle)
+                    .font(Typography.caption)
+                    .foregroundStyle(Palette.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+        .foregroundStyle(isFocused ? Palette.textPrimary : Palette.textSecondary)
+        .motion(Motion.quick, value: isFocused)
     }
 }
 
@@ -143,20 +190,8 @@ public struct LandscapeTile: View {
     }
 
     private var caption: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(verbatim: model.title)
-                .font(Typography.headline)
-                .lineLimit(1)
-            if let subtitle = model.subtitle {
-                Text(verbatim: subtitle)
-                    .font(Typography.caption)
-                    .foregroundStyle(Palette.textSecondary)
-                    .lineLimit(1)
-            }
-        }
-        .foregroundStyle(isFocused ? Palette.textPrimary : Palette.textSecondary)
-        .padding(.top, Spacing.m)
-        .motion(Motion.quick, value: isFocused)
+        TileCaption(model: model, isFocused: isFocused)
+            .padding(.top, Spacing.m)
     }
 }
 
@@ -192,15 +227,18 @@ public struct SeeAllTile: View {
 /// Shimmer; static with Reduce Motion.
 public struct SkeletonTile: View {
     private let shape: TileShape
+    private let width: CGFloat?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = -1
 
-    public init(shape: TileShape) {
+    /// `width` sizes a poster skeleton to a grid column; nil is the standard size.
+    public init(shape: TileShape, width: CGFloat? = nil) {
         self.shape = shape
+        self.width = width
     }
 
     public var body: some View {
-        let size = TileMetrics.size(shape)
+        let size = shape == .poster ? TileMetrics.posterSize(width: width) : TileMetrics.size(shape)
         RoundedRectangle(cornerRadius: TileMetrics.cornerRadius)
             .fill(.white.opacity(0.08))
             .overlay {

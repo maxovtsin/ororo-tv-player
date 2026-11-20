@@ -2,35 +2,60 @@ import OroroCore
 import OroroDesign
 import SwiftUI
 
-/// Decade / IMDb / Status / Sort menus plus the genre chip row (spec: Shows / Movies tabs).
+/// Sort, Decade / IMDb / Status menus and Reset, then the genre chip row (spec: Shows / Movies tabs).
+/// A menu with a value set is drawn prominent, so the active filters read at a glance.
 struct FilterBar: View {
     let model: BrowseGridViewModel
+    /// Reset tapped (the screen moves focus to the first tile once the new results land).
+    let onReset: () -> Void
 
     /// Min IMDb options: Any, 6+, 7+, 8+.
     static let ratingOptions: [Double?] = [nil, 6, 7, 8]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.s) {
-            HStack(spacing: Spacing.s) {
-                decadeMenu
-                ratingMenu
-                if model.showsStatusFilter {
-                    statusMenu
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            ScrollView(.horizontal) {
+                HStack(spacing: Spacing.s) {
+                    sortMenu
+                    decadeMenu
+                    ratingMenu
+                    if model.showsStatusFilter {
+                        statusMenu
+                    }
+                    if !model.isDefault {
+                        resetButton
+                            .transition(.opacity)
+                    }
                 }
-                Spacer(minLength: Spacing.m)
-                sortMenu
+                .motion(Motion.quick, value: model.isDefault)
+                .padding(.vertical, Spacing.xs)
             }
+            .scrollClipDisabled()
+            .contentMargins(.horizontal, Spacing.screenEdge, for: .scrollContent)
+            .filterFocusSection()
             genreChips
         }
-        .padding(.horizontal, Spacing.screenEdge)
     }
 
     // MARK: - Menus
 
+    private var sortMenu: some View {
+        filterMenu(
+            String(localized: "browse.filter.sort", defaultValue: "Sort", bundle: .module),
+            value: Self.sortLabel(model.query.sort), isActive: false, systemImage: "arrow.up.arrow.down"
+        ) {
+            Picker(selection: Binding(get: { model.query.sort }, set: { model.setSort($0) })) {
+                ForEach(model.availableSorts, id: \.self) { sort in
+                    Text(verbatim: Self.sortLabel(sort)).tag(sort)
+                }
+            } label: { EmptyView() }
+        }
+    }
+
     private var decadeMenu: some View {
         filterMenu(
             String(localized: "browse.filter.decade", defaultValue: "Decade", bundle: .module),
-            value: model.query.decade.map(Self.decadeLabel) ?? Self.any
+            value: model.query.decade.map(Self.decadeLabel), isActive: model.query.decade != nil
         ) {
             Picker(selection: Binding(get: { model.query.decade }, set: { model.setDecade($0) })) {
                 Text(verbatim: Self.any).tag(Int?.none)
@@ -44,7 +69,9 @@ struct FilterBar: View {
     private var ratingMenu: some View {
         filterMenu(
             String(localized: "browse.filter.imdb", defaultValue: "IMDb", bundle: .module),
-            value: Self.ratingLabel(model.query.minRating)
+            value: model.query.minRating.map { rating in
+                String(localized: "browse.filter.imdbValue", defaultValue: "IMDb \(Self.ratingLabel(rating))", bundle: .module)
+            }, isActive: model.query.minRating != nil
         ) {
             Picker(selection: Binding(get: { model.query.minRating }, set: { model.setMinRating($0) })) {
                 ForEach(Self.ratingOptions, id: \.self) { rating in
@@ -57,7 +84,7 @@ struct FilterBar: View {
     private var statusMenu: some View {
         filterMenu(
             String(localized: "browse.filter.status", defaultValue: "Status", bundle: .module),
-            value: Self.statusLabel(model.query.status)
+            value: model.query.status.map(Self.statusLabel), isActive: model.query.status != nil
         ) {
             Picker(selection: Binding(get: { model.query.status }, set: { model.setStatus($0) })) {
                 ForEach([nil, BrowseQuery.Status.ongoing, .ended], id: \.self) { status in
@@ -67,52 +94,70 @@ struct FilterBar: View {
         }
     }
 
-    private var sortMenu: some View {
-        filterMenu(
-            String(localized: "browse.filter.sort", defaultValue: "Sort", bundle: .module),
-            value: Self.sortLabel(model.query.sort)
-        ) {
-            Picker(selection: Binding(get: { model.query.sort }, set: { model.setSort($0) })) {
-                ForEach(model.availableSorts, id: \.self) { sort in
-                    Text(verbatim: Self.sortLabel(sort)).tag(sort)
-                }
-            } label: { EmptyView() }
-        }
-    }
-
-    private func filterMenu(_ name: String, value: String, @ViewBuilder content: () -> some View) -> some View {
-        Menu {
-            content()
-        } label: {
-            Text(verbatim: "\(name): \(value)")
+    private var resetButton: some View {
+        Button(action: onReset) {
+            Label(String(localized: "browse.grid.reset", defaultValue: "Reset Filters", bundle: .module),
+                  systemImage: "xmark")
                 .font(Typography.body)
                 .lineLimit(1)
                 .padding(.horizontal, Spacing.s)
         }
         .glassControl()
         .buttonBorderShape(.capsule)
+    }
+
+    /// The label shows the value when one is set ("2010s"), else the filter's name; both end in a chevron.
+    private func filterMenu(_ name: String, value: String?, isActive: Bool, systemImage: String? = nil,
+                            @ViewBuilder content: () -> some View) -> some View {
+        Menu {
+            content()
+        } label: {
+            HStack(spacing: Spacing.s) {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                }
+                Text(verbatim: value ?? name)
+                    .lineLimit(1)
+                Image(systemName: "chevron.down")
+                    .font(Typography.caption.weight(.semibold))
+                    .foregroundStyle(Palette.textSecondary)
+            }
+            .font(Typography.body)
+            .padding(.horizontal, Spacing.s)
+        }
+        .glassSelectable(isSelected: isActive)
+        .buttonBorderShape(.capsule)
         .accessibilityLabel(name)
-        .accessibilityValue(value)
+        .accessibilityValue(value ?? Self.any)
     }
 
     // MARK: - Genre chips
 
     private var genreChips: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: Spacing.s) {
-                Chip(String(localized: "browse.filter.allGenres", defaultValue: "All", bundle: .module),
-                     isSelected: model.query.genre == nil) {
-                    model.setGenre(nil)
-                }
-                ForEach(model.genres, id: \.self) { genre in
-                    Chip(GenreName.localized(genre), isSelected: model.query.genre == genre) {
-                        model.setGenre(genre)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: Spacing.s) {
+                    Chip(String(localized: "browse.filter.allGenres", defaultValue: "All", bundle: .module),
+                         isSelected: model.query.genre == nil) {
+                        model.setGenre(nil)
+                    }
+                    ForEach(model.genres, id: \.self) { genre in
+                        Chip(GenreName.localized(genre), isSelected: model.query.genre == genre) {
+                            model.setGenre(genre)
+                        }
+                        .id(genre)
                     }
                 }
+                .padding(.vertical, Spacing.xs)
             }
-            .padding(.vertical, Spacing.xs)
+            .scrollClipDisabled()
+            .contentMargins(.horizontal, Spacing.screenEdge, for: .scrollContent)
+            .filterFocusSection()
+            .onAppear {
+                // "See All" from a genre row far down the list: show its selected chip.
+                if let genre = model.query.genre { proxy.scrollTo(genre, anchor: .center) }
+            }
         }
-        .scrollClipDisabled()
     }
 
     // MARK: - Labels
@@ -147,5 +192,16 @@ struct FilterBar: View {
         case .recentlyUpdated: String(localized: "browse.sort.recentlyUpdated", defaultValue: "Recently Updated", bundle: .module)
         case .alphabetical: String(localized: "browse.sort.alphabetical", defaultValue: "A–Z", bundle: .module)
         }
+    }
+}
+
+private extension View {
+    /// `.focusSection()` on tvOS, so moving up from the grid lands on the nearest control (unavailable on iOS).
+    @ViewBuilder func filterFocusSection() -> some View {
+        #if os(tvOS)
+        focusSection()
+        #else
+        self
+        #endif
     }
 }

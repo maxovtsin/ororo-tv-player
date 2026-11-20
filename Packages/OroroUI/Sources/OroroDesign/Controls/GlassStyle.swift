@@ -13,4 +13,11 @@ public extension View {
             self.buttonStyle(.glass)
         }
     }
+
+    /// Glass capsule for a selectable chip or an active filter. Untinted prominent glass is indistinguishable
+    /// from plain glass on tvOS, so the selected state carries `Palette.selection`.
+    func glassSelectable(isSelected: Bool) -> some View {
+        glassControl(prominent: isSelected)
+            .tint(isSelected ? Palette.selection : nil)
+    }
 }
