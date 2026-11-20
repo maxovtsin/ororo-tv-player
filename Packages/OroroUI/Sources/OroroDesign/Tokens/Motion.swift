@@ -31,6 +31,12 @@ public enum Motion {
     /// should show the settled picture, not cut the settle short.
     public static let powerOnEarlyEnd: Duration = .milliseconds(650)
 
+    /// The hand-off from the power-on to the first screen, from the moment it shows: static as the channel tunes
+    /// in, a hold on the old TV, then the glass flattening into the modern picture (`HandoffCurve`).
+    public static let crtHandoffTuned: Duration = .milliseconds(140)
+    public static let crtHandoffFlattenAt: Duration = .milliseconds(700)
+    public static let crtHandoffEnd: Duration = .milliseconds(1400)
+
     /// The whole intro: 1.1 s, or the 0.2 s wordmark fade (`quick`) with Reduce Motion.
     public static func powerOnDuration(reduceMotion: Bool) -> Duration {
         reduceMotion ? .milliseconds(200) : .milliseconds(1100)

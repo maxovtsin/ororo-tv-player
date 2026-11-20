@@ -19,6 +19,13 @@ struct CRTFrame: Equatable {
     /// Static, 0…1.
     var noise: Double
 
+    /// Scanline period in points: matches the approved mockup (4 px lines on a stage half the TV's width).
+    #if os(tvOS)
+    static let scanPeriod: Double = 8
+    #else
+    static let scanPeriod: Double = 4
+    #endif
+
     /// The settled picture: a hint of misconvergence and grain, as on a real set.
     static let rest = CRTFrame(rasterWidth: 1, rasterHeight: 1, exposure: 1, wash: 0, blur: 0, split: 0.6,
                                wobble: 0, noise: 0.04)

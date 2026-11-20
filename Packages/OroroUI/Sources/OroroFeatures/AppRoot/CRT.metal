@@ -26,10 +26,14 @@ namespace {
 
 [[ stitchable ]] half4 crt(float2 position, SwiftUI::Layer layer, float2 size, float time,
                           float rasterWidth, float rasterHeight, float exposure, float wash,
-                          float blur, float split, float wobble, float noise, float scanPeriod) {
+                          float blur, float split, float wobble, float noise, float scanPeriod, float strength) {
+    // `strength` fades the whole tube (glass, scanlines, vignette, reflection, static, fringing) out: 0 is the
+    // flat modern picture, untouched.
+    if (strength <= 0.0) return layer.sample(position);
+
     // Curved glass: points near the edges map further out, so the picture bulges and the corners round off.
     float2 centred = position / size - 0.5;
-    float2 glass = centred * (1.0 + 0.07 * dot(centred, centred) * 4.0);
+    float2 glass = centred * (1.0 + 0.07 * strength * dot(centred, centred) * 4.0);
     if (any(abs(glass) > 0.5)) return half4(0, 0, 0, 1);
 
     // The lit raster, in points from the centre; soft at the beam's ends, crisp along its edges.
@@ -43,9 +47,10 @@ namespace {
     float2 source = clamp(squeezed * size + float2(wobble * sin(squeezed.y * 9.0 + time * 40.0), 0), 0.0, size);
 
     // Misconvergence: red and blue land a little apart from green.
-    half3 colour = half3(focus(layer, source + float2(split, 0), blur).r,
+    float fringe = split * strength;
+    half3 colour = half3(focus(layer, source + float2(fringe, 0), blur).r,
                          focus(layer, source, blur).g,
-                         focus(layer, source - float2(split, 0), blur).b);
+                         focus(layer, source - float2(fringe, 0), blur).b);
     colour = colour * exposure + hotBeam * wash * exposure * 0.25h;
     colour = mix(offGlass, colour, half(lit));
 
@@ -56,16 +61,36 @@ namespace {
     colour += hotBeam * halo;
 
     // Scanlines, static, and the hum bar rolling slowly down the picture.
-    float scan = fract((glass.y + 0.5) * size.y / scanPeriod) < 0.5 ? 0.7 : 1.0;
+    float scan = fract((glass.y + 0.5) * size.y / scanPeriod) < 0.5 ? mix(1.0, 0.7, strength) : 1.0;
     colour *= half(mix(1.0, scan, lit));
-    colour += half((hash(floor(position) + fract(time) * 97.0) - 0.5) * noise * lit);
+    colour += half((hash(floor(position) + fract(time) * 97.0) - 0.5) * noise * strength * lit);
     float bar = fract(time * 0.11);
-    colour *= half(1.0 - 0.05 * lit * smoothstep(0.08, 0.0, abs(glass.y + 0.5 - bar)));
+    colour *= half(1.0 - 0.05 * strength * lit * smoothstep(0.08, 0.0, abs(glass.y + 0.5 - bar)));
 
     // Vignette towards the curved edges, and a faint reflection on the glass.
     float edge = length(glass * float2(1.0, size.y / size.x) * 2.0);
-    colour *= half(1.0 - 0.45 * smoothstep(0.55, 1.15, edge));
-    colour += half(0.025 * smoothstep(0.35, 0.0, length(glass - float2(-0.22, -0.28))));
+    colour *= half(1.0 - 0.45 * strength * smoothstep(0.55, 1.15, edge));
+    colour += half(0.025 * strength * smoothstep(0.35, 0.0, length(glass - float2(-0.22, -0.28))));
 
     return half4(clamp(colour, 0.0h, 1.0h), 1.0h);
+}
+
+// The same tube drawn over a live screen that can't be sampled (UIKit-backed views can't go through a layer
+// effect): a premultiplied colour composited source-over, so its alpha darkens what is beneath (the curved glass's
+// edges, scanlines, vignette, hum bar, the tuning dip) and its rgb adds light (static, the glass reflection).
+// `strength` fades the whole tube out; 0 draws nothing.
+[[ stitchable ]] half4 crtOverlay(float2 position, half4 color, float2 size, float time,
+                                 float strength, float noise, float exposure, float scanPeriod) {
+    float2 centred = position / size - 0.5;
+    float2 glass = centred * (1.0 + 0.07 * strength * dot(centred, centred) * 4.0);
+    if (any(abs(glass) > 0.5)) return half4(0, 0, 0, half(strength));
+
+    float scan = fract((glass.y + 0.5) * size.y / scanPeriod) < 0.5 ? 0.3 * strength : 0.0;
+    float edge = length(glass * float2(1.0, size.y / size.x) * 2.0);
+    float vignette = 0.45 * strength * smoothstep(0.55, 1.15, edge);
+    float bar = 0.05 * strength * smoothstep(0.08, 0.0, abs(glass.y + 0.5 - fract(time * 0.11)));
+    float grain = (hash(floor(position) + fract(time) * 97.0) - 0.5) * noise;
+    float dark = 1.0 - (1.0 - scan) * (1.0 - vignette) * (1.0 - bar) * (1.0 - (1.0 - exposure)) * (1.0 - max(-grain, 0.0));
+    float light = max(grain, 0.0) + 0.025 * strength * smoothstep(0.35, 0.0, length(glass - float2(-0.22, -0.28)));
+    return half4(half3(light), half(dark));
 }
