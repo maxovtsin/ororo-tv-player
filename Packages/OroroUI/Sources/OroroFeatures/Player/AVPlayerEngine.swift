@@ -22,6 +22,7 @@ import os
     private let readyTimeout: Duration
     private let audioOptions: AudioOptionLoader
     let events: AsyncStream<PlayerEvent>
+    var nowPlaying: NowPlaying?
 
     private let continuation: AsyncStream<PlayerEvent>.Continuation
     private var timeObserver: Any?
@@ -110,6 +111,7 @@ import os
         guard isCurrent(generation) else { throw CancellationError() }
         var asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: source)
         var item = AVPlayerItem(asset: asset)
+        item.externalMetadata = Self.metadata(for: nowPlaying)
         player.replaceCurrentItem(with: item)
         do {
             try await Self.waitUntilReady(item, timeout: readyTimeout)
@@ -127,6 +129,7 @@ import os
             disableSurroundAfterFailure()
             asset = subtitles.makeAsset(for: playback, preferredLanguage: subtitleLanguage, surround: nil)
             item = AVPlayerItem(asset: asset)
+            item.externalMetadata = Self.metadata(for: nowPlaying)
             player.replaceCurrentItem(with: item)
             try await Self.waitUntilReady(item, timeout: readyTimeout)
         }
@@ -604,5 +607,25 @@ extension AVPlayerEngine {
         case .failed: finish(.failure(AVPlayerEngine.Failure.itemFailed))
         default: break
         }
+    }
+}
+
+// MARK: - Now playing
+
+extension AVPlayerEngine {
+    /// Title and subtitle the system player draws above its progress line.
+    static func metadata(for nowPlaying: NowPlaying?) -> [AVMetadataItem] {
+        guard let nowPlaying else { return [] }
+        var items = [metadataItem(.commonIdentifierTitle, nowPlaying.title)]
+        if let subtitle = nowPlaying.subtitle { items.append(metadataItem(.iTunesMetadataTrackSubTitle, subtitle)) }
+        return items
+    }
+
+    private static func metadataItem(_ identifier: AVMetadataIdentifier, _ value: String) -> AVMetadataItem {
+        let item = AVMutableMetadataItem()
+        item.identifier = identifier
+        item.value = value as NSString
+        item.extendedLanguageTag = "und"
+        return item.copy() as? AVMetadataItem ?? item
     }
 }

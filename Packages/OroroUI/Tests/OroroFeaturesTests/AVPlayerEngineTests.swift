@@ -14,6 +14,15 @@ import Testing
         fetchedAt: Date(timeIntervalSince1970: 1_761_955_200)
     )
 
+    /// The system player draws `externalMetadata`'s title and subtitle above its progress line.
+    @Test func nowPlayingBecomesTitleAndSubtitleMetadata() {
+        let items = AVPlayerEngine.metadata(for: NowPlaying(title: "Dark", subtitle: "S2 E5 · Pilot"))
+        #expect(items.map(\.identifier) == [.commonIdentifierTitle, .iTunesMetadataTrackSubTitle])
+        #expect(items.map { $0.value as? String } == ["Dark", "S2 E5 · Pilot"])
+        #expect(AVPlayerEngine.metadata(for: NowPlaying(title: "Alien", subtitle: nil)).map(\.identifier) == [.commonIdentifierTitle])
+        #expect(AVPlayerEngine.metadata(for: nil).isEmpty)
+    }
+
     @Test func becomesReadyForAPlayableItem() async throws {
         let item = AVPlayerItem(url: try TestMedia.silentWAV())
         let player = AVPlayer(playerItem: item)

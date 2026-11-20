@@ -40,12 +40,15 @@ import OroroCore
     /// The current item's show context (nil for movies).
     private struct ShowState {
         let showID: Int
+        var name: String?
         var newestVideo: Date?
         var episodes: [Episode]
     }
 
     @ObservationIgnored private var show: ShowState?
     @ObservationIgnored private var currentEpisode: Episode?
+    /// The movie being played (nil for episodes); shown above the progress line.
+    @ObservationIgnored private var movieName: String?
     @ObservationIgnored private var playback: Playback?
     @ObservationIgnored private var position: TimeInterval = 0
     @ObservationIgnored private var duration: TimeInterval = 0
@@ -295,7 +298,8 @@ extension PlaybackSession {
         case .episode(let id, let showID):
             // Next-episode order needs the show's episodes; without them playback still works.
             let detail = try? await environment.details.show(id: showID)
-            show = ShowState(showID: showID, newestVideo: detail?.title.newestVideo, episodes: detail?.episodes ?? [])
+            show = ShowState(showID: showID, name: showName(showID, detail), newestVideo: detail?.title.newestVideo,
+                             episodes: detail?.episodes ?? [])
             setEpisodeContext(id: id)
             return PlayableID(kind: .episode, id: id)
         case .show(let showID):
@@ -311,7 +315,8 @@ extension PlaybackSession {
                 }
                 detail = nil
             }
-            show = ShowState(showID: showID, newestVideo: detail?.title.newestVideo, episodes: detail?.episodes ?? [])
+            show = ShowState(showID: showID, name: showName(showID, detail), newestVideo: detail?.title.newestVideo,
+                             episodes: detail?.episodes ?? [])
             guard let episodeID = resume?.episodeID ?? detail.flatMap({ EpisodeOrdering.first(in: $0.episodes) })?.id else {
                 if !dismissed { phase = .failed(.notPlayable) }
                 return nil
@@ -328,19 +333,32 @@ extension PlaybackSession {
     }
 
     /// Always a network fetch; `playback` is nil when the response has no URL. `episode` only for episodes.
-    private func requestPlayback(for target: PlayableID) async throws -> (playback: Playback?, episode: Episode?) {
+    /// A playback request's result; `movieName` is set for movies only.
+    private struct Fetched {
+        let playback: Playback?
+        let episode: Episode?
+        var movieName: String?
+    }
+
+    private func requestPlayback(for target: PlayableID) async throws -> Fetched {
         switch target.kind {
         case .movie:
-            return (try await environment.details.moviePlayback(id: target.id).playback, nil)
+            let detail = try await environment.details.moviePlayback(id: target.id)
+            return Fetched(playback: detail.playback, episode: nil, movieName: detail.title.name)
         case .episode:
             let detail = try await environment.details.episodePlayback(id: target.id)
-            return (detail.playback, detail.episode)
+            return Fetched(playback: detail.playback, episode: detail.episode)
         }
+    }
+
+    /// The show's name from its detail, else from the catalog.
+    private func showName(_ showID: Int, _ detail: ShowDetail?) -> String? {
+        detail?.title.name ?? session.catalog?.title(TitleID(kind: .show, id: showID))?.name
     }
 
     /// Nil after setting `.failed(.fetch)` / `.failed(.notPlayable)`, or once dismissed.
     private func fetchPlayback(for target: PlayableID) async -> (playback: Playback, episode: Episode?)? {
-        let fetched: (playback: Playback?, episode: Episode?)
+        let fetched: Fetched
         do {
             fetched = try await requestPlayback(for: target)
         } catch {
@@ -352,6 +370,9 @@ extension PlaybackSession {
             phase = .failed(.notPlayable)
             return nil
         }
+        if target.kind == .movie {
+            movieName = fetched.movieName ?? session.catalog?.title(TitleID(kind: .movie, id: target.id))?.name
+        }
         return (playback, fetched.episode)
     }
 
@@ -362,6 +383,7 @@ extension PlaybackSession {
         guard !dismissed else { return }
         let available = Set(playback.subtitles.map(\.lang))
         let language = preferred.flatMap { available.contains($0) ? $0 : nil }
+        engine.nowPlaying = NowPlaying.make(movieName: movieName, showName: show?.name, episode: currentEpisode)
         do {
             try await engine.load(playback, startAt: start, subtitleLanguage: language)
         } catch {
