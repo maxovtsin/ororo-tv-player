@@ -53,7 +53,7 @@ public struct BrowseGridScreen: View {
         if let model {
             PosterGrid(
                 screen: screen, items: model.tiles, isLoading: model.resultsVersion == 0,
-                contentVersion: model.resultsVersion, focusRequest: focusRequest,
+                contentVersion: model.resultsVersion, focusRequest: focusRequest, scrollsToTopOnExit: true,
                 memory: router.focus, zoomNamespace: zoomNamespace,
                 onFocusChange: { _ in },
                 onSelect: { tile in

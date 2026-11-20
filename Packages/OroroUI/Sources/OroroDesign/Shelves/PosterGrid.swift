@@ -34,6 +34,12 @@ struct PosterGridLayout: Equatable {
         columns = max(1, Int(((available + spacing) / (Self.minTileWidth + spacing)).rounded(.down)))
         tileWidth = ((available - CGFloat(columns - 1) * spacing) / CGFloat(columns)).rounded(.down)
     }
+
+    /// True when the tile at `index` is past the first row; nil (focus in the header or elsewhere) is not.
+    func isBelowFirstRow(_ index: Int?) -> Bool {
+        guard let index else { return false }
+        return index >= columns
+    }
 }
 
 /// A lazy grid of captioned poster tiles with the same focus memory as `ShelfRow` (shelf id `"grid"`).
@@ -41,7 +47,8 @@ struct PosterGridLayout: Equatable {
 ///
 /// `header` scrolls with the grid and is kept when the items change; only the grid crossfades, keyed on
 /// `contentVersion`, so focus stays on a header control that changed the items. Bumping `focusRequest`
-/// moves focus to the first tile.
+/// moves focus to the first tile. With `scrollsToTopOnExit`, Menu below the first row scrolls back to the top
+/// (focusing the first tile) instead of leaving the screen (tvOS).
 public struct PosterGrid<Header: View>: View {
     static var shelf: String { "grid" }
 
@@ -50,6 +57,7 @@ public struct PosterGrid<Header: View>: View {
     private let isLoading: Bool
     private let contentVersion: Int
     private let focusRequest: Int
+    private let scrollsToTopOnExit: Bool
     private let memory: FocusMemory
     private let zoomNamespace: Namespace.ID?
     private let onFocusChange: (TileModel?) -> Void
@@ -61,9 +69,11 @@ public struct PosterGrid<Header: View>: View {
     @State private var scrollPosition: ScrollPosition
     @State private var defaultTarget: String?
     @State private var width = PosterGridLayout.fallbackWidth
+    /// Index of the focused tile; nil while focus is outside the tiles.
+    @State private var focusedIndex: Int?
 
     public init(screen: String, items: [TileModel], isLoading: Bool = false, contentVersion: Int = 0, focusRequest: Int = 0,
-                memory: FocusMemory, zoomNamespace: Namespace.ID? = nil,
+                scrollsToTopOnExit: Bool = false, memory: FocusMemory, zoomNamespace: Namespace.ID? = nil,
                 onFocusChange: @escaping (TileModel?) -> Void, onSelect: @escaping (TileModel) -> Void,
                 menu: @escaping (TileModel) -> AnyView = { _ in AnyView(EmptyView()) },
                 @ViewBuilder header: () -> Header) {
@@ -72,6 +82,7 @@ public struct PosterGrid<Header: View>: View {
         self.isLoading = isLoading
         self.contentVersion = contentVersion
         self.focusRequest = focusRequest
+        self.scrollsToTopOnExit = scrollsToTopOnExit
         self.memory = memory
         self.zoomNamespace = zoomNamespace
         self.onFocusChange = onFocusChange
@@ -120,6 +131,21 @@ public struct PosterGrid<Header: View>: View {
             // The new tiles appear in this update; focus them on the next turn.
             Task { @MainActor in focused = items.first?.id }
         }
+        #if os(tvOS)
+        .onExitCommand(perform: exitAction(layout))
+        #endif
+    }
+
+    /// Menu below the first row scrolls to the top; nil lets it through (back / tab bar) from the header or
+    /// the first row.
+    private func exitAction(_ layout: PosterGridLayout) -> (() -> Void)? {
+        guard scrollsToTopOnExit, layout.isBelowFirstRow(focusedIndex) else { return nil }
+        return { scrollToTop() }
+    }
+
+    private func scrollToTop() {
+        scrollPosition.scrollTo(edge: .top)
+        focused = items.first?.id
     }
 
     private func grid(_ layout: PosterGridLayout) -> some View {
@@ -171,11 +197,13 @@ public struct PosterGrid<Header: View>: View {
 
     private func focusChanged(to id: String?) {
         guard let id, let index = items.firstIndex(where: { $0.id == id }) else {
+            focusedIndex = nil
             onFocusChange(nil)
             return
         }
         memory.remember(FocusID(screen: screen, shelf: Self.shelf, item: id))
         defaultTarget = id
+        focusedIndex = index
         onFocusChange(items[index])
         // Prefetch the next rows (spec: Images).
         let columns = PosterGridLayout(width: width).columns

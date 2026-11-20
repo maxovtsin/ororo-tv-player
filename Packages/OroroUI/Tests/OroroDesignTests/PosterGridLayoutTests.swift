@@ -21,6 +21,16 @@ import Testing
         }
     }
 
+    /// Back scrolls to the top only from below the first row; from the first row or the header it goes back.
+    @Test func belowFirstRowIsDecidedByColumns() {
+        let layout = PosterGridLayout(width: 1920)
+        #expect(!layout.isBelowFirstRow(nil))
+        #expect(!layout.isBelowFirstRow(0))
+        #expect(!layout.isBelowFirstRow(layout.columns - 1))
+        #expect(layout.isBelowFirstRow(layout.columns))
+        #expect(layout.isBelowFirstRow(layout.columns * 7 + 2))
+    }
+
     #if os(tvOS)
     @Test func tvCanvasShowsSixFullSizePosters() {
         let layout = PosterGridLayout(width: 1920)
