@@ -2,12 +2,12 @@ import OroroCore
 import OroroDesign
 import SwiftUI
 
-/// Branded first-load screen: a CRT "power-on" (line → open → neon wordmark with a flicker) that
-/// overlaps the real startup, then a glowing progress line during a catalog download.
-/// `progress` is the download's byte fraction; nil while launching. When `playsIntro` is false the
-/// wordmark is shown at rest. `endsEarly` is true once startup is over; if it is when the open
-/// completes, the intro ends there without the flicker (a warm launch). `onIntroFinished` is called
-/// once, when the intro ends or is skipped (a remote press or Menu on tvOS, a tap on iOS).
+/// Branded first-load screen: a CRT powering on (`PowerOnCurve`, drawn by the `crt` shader) that overlaps the
+/// real startup, then a glowing progress line during a catalog download, all on the tube's curved glass.
+/// `progress` is the download's byte fraction; nil while launching. When `playsIntro` is false the picture is
+/// shown at rest. `endsEarly` is true once startup is over; if it is when the picture has settled
+/// (`Motion.powerOnEarlyEnd`), the intro ends there without the mains flicker (a warm launch). `onIntroFinished`
+/// is called once, when the intro ends or is skipped (a remote press or Menu on tvOS, a tap on iOS).
 struct LoadingScreen: View {
     let progress: Double?
     let playsIntro: Bool
@@ -15,73 +15,76 @@ struct LoadingScreen: View {
     let onIntroFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var stage: Stage
-    @State private var dimmed = false
+    /// The power-on is playing (false: no intro, finished or skipped; the picture is at rest).
+    @State private var introRunning: Bool
+    /// The power-on's time origin: the first frame actually drawn.
+    @State private var introClock = FrameClock()
+    /// Reduce Motion: the picture fades in instead of powering on.
+    @State private var faded: Bool
     @State private var reported = false
-    /// `endsEarly` as of now: the intro task reads it after its sleeps, when its copy of `self` is stale.
+    /// `endsEarly` as of now: the intro task reads it after its sleep, when its copy of `self` is stale.
     @State private var startupOver = false
+    /// Clock for the shader's static and hum bar (kept small so `Float` stays precise).
+    @State private var appeared = Date()
 
     init(progress: Double?, playsIntro: Bool, endsEarly: Bool, onIntroFinished: @escaping () -> Void) {
         self.progress = progress
         self.playsIntro = playsIntro
         self.endsEarly = endsEarly
         self.onIntroFinished = onIntroFinished
-        _stage = State(initialValue: playsIntro ? .dark : .settled)
+        _introRunning = State(initialValue: playsIntro)
+        _faded = State(initialValue: !playsIntro)
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                TubeScreen(glows: stage != .dark)
-                powerOnLine(in: proxy.size)
-                wordmark
-                if let progress {
-                    progressLine(progress, in: proxy.size)
-                        .transition(.opacity)
-                }
-                // Over everything, so the lines run through the wordmark like a tube screen.
-                Scanlines()
+        TimelineView(.animation(paused: reduceMotion)) { context in
+            let elapsed = introRunning ? introClock.elapsed() : .infinity
+            let frame = PowerOnCurve.frame(at: elapsed, reduceMotion: reduceMotion)
+            let time = context.date.timeIntervalSince(appeared).truncatingRemainder(dividingBy: 1000)
+            GeometryReader { proxy in
+                picture(in: proxy.size)
+                    .layerEffect(Self.crt(frame, size: proxy.size, time: time), maxSampleOffset: .zero)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .ignoresSafeArea()
+        .opacity(faded ? 1 : 0)
         .motion(Motion.quick, value: progress == nil)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(progress == nil ? Self.launchingLabel : Self.catalogLabel)
         .accessibilityValue(progress.map { $0.formatted(.percent.precision(.fractionLength(0))) } ?? "")
-        .modifier(SkipIntro(enabled: playsIntro, skip: finish))
+        .modifier(SkipIntro(enabled: playsIntro, skip: skip))
         .onChange(of: endsEarly, initial: true) { startupOver = endsEarly }
         .task(id: playsIntro) {
-            if playsIntro { await runIntro() } else { settle() }
+            // Once the intro has finished early (a warm launch), the picture keeps settling while Home fades in;
+            // only a skip snaps it to rest (`skip`).
+            if playsIntro { await runIntro() } else { faded = true }
         }
     }
 
-    // MARK: Layers
+    // MARK: Picture
 
-    /// The hot 2 pt line: grows to full width, then opens vertically and fades.
-    private func powerOnLine(in size: CGSize) -> some View {
-        Rectangle()
-            .fill(Palette.tubeWhite)
-            .frame(width: stage == .dark ? size.width * Self.lineSeed : size.width,
-                   height: stage >= .open ? size.height * Self.lineOpenHeight : Self.lineThickness)
-            .shadow(color: Palette.brandAmber, radius: Self.lineCore)
-            .shadow(color: Palette.brandAmber, radius: Self.lineGlow)
-            .opacity(stage == .line ? 1 : 0)
-            .accessibilityHidden(true)
-    }
-
-    /// The neon wordmark: unfolds from 5% height and unblurs as the line opens, then flickers.
-    /// With Reduce Motion it only fades in.
-    private var wordmark: some View {
-        Image("Wordmark", bundle: .module)
-            .resizable()
-            .scaledToFit()
-            .frame(maxWidth: Self.wordmarkWidth)
-            .scaleEffect(x: 1, y: stage >= .open || reduceMotion ? 1 : Self.wordmarkSeed)
-            .blur(radius: stage >= .open || reduceMotion ? 0 : Self.wordmarkBlur)
-            .opacity(stage >= .open ? (dimmed ? Motion.powerOnFlickerOpacity : 1) : 0)
-            .padding(.horizontal, Spacing.screenEdge)
-            .accessibilityHidden(true)
+    /// What the tube shows: the warm screen, the neon wordmark and, while downloading, the progress line.
+    private func picture(in size: CGSize) -> some View {
+        ZStack {
+            // One Canvas pass for the screen and the wordmark: inside a layer effect, a separate Image layer
+            // composited without the gradient beneath it (a black box around the word).
+            Canvas { context, size in
+                let rect = CGRect(origin: .zero, size: size)
+                context.fill(Path(rect), with: .radialGradient(
+                    Gradient(colors: [Palette.screenGlow, Palette.screenBlack]), center: CGPoint(x: rect.midX, y: rect.midY),
+                    startRadius: 0, endRadius: max(size.width, size.height) * 0.6))
+                let image = context.resolve(Image("Wordmark", bundle: .module))
+                let width = min(Self.wordmarkWidth, size.width - 2 * Spacing.screenEdge)
+                let height = width * image.size.height / max(image.size.width, 1)
+                context.draw(image, in: CGRect(x: rect.midX - width / 2, y: rect.midY - height / 2, width: width, height: height))
+            }
+            if let progress {
+                progressLine(progress, in: size)
+                    .transition(.opacity)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .accessibilityHidden(true)
     }
 
     /// Amber progress line (34% wide, 4 pt, glowing) at 68% height with the caption below.
@@ -105,49 +108,52 @@ struct LoadingScreen: View {
         .padding(.top, size.height * Self.barTop - Self.barThickness / 2)
     }
 
+    private static func crt(_ frame: CRTFrame, size: CGSize, time: TimeInterval) -> Shader {
+        ShaderLibrary.bundle(.module).crt(
+            .float2(size), .float(time),
+            .float(frame.rasterWidth), .float(frame.rasterHeight), .float(frame.exposure), .float(frame.wash),
+            .float(frame.blur), .float(frame.split), .float(frame.wobble), .float(frame.noise),
+            .float(CRTFrame.scanPeriod), .float(1)
+        )
+    }
+
     // MARK: Intro
 
     private func runIntro() async {
-        guard stage != .settled else { return }
-        let clock = ContinuousClock()
-        let start = clock.now
+        guard introRunning else { return }
         do {
             if reduceMotion {
-                withAnimation(Motion.quick) { stage = .settled }
+                withAnimation(Motion.quick) { faded = true }
+                try await Task.sleep(for: Motion.powerOnDuration(reduceMotion: true))
             } else {
-                withAnimation(Motion.powerOnLine) { stage = .line }
-                try await clock.sleep(until: start + Motion.powerOnOpenAt)
-                withAnimation(Motion.powerOnOpen) { stage = .open }
-                try await clock.sleep(until: start + Motion.powerOnEarlyEnd)
+                faded = true
+                // The power-on's own (frame-paced) time, not the wall clock: see `FrameClock`.
+                await introClock.reached(Motion.powerOnEarlyEnd)
+                try Task.checkCancellation()
                 if startupOver {
-                    // Warm launch: the wordmark is already up; show Home now, no flicker.
-                    stage = .settled
+                    // Warm launch: the picture has settled; show Home now, no mains flicker.
                     finish()
                     return
                 }
-                for dip in 0..<Motion.powerOnFlickerDips {
-                    let dipStart = start + Motion.powerOnFlickerAt + Motion.powerOnFlickerStep * (2 * dip)
-                    try await clock.sleep(until: dipStart)
-                    withAnimation(Motion.powerOnFlicker) { dimmed = true }
-                    try await clock.sleep(until: dipStart + Motion.powerOnFlickerStep)
-                    withAnimation(Motion.powerOnFlicker) { dimmed = false }
-                }
+                await introClock.reached(Motion.powerOnDuration(reduceMotion: false))
+                try Task.checkCancellation()
             }
-            try await clock.sleep(until: start + Motion.powerOnDuration(reduceMotion: reduceMotion))
-            stage = .settled
+            introRunning = false
             finish()
         } catch {
             // Cancelled: skipped (already reported) or the screen went away.
         }
     }
 
-    /// The wordmark at rest, e.g. after a skip.
+    /// The picture at rest, e.g. after a skip.
     private func settle() {
-        guard stage != .settled || dimmed else { return }
-        withAnimation(Motion.quick) {
-            stage = .settled
-            dimmed = false
-        }
+        introRunning = false
+        faded = true
+    }
+
+    private func skip() {
+        settle()
+        finish()
     }
 
     private func finish() {
@@ -158,22 +164,6 @@ struct LoadingScreen: View {
 
     // MARK: Constants
 
-    private enum Stage: Int, Comparable {
-        /// The system launch screen's flat black; the line is a seed at the centre.
-        case dark
-        /// The line at full width.
-        case line
-        /// The line opened and faded; the wordmark unfolded.
-        case open
-        /// The wordmark at rest.
-        case settled
-
-        static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
-    }
-
-    private static let lineThickness: CGFloat = 2, lineSeed: CGFloat = 0.02, lineOpenHeight: CGFloat = 0.4
-    private static let lineCore: CGFloat = 4, lineGlow: CGFloat = 18
-    private static let wordmarkSeed: CGFloat = 0.05, wordmarkBlur: CGFloat = 8
     #if os(tvOS)
     private static let wordmarkWidth: CGFloat = 960
     #else
@@ -188,47 +178,6 @@ struct LoadingScreen: View {
 
     private static var launchingLabel: String {
         String(localized: "appRoot.loading.launching", defaultValue: "Loading", bundle: .module)
-    }
-}
-
-/// The warm tube screen: radial #2B1606 → #060303 (scanlines are drawn over everything by `Scanlines`). `glows` false is
-/// the flat #060303 of the system launch screen; the warm centre fades in with the power-on line.
-private struct TubeScreen: View {
-    let glows: Bool
-
-    var body: some View {
-        ZStack {
-            Palette.screenBlack
-            EllipticalGradient(colors: [Palette.screenGlow, Palette.screenBlack],
-                               center: .center, startRadiusFraction: 0, endRadiusFraction: 0.75)
-                .opacity(glows ? 1 : 0)
-        }
-        .ignoresSafeArea()
-        .accessibilityHidden(true)
-    }
-}
-
-/// Horizontal scanlines: a dark band every `period` points, half as tall. Matches the approved mockup,
-/// which drew 4 px lines on a stage half the TV's width.
-private struct Scanlines: View {
-    #if os(tvOS)
-    private static let period: CGFloat = 8
-    #else
-    private static let period: CGFloat = 4
-    #endif
-
-    var body: some View {
-        Canvas { context, size in
-            var y: CGFloat = 0
-            while y < size.height {
-                context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: Self.period / 2)),
-                             with: .color(.black.opacity(0.3)))
-                y += Self.period
-            }
-        }
-        .allowsHitTesting(false)
-        .ignoresSafeArea()
-        .accessibilityHidden(true)
     }
 }
 

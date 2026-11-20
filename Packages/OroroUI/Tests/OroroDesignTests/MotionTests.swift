@@ -30,19 +30,18 @@ import Testing
         #expect(Motion.powerOnDuration(reduceMotion: true) == .milliseconds(200))
     }
 
-    @Test func powerOnTimelineFitsTheIntro() {
-        #expect(Motion.powerOnLine == .easeOut(duration: 0.35))
-        #expect(Motion.powerOnOpen == .easeOut(duration: 0.3))
-        let flickerEnd = Motion.powerOnFlickerAt + Motion.powerOnFlickerStep * (2 * Motion.powerOnFlickerDips)
-        #expect(Motion.powerOnOpenAt < Motion.powerOnFlickerAt)
-        #expect(flickerEnd <= Motion.powerOnDuration(reduceMotion: false))
+    @Test func powerOnKeyTimesAreInOrder() {
+        // Dot → line → raster open → (warm launch ends) → settled.
+        #expect(.zero < Motion.powerOnDotAt)
+        #expect(Motion.powerOnDotAt < Motion.powerOnLineEnd)
+        #expect(Motion.powerOnLineEnd < Motion.powerOnOpenEnd)
+        #expect(Motion.powerOnOpenEnd < Motion.powerOnSettled)
+        #expect(Motion.powerOnSettled < Motion.powerOnEarlyEnd)
+        #expect(Motion.powerOnEarlyEnd < Motion.powerOnDuration(reduceMotion: false))
     }
 
-    @Test func warmLaunchEndsIntroWhenTheOpenCompletes() {
-        // 0.35 s line + 0.3 s open: the early end is the open's end, before the flicker.
+    @Test func warmLaunchEndsIntroOnceThePictureHasSettled() {
         #expect(Motion.powerOnEarlyEnd == .milliseconds(650))
-        #expect(Motion.powerOnEarlyEnd == Motion.powerOnOpenAt + .milliseconds(300))
-        #expect(Motion.powerOnEarlyEnd < Motion.powerOnDuration(reduceMotion: false))
     }
 
     @Test func tokensAreDistinct() {

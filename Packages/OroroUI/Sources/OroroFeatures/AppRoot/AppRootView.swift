@@ -1,6 +1,7 @@
 import OroroCore
 import OroroDesign
 import SwiftUI
+import UIKit
 
 /// The app's root: sign-in, catalog loading, the tabs, and the full-screen player.
 public struct AppRootView: View {
@@ -32,9 +33,17 @@ private struct AppRootContent: View {
     @State private var tabs = TabsModel()
     /// The power-on intro has ended or been skipped; it plays once per app run. See `LaunchGate`.
     @State private var introFinished = false
+    /// The first screen after the power-on appears on the old TV, then the glass flattens away
+    /// (`CRTHandoffOverlay`). Set at launch, so the loading screen already carries the instant transition when
+    /// it is removed (a removed view uses the transition from its last body); cleared when the hand-off ends.
+    /// Off with Reduce Motion (a plain crossfade).
+    @State private var crtHandoffPending = false
+    /// The screen beneath the loading screen draws steadily: the loading screen can go (`LaunchGate`).
+    @State private var crtHandoffStarted = false
     /// Drives the sign-in sheet; see `ReauthGate`.
     @State private var presentsReauth = false
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(environment: AppEnvironment) {
         self.environment = environment
@@ -43,33 +52,42 @@ private struct AppRootContent: View {
 
     var body: some View {
         ZStack {
-            if LaunchGate.showsLoading(session.state, introFinished: introFinished) {
+            if !LaunchGate.showsLoading(session.state, introFinished: introFinished) {
+                switch session.state {
+                case .signedOut:
+                    SignInScreen(prefilledEmail: session.storedEmail)
+                        .transition(screenTransition)
+                case .ready:
+                    TabRootView(tabs: tabs)
+                        .transition(screenTransition)
+                case .failed(let error):
+                    CatalogFailureScreen(error: error) {
+                        Task { await session.retry() }
+                    }
+                    .transition(screenTransition)
+                case .launching, .loadingCatalog:
+                    // Always on the loading screen.
+                    EmptyView()
+                }
+            }
+            if LaunchGate.showsCRTHandoff(pending: crtHandoffPending, state: session.state, introFinished: introFinished) {
+                CRTHandoffOverlay(onStarted: { crtHandoffStarted = true }, onFinished: { crtHandoffPending = false })
+                    .transition(.identity)
+            }
+            // On top: during a CRT hand-off it covers the new screen until that screen draws steadily.
+            if LaunchGate.showsLoadingScreen(session.state, introFinished: introFinished,
+                                             handoffPending: crtHandoffPending, handoffStarted: crtHandoffStarted) {
                 // One identity across launching → loading, so the intro keeps running.
                 LoadingScreen(progress: LaunchGate.progress(session.state),
                               playsIntro: LaunchGate.playsIntro(introFinished: introFinished),
                               endsEarly: LaunchGate.endsIntroEarly(session.state),
                               onIntroFinished: { introFinished = true })
-                    .transition(.opacity)
-            } else {
-                switch session.state {
-                case .signedOut:
-                    SignInScreen(prefilledEmail: session.storedEmail)
-                        .transition(.opacity)
-                case .ready:
-                    TabRootView(tabs: tabs)
-                        .transition(.opacity)
-                case .failed(let error):
-                    CatalogFailureScreen(error: error) {
-                        Task { await session.retry() }
-                    }
-                    .transition(.opacity)
-                case .launching, .loadingCatalog:
-                    // Always on the loading screen above.
-                    EmptyView()
-                }
+                    .transition(screenTransition)
             }
         }
-        .motion(Motion.cinematic, value: Screen(session.state, introFinished: introFinished))
+        // Not during the CRT hand-off: its screen swap must commit at once rather than keep the loading screen
+        // around for the crossfade's duration.
+        .motion(Motion.cinematic, value: crtHandoffPending ? nil : Screen(session.state, introFinished: introFinished))
         .environment(session)
         .environment(launcher)
         .environment(\.appEnvironment, environment)
@@ -87,6 +105,7 @@ private struct AppRootContent: View {
                 .environment(\.appEnvironment, environment)
         })
         .onChange(of: session.needsReauth, initial: true) { updateReauth() }
+        .onAppear { crtHandoffPending = !reduceMotion }
         .task {
             if session.state == .launching { await session.start() }
         }
@@ -98,6 +117,9 @@ private struct AppRootContent: View {
             switch phase {
             case .background:
                 Task { await environment.library.flush() }
+                // The next launch starts on the launch screen (the power-on's dark first frame), not a blurred
+                // snapshot of where the user left off.
+                UIApplication.shared.ignoreSnapshotOnNextApplicationLaunch()
             case .active:
                 Task { await session.sceneBecameActive() }
             default:
@@ -108,6 +130,11 @@ private struct AppRootContent: View {
 }
 
 extension AppRootContent {
+    /// The CRT hand-off swaps screens instantly (the old TV just changes picture); otherwise they crossfade.
+    private var screenTransition: AnyTransition {
+        crtHandoffPending ? .identity : .opacity
+    }
+
     private func updateReauth() {
         presentsReauth = ReauthGate.presents(needsReauth: session.needsReauth, playerActive: launcher.active != nil)
     }

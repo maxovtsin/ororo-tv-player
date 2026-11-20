@@ -17,23 +17,24 @@ public enum Motion {
     // unfolds (0.35–0.65 s), two flicker dips (0.65–1.05 s), done at 1.1 s. A warm launch ends
     // at 0.65 s, when the open completes.
 
-    /// The bright line growing to full width.
-    public static let powerOnLine: Animation = .easeOut(duration: 0.35)
-    /// The line opening vertically and fading while the wordmark unfolds and unblurs.
-    public static let powerOnOpen: Animation = .easeOut(duration: 0.3)
-    /// One half of a flicker dip (down or back up).
-    public static let powerOnFlicker: Animation = .easeInOut(duration: 0.1)
-    /// When the open starts, from the intro's start.
-    public static let powerOnOpenAt: Duration = .milliseconds(350)
-    /// When the open has completed (`powerOnOpenAt` + `powerOnOpen`), from the intro's start. A warm
-    /// launch, already past startup by then, ends the intro here and skips the flicker.
+    /// CRT power-on key times, from the intro's start (`PowerOnCurve` reads them).
+    /// The undeflected beam lights a dot at the centre.
+    public static let powerOnDotAt: Duration = .milliseconds(40)
+    /// Horizontal deflection has snapped the dot out into a full-width, overexposed line.
+    public static let powerOnLineEnd: Duration = .milliseconds(200)
+    /// Vertical deflection has opened the line into the full picture (washed out, soft, colour-fringed).
+    public static let powerOnOpenEnd: Duration = .milliseconds(420)
+    /// The tube has warmed and the picture has settled.
+    public static let powerOnSettled: Duration = .milliseconds(560)
+    /// A warm launch, already past startup by then, ends the intro here and skips the mains flicker that follows.
+    /// Kept a little after `powerOnSettled`: building Home can stall the display for a few frames, and those
+    /// should show the settled picture, not cut the settle short.
     public static let powerOnEarlyEnd: Duration = .milliseconds(650)
-    /// When the first flicker dip starts, from the intro's start.
-    public static let powerOnFlickerAt: Duration = .milliseconds(650)
-    /// Length of one half dip; matches `powerOnFlicker`.
-    public static let powerOnFlickerStep: Duration = .milliseconds(100)
-    /// Number of flicker dips, and the wordmark's opacity at the bottom of each.
-    public static let powerOnFlickerDips = 2, powerOnFlickerOpacity = 0.55
+
+    /// The hand-off from the power-on to the first screen, from the moment it shows: a hold on the old TV, then
+    /// the glass flattening into the modern picture (`HandoffCurve`).
+    public static let crtHandoffFlattenAt: Duration = .milliseconds(700)
+    public static let crtHandoffEnd: Duration = .milliseconds(1400)
 
     /// The whole intro: 1.1 s, or the 0.2 s wordmark fade (`quick`) with Reduce Motion.
     public static func powerOnDuration(reduceMotion: Bool) -> Duration {

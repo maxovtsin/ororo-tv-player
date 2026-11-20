@@ -67,14 +67,37 @@ Picked in the visual companion from 10 directions, then 4 blends of the two favo
 
 ### Loading screen (in app)
 
-- `LoadingScreen` is rebuilt as the power-on: line → open → neon wordmark with a brief
-  flicker, then the progress line during a catalog download. The wordmark is an image asset
+- `LoadingScreen` is a realistic CRT powering on, drawn by a Metal shader (`CRT.metal`, a
+  SwiftUI `layerEffect`) over the whole screen: curved glass with rounded corners, scanlines,
+  vignette, a faint glass reflection, static and a slow rolling hum bar.
+  The power-on (`PowerOnCurve`, a pure function of time):
+  1. A centre dot.
+  2. A white-hot full-width line with bloom.
+  3. The line opens vertically into an overexposed, washed-out, soft, colour-fringed picture
+     that dims as it grows.
+  4. The tube warms: brightness, focus and convergence settle, with a deflection wobble.
+  5. Two mains flicker dips, then rest.
+  Then the progress line appears during a catalog download. The wordmark is an image asset
   rendered from the same SVG (not system text) so it matches the icon exactly.
+- The power-on runs on its own frame-paced time. It starts at the first steady frame, so
+  startup can't play it off screen, and a stall slows it down instead of skipping part of it.
+- Building requires Xcode's Metal Toolchain (README prerequisites).
+- **Hand-off to the first screen:**
+  - The power-on cuts straight to the next screen (Home, sign-in or the error screen) on the
+    old TV, with no static burst (removed at the user's request), and holds there for about
+    half a second.
+  - The glass then flattens smoothly into the modern picture (`HandoffCurve`, `Motion.crtHandoff…`).
+  - The old TV is drawn *over* the live screen (`crtOverlay`, a `colorEffect` on a full-screen
+    rectangle): curved-glass edges, scanlines, vignette, hum bar, fine grain and reflection. The
+    tvOS `TabView` is UIKit-backed and can't go through a layer effect, so the screen itself
+    isn't bent or colour-fringed.
+  - The screen stays live and focusable throughout.
+  - With Reduce Motion it is a plain crossfade.
 - **Timing (overlap):** the intro starts at launch and runs alongside the real startup
   (`session.state == .launching`). `AppRootView` leaves the loading screen once both the
   intro has finished and the session is past `.launching`. A remote press (select or
   Menu) or a tap on iOS skips the rest of the intro.
-- Reduce Motion: no line or flicker, just a fade-in of the wordmark.
+- Reduce Motion: no power-on; the settled picture fades in.
 - VoiceOver: "Loading" / "Loading the catalog, 40 percent", as today.
 
 ## Approaches considered

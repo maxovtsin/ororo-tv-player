@@ -13,6 +13,7 @@ The code is two Swift packages and two thin app targets:
 
 - macOS with Xcode 27 (deployment targets are tvOS 26 and iOS 26).
 - [Homebrew](https://brew.sh), then `brew install mise swiftlint`.
+- Xcode's Metal Toolchain (the loading screen's CRT effect is a Metal shader): `xcodebuild -downloadComponent MetalToolchain`.
 - Tuist is pinned in `.mise.toml` and run through mise; nothing else to install.
 
 ## Build
