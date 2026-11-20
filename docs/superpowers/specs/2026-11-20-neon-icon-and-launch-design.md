@@ -46,8 +46,8 @@ Picked in the visual companion from 10 directions, then 4 blends of the two favo
 - `Branding/` holds the SVG sources and a render script (`Scripts/render-icons.sh`) that
   outputs every PNG the asset catalogs need using headless Chrome, so the icon can be
   regenerated after tweaks. Generated PNGs are committed.
-- Typeface: **Nunito Black** (SIL Open Font License), with the wordmark converted to outlines
-  in the SVG so rendering never depends on installed fonts.
+- Typeface: **Nunito Black** (SIL Open Font License). The TTF and its licence are committed in
+  `Branding/fonts/` and loaded via `@font-face`, so rendering never depends on installed fonts.
 - tvOS icon layers (400×240 @1x/@2x and 1280×768 App Store):
   - Back: tube-screen gradient with a soft vignette and scanlines.
   - Middle: the amber bloom behind the word.

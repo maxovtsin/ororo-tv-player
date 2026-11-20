@@ -1,0 +1,118 @@
+<!doctype html>
+<!--
+  Ororo brand artwork: the neon "ororo" wordmark on a warm tube screen.
+  Rendered to PNG by Scripts/render-icons.sh with headless Chrome.
+
+    brand.html?art=<icon|appstore|topshelf|topshelfwide|ios|wordmark>&layer=<back|middle|front|flat>&w=<px>&h=<px>
+
+  back   = screen gradient + vignette + scanlines (opaque)
+  middle = the amber bloom behind the word (transparent elsewhere)
+  front  = the crisp word with a tight glow (transparent elsewhere)
+  flat   = all three composited
+  The "wordmark" art is the front layer alone on a transparent background.
+
+  The word is set in Nunito Black (SIL OFL), loaded from fonts/Nunito.ttf so the
+  rendering never depends on installed fonts.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Nunito; src: url(fonts/Nunito.ttf); font-weight: 200 1000; }
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<script>
+(async function () {
+  const AMBER = "#FFB547";      // the word
+  const GLOW = "#FF9A2E";       // tight glow hugging the letters
+  const BLOOM = "#FF6A10";      // warm orange bloom behind the word
+  const SCREEN_IN = "#2B1606";  // tube screen, centre
+  const SCREEN_OUT = "#060303"; // tube screen, edge
+
+  const q = new URLSearchParams(location.search);
+  const art = q.get("art") || "icon";
+  const layer = art === "wordmark" ? "front" : (q.get("layer") || "flat");
+  const w = Number(q.get("w")) || 400;
+  const h = Number(q.get("h")) || 240;
+  document.body.style.width = w + "px";
+  document.body.style.height = h + "px";
+
+  // Word size and placement per art. Top Shelf keeps the word small and left of centre.
+  const fontSize = {
+    icon: 0.2 * w, appstore: 0.2 * w, ios: 0.26 * w,
+    topshelf: 0.09 * w, topshelfwide: 0.09 * w, wordmark: 0.24 * w
+  }[art];
+  const cx = art.startsWith("topshelf") ? 0.3 * w : w / 2;
+  const cy = h / 2;
+  const tracking = -0.01 * fontSize;
+
+  const font = `900 ${fontSize}px Nunito`;
+  await document.fonts.load(font, "ororo");
+  if (!document.fonts.check(font, "ororo")) throw new Error("Nunito failed to load");
+
+  // Centre the ink (not the advance box) of the word on (cx, cy).
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font = font;
+  ctx.letterSpacing = tracking + "px";
+  const m = ctx.measureText("ororo");
+  const x = cx - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
+  const y = cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+
+  const word = (fill, extra = "") =>
+    `<text x="${x}" y="${y}" font-family="Nunito" font-weight="900" font-size="${fontSize}"
+       letter-spacing="${tracking}" fill="${fill}" ${extra}>ororo</text>`;
+
+  const s = Math.min(w, h);            // scale reference for blur radii and scanlines
+  const pitch = Math.max(3, s / 64);   // scanline period
+
+  const back = `
+    <defs>
+      <radialGradient id="screen" cx="${cx / w}" cy=".5" r=".8">
+        <stop offset="0" stop-color="${SCREEN_IN}"/><stop offset="1" stop-color="${SCREEN_OUT}"/>
+      </radialGradient>
+      <radialGradient id="vignette" cx=".5" cy=".5" r=".72">
+        <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+      </radialGradient>
+      <pattern id="scan" width="${w}" height="${pitch}" patternUnits="userSpaceOnUse">
+        <rect width="${w}" height="${pitch / 2}" fill="#000" opacity=".28"/>
+      </pattern>
+    </defs>
+    <rect width="${w}" height="${h}" fill="url(#screen)"/>
+    <rect width="${w}" height="${h}" fill="url(#vignette)"/>
+    <rect width="${w}" height="${h}" fill="url(#scan)"/>`;
+
+  // Wide, soft bloom: the word itself blurred far out, in warm orange.
+  const middle = `
+    <defs>
+      <filter id="bloom" x="-50%" y="-150%" width="200%" height="400%">
+        <feGaussianBlur stdDeviation="${fontSize * 0.14}" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/></feMerge>
+      </filter>
+    </defs>
+    ${word(BLOOM, `filter="url(#bloom)" opacity=".9"`)}`;
+
+  // Crisp word with a tight glow that hugs the letters.
+  const front = `
+    <defs>
+      <filter id="glow" x="-10%" y="-40%" width="120%" height="180%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="${fontSize * 0.035}" result="blur"/>
+        <feFlood flood-color="${GLOW}" flood-opacity=".85"/>
+        <feComposite in2="blur" operator="in" result="glow"/>
+        <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    ${word(AMBER, `filter="url(#glow)"`)}`;
+
+  const body = { back, middle, front, flat: back + middle + front }[layer];
+  document.body.innerHTML =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+})().catch(e => {
+  // Make a failure impossible to miss in the screenshot.
+  document.body.innerHTML = `<div style="background:#f0f;color:#000;font:20px monospace">${e}</div>`;
+});
+</script>
+</body>
+</html>
