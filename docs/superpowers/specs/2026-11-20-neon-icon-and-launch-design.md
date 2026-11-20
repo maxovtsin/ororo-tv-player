@@ -14,7 +14,10 @@ should feel like one brand.
 Picked in the visual companion from 10 directions, then 4 blends of the two favourites
 (Wordmark + CRT glow):
 
-- **Icon: Neon wordmark.** Lowercase "ororo", heavy and rounded, glowing amber (#FFB547 with a
+- **App icon: the glowing CRT ring** (option 10): an orange (#FF9F1C) ring, slightly wider than tall,
+  with a soft glow and scanlines running through it, on the warm tube screen. Chosen after the first
+  install: the small icon should be the ring, the big Top Shelf banner the word.
+- **Top Shelf and loading screen: Neon wordmark.** Lowercase "ororo", heavy and rounded, glowing amber (#FFB547 with a
   warm orange bloom) on a dark warm "tube screen" (radial #2B1606 → #060303) with faint
   horizontal scanlines.
 - **Loading: the TV powers on.** Warm dark screen → a bright line snaps across and opens up →
@@ -52,8 +55,8 @@ Picked in the visual companion from 10 directions, then 4 blends of the two favo
   - Back: tube-screen gradient with a soft vignette and scanlines.
   - Middle: the amber bloom behind the word.
   - Front: the crisp "ororo" with a tight glow, so the name lifts off the glow when tilted.
-- Top Shelf (1920×720) and Top Shelf Wide (2320×720): the same screen with the wordmark,
-  smaller and left of centre, with plenty of dark space.
+- Top Shelf (1920×720) and Top Shelf Wide (2320×720): the same screen with the wordmark centred
+  (≈0.11 × width), scanlines through the letters.
 - iOS 1024×1024: the flattened icon, with the wordmark sized for the square.
 
 ### Launch screen (system)

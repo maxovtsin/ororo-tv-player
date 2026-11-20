@@ -39,6 +39,8 @@ struct LoadingScreen: View {
                     progressLine(progress, in: proxy.size)
                         .transition(.opacity)
                 }
+                // Over everything, so the lines run through the wordmark like a tube screen.
+                Scanlines()
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
@@ -189,7 +191,7 @@ struct LoadingScreen: View {
     }
 }
 
-/// The warm tube screen: radial #2B1606 → #060303 with faint horizontal scanlines. `glows` false is
+/// The warm tube screen: radial #2B1606 → #060303 (scanlines are drawn over everything by `Scanlines`). `glows` false is
 /// the flat #060303 of the system launch screen; the warm centre fades in with the power-on line.
 private struct TubeScreen: View {
     let glows: Bool
@@ -200,15 +202,31 @@ private struct TubeScreen: View {
             EllipticalGradient(colors: [Palette.screenGlow, Palette.screenBlack],
                                center: .center, startRadiusFraction: 0, endRadiusFraction: 0.75)
                 .opacity(glows ? 1 : 0)
-            Canvas { context, size in
-                // 2 pt dark band every 4 pt.
-                var y: CGFloat = 0
-                while y < size.height {
-                    context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: 2)), with: .color(.black.opacity(0.28)))
-                    y += 4
-                }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
+}
+
+/// Horizontal scanlines: a dark band every `period` points, half as tall. Matches the approved mockup,
+/// which drew 4 px lines on a stage half the TV's width.
+private struct Scanlines: View {
+    #if os(tvOS)
+    private static let period: CGFloat = 8
+    #else
+    private static let period: CGFloat = 4
+    #endif
+
+    var body: some View {
+        Canvas { context, size in
+            var y: CGFloat = 0
+            while y < size.height {
+                context.fill(Path(CGRect(x: 0, y: y, width: size.width, height: Self.period / 2)),
+                             with: .color(.black.opacity(0.3)))
+                y += Self.period
             }
         }
+        .allowsHitTesting(false)
         .ignoresSafeArea()
         .accessibilityHidden(true)
     }
