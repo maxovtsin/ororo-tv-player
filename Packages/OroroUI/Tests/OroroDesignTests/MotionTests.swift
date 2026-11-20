@@ -38,6 +38,13 @@ import Testing
         #expect(flickerEnd <= Motion.powerOnDuration(reduceMotion: false))
     }
 
+    @Test func warmLaunchEndsIntroWhenTheOpenCompletes() {
+        // 0.35 s line + 0.3 s open: the early end is the open's end, before the flicker.
+        #expect(Motion.powerOnEarlyEnd == .milliseconds(650))
+        #expect(Motion.powerOnEarlyEnd == Motion.powerOnOpenAt + .milliseconds(300))
+        #expect(Motion.powerOnEarlyEnd < Motion.powerOnDuration(reduceMotion: false))
+    }
+
     @Test func tokensAreDistinct() {
         #expect(Motion.quick != Motion.standard)
         #expect(Motion.standard != Motion.cinematic)

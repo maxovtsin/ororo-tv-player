@@ -21,9 +21,14 @@ import Testing
         #expect(LaunchGate.progress(.loadingCatalog(0.4)) == 0.4)
         #expect(LaunchGate.progress(.launching) == nil)
     }
-    @Test func skippedIntroCountsAsFinished() {
-        // A press marks the intro finished; the gate then follows the session alone.
-        #expect(!LaunchGate.showsLoading(.ready, introFinished: true))
+    @Test func warmLaunchEndsIntroAfterOpen() {
+        // Past launching/loading when the open completes: the intro ends there, no flicker.
+        #expect(LaunchGate.endsIntroEarly(.ready))
+        #expect(LaunchGate.endsIntroEarly(.signedOut))
+        #expect(LaunchGate.endsIntroEarly(.failed(.offline)))
+        // Still starting up: the full intro plays.
+        #expect(!LaunchGate.endsIntroEarly(.launching))
+        #expect(!LaunchGate.endsIntroEarly(.loadingCatalog(0.4)))
     }
     @Test func introPlaysOnlyOnce() {
         #expect(LaunchGate.playsIntro(introFinished: false))

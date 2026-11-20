@@ -5,21 +5,26 @@ import SwiftUI
 /// Branded first-load screen: a CRT "power-on" (line → open → neon wordmark with a flicker) that
 /// overlaps the real startup, then a glowing progress line during a catalog download.
 /// `progress` is the download's byte fraction; nil while launching. When `playsIntro` is false the
-/// wordmark is shown at rest. `onIntroFinished` is called once, when the intro ends or is skipped
-/// (a remote press or Menu on tvOS, a tap on iOS).
+/// wordmark is shown at rest. `endsEarly` is true once startup is over; if it is when the open
+/// completes, the intro ends there without the flicker (a warm launch). `onIntroFinished` is called
+/// once, when the intro ends or is skipped (a remote press or Menu on tvOS, a tap on iOS).
 struct LoadingScreen: View {
     let progress: Double?
     let playsIntro: Bool
+    let endsEarly: Bool
     let onIntroFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var stage: Stage
     @State private var dimmed = false
     @State private var reported = false
+    /// `endsEarly` as of now: the intro task reads it after its sleeps, when its copy of `self` is stale.
+    @State private var startupOver = false
 
-    init(progress: Double?, playsIntro: Bool, onIntroFinished: @escaping () -> Void) {
+    init(progress: Double?, playsIntro: Bool, endsEarly: Bool, onIntroFinished: @escaping () -> Void) {
         self.progress = progress
         self.playsIntro = playsIntro
+        self.endsEarly = endsEarly
         self.onIntroFinished = onIntroFinished
         _stage = State(initialValue: playsIntro ? .dark : .settled)
     }
@@ -43,6 +48,7 @@ struct LoadingScreen: View {
         .accessibilityLabel(progress == nil ? Self.launchingLabel : Self.catalogLabel)
         .accessibilityValue(progress.map { $0.formatted(.percent.precision(.fractionLength(0))) } ?? "")
         .modifier(SkipIntro(enabled: playsIntro, skip: finish))
+        .onChange(of: endsEarly, initial: true) { startupOver = endsEarly }
         .task(id: playsIntro) {
             if playsIntro { await runIntro() } else { settle() }
         }
@@ -110,6 +116,13 @@ struct LoadingScreen: View {
                 withAnimation(Motion.powerOnLine) { stage = .line }
                 try await clock.sleep(until: start + Motion.powerOnOpenAt)
                 withAnimation(Motion.powerOnOpen) { stage = .open }
+                try await clock.sleep(until: start + Motion.powerOnEarlyEnd)
+                if startupOver {
+                    // Warm launch: the wordmark is already up; show Home now, no flicker.
+                    stage = .settled
+                    finish()
+                    return
+                }
                 for dip in 0..<Motion.powerOnFlickerDips {
                     let dipStart = start + Motion.powerOnFlickerAt + Motion.powerOnFlickerStep * (2 * dip)
                     try await clock.sleep(until: dipStart)
@@ -256,11 +269,11 @@ struct CatalogFailureScreen: View {
 }
 
 #Preview("Power-on") {
-    LoadingScreen(progress: nil, playsIntro: true) {}
+    LoadingScreen(progress: nil, playsIntro: true, endsEarly: false) {}
 }
 
 #Preview("Loading") {
-    LoadingScreen(progress: 0.4, playsIntro: false) {}
+    LoadingScreen(progress: 0.4, playsIntro: false, endsEarly: false) {}
 }
 
 #Preview("Offline") {

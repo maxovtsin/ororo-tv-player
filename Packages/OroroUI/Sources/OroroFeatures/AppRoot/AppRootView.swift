@@ -47,6 +47,7 @@ private struct AppRootContent: View {
                 // One identity across launching → loading, so the intro keeps running.
                 LoadingScreen(progress: LaunchGate.progress(session.state),
                               playsIntro: LaunchGate.playsIntro(introFinished: introFinished),
+                              endsEarly: LaunchGate.endsIntroEarly(session.state),
                               onIntroFinished: { introFinished = true })
                     .transition(.opacity)
             } else {

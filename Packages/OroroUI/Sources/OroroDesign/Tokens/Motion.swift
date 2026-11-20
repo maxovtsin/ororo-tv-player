@@ -14,7 +14,8 @@ public enum Motion {
 
     // MARK: Power-on intro (loading screen)
     // Timeline from the intro's start: the line grows (0–0.35 s), opens while the wordmark
-    // unfolds (0.35–0.65 s), two flicker dips (0.65–1.05 s), done at 1.1 s.
+    // unfolds (0.35–0.65 s), two flicker dips (0.65–1.05 s), done at 1.1 s. A warm launch ends
+    // at 0.65 s, when the open completes.
 
     /// The bright line growing to full width.
     public static let powerOnLine: Animation = .easeOut(duration: 0.35)
@@ -24,6 +25,9 @@ public enum Motion {
     public static let powerOnFlicker: Animation = .easeInOut(duration: 0.1)
     /// When the open starts, from the intro's start.
     public static let powerOnOpenAt: Duration = .milliseconds(350)
+    /// When the open has completed (`powerOnOpenAt` + `powerOnOpen`), from the intro's start. A warm
+    /// launch, already past startup by then, ends the intro here and skips the flicker.
+    public static let powerOnEarlyEnd: Duration = .milliseconds(650)
     /// When the first flicker dip starts, from the intro's start.
     public static let powerOnFlickerAt: Duration = .milliseconds(650)
     /// Length of one half dip; matches `powerOnFlicker`.
