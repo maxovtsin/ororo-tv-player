@@ -28,6 +28,47 @@ import Testing
         #expect(await harness.details.moviePlaybackCalls == 1)
     }
 
+    // MARK: - Now playing (title over the progress line)
+
+    @Test func movieLoadShowsTheMovieName() async {
+        let harness = Harness(.movie(1001))
+        await harness.session.start()
+        let name = Samples.catalog.title(TitleID(kind: .movie, id: 1001))?.name
+        #expect(name != nil)
+        #expect(harness.engine.loads.first?.nowPlaying == NowPlaying(title: name ?? "", subtitle: nil))
+    }
+
+    @Test func episodeLoadShowsTheShowNameAndEpisode() async {
+        let harness = Harness(.show(101))
+        await harness.session.start()
+        let show = Samples.catalog.title(TitleID(kind: .show, id: 101))?.name
+        #expect(show != nil)
+        #expect(harness.engine.loads.first?.nowPlaying == NowPlaying(title: show ?? "", subtitle: "S1 E1 · Episode 1"))
+    }
+
+    @Test func autoplayedEpisodeUpdatesTheTitle() async {
+        let harness = Harness(.show(101))
+        await harness.session.start()
+        #expect(await harness.autoplay(to: Self.s1e2))
+        #expect(harness.engine.loads.last?.nowPlaying?.subtitle == "S1 E2 · Episode 2")
+    }
+
+    @Test func nowPlayingFormats() {
+        let episode = Episode(id: 1, showID: 7, name: "Pilot", plot: nil, season: 2, number: 5, airdate: nil,
+                              resolution: nil, qualities: [])
+        #expect(NowPlaying.make(movieName: nil, showName: "Dark", episode: episode)
+            == NowPlaying(title: "Dark", subtitle: "S2 E5 · Pilot"))
+        var unnamed = episode
+        unnamed.name = "  "
+        #expect(NowPlaying.make(movieName: nil, showName: "Dark", episode: unnamed)?.subtitle == "S2 E5")
+        unnamed.number = nil
+        #expect(NowPlaying.make(movieName: nil, showName: "Dark", episode: unnamed)?.subtitle == "S2")
+        // Show name unknown: the episode line becomes the title.
+        #expect(NowPlaying.make(movieName: nil, showName: nil, episode: episode) == NowPlaying(title: "S2 E5 · Pilot", subtitle: nil))
+        #expect(NowPlaying.make(movieName: "Alien", showName: nil, episode: nil) == NowPlaying(title: "Alien", subtitle: nil))
+        #expect(NowPlaying.make(movieName: nil, showName: nil, episode: nil) == nil)
+    }
+
     @Test func showTargetResolvesResumeThenUpNextThenFirst() async {
         // In progress wins over up-next.
         var library = Library()
@@ -723,6 +764,8 @@ extension PlaybackSessionTests {
         let subtitleLanguage: String?
         /// `disableSurroundCount` when this load was made.
         let disableSurroundCountAtLoad: Int
+        /// `nowPlaying` when this load was made.
+        let nowPlaying: NowPlaying?
     }
 
     let events: AsyncStream<PlayerEvent>
@@ -732,6 +775,7 @@ extension PlaybackSessionTests {
     private(set) var disableSurroundCount = 0, sceneActivations = 0
     var position: TimeInterval = 0
     var duration: TimeInterval = 0
+    var nowPlaying: NowPlaying?
 
     init() {
         (events, continuation) = AsyncStream<PlayerEvent>.makeStream()
@@ -749,7 +793,7 @@ extension PlaybackSessionTests {
 
     func load(_ playback: Playback, startAt: TimeInterval, subtitleLanguage: String?) async throws {
         loads.append(Load(playback: playback, startAt: startAt, subtitleLanguage: subtitleLanguage,
-                          disableSurroundCountAtLoad: disableSurroundCount))
+                          disableSurroundCountAtLoad: disableSurroundCount, nowPlaying: nowPlaying))
         if !loadErrors.isEmpty, let error = loadErrors.removeFirst() { throw error }
         position = startAt
         if !eventsAtLoadEnd.isEmpty { eventsAtLoadEnd.removeFirst().forEach(send) }
