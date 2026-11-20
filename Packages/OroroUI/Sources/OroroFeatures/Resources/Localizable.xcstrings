@@ -307,6 +307,23 @@
         }
       }
     },
+    "browse.filter.imdbValue" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMDb %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMDb %@"
+          }
+        }
+      }
+    },
     "browse.filter.ratingValue" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {
@@ -428,19 +445,19 @@
         }
       }
     },
-    "browse.grid.footer.imdb" : {
+    "browse.grid.empty.hint" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "IMDb %@"
+            "value" : "Try another genre, or loosen the decade or rating."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "IMDb %@"
+            "value" : "Попробуйте другой жанр или ослабьте фильтры по десятилетию и рейтингу."
           }
         }
       }

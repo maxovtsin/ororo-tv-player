@@ -311,10 +311,14 @@ Every screen defines its loading, empty and error state; see *States and errors*
 
 **Hero** — full-screen, with page dots (indicators, not focusable).
 
-- Items: 6, each must have a backdrop and a description. 3 shows with the highest
-  `user_popularity` among those with a new episode in the last 30 days, and 3 movies
-  with the highest `imdb_rating` among those updated in the last 30 days. Exact
-  weighting is left to the builder.
+- Items: 6 (3 shows + 3 movies), each with a backdrop and a description, drawn from a
+  pool per kind: the 45 best titles rated IMDb 7.0+ with a new episode (shows) or an
+  update (movies) in the last 30 days, shows ranked by `user_popularity`, movies by
+  `imdb_rating`. Each condition is dropped when it leaves fewer than 6.
+- The hero rotates every 3 hours: each cycle shuffles the pool (seeded by the cycle
+  number) and shows it 3 at a time, so no title repeats until all 45 have been featured
+  (about two days). The picks depend only on the catalog and the 3-hour slot, so the
+  cached snapshot and a rebuild in the same slot agree.
 - Content: backdrop, title, IMDb badge, year, genres, Ongoing/Ended (shows), runtime
   and HD (movies), 2–3 lines of `desc`. No CC badge (not in list data).
 - Buttons: **Play** (movies) or **Play S1 E1 / Resume S2 E3** (shows, from local
@@ -364,9 +368,16 @@ title text on top.
   - Sort: Popular (shows only) · Rating · Year · Recently Updated · A–Z. Default is
     Popular for shows and Recently Updated for movies. Titles with zero popularity sort
     after the rest, ordered by rating.
-  - Dense 8-column poster grid, result count in the header, footer strip with the
-    focused title's name · IMDb · year · status (text crossfades, 150 ms debounce).
-  - No results: "No titles match" with a **Reset Filters** button.
+  - One scroller: the title, result count, filter menus and genre chips scroll away
+    with the grid and come back when focus moves up. Filter changes crossfade only
+    the grid, so focus stays on the control that was used.
+  - Poster grid sized to the width (6 × 260 pt on tvOS, 3+ columns on iPhone/iPad);
+    each poster is captioned with its name and "year · ★ rating".
+  - Menus read "Sort ↕ Popular", then "Decade", "IMDb", "Status"; a set filter shows its
+    value ("2010s", "IMDb 7+") and is highlighted, as is the selected genre chip.
+    **Reset Filters** appears in the menu row while the query differs from the default.
+  - No results: "No titles match", a hint, and a **Reset Filters** button, below the
+    filters so they can be changed in place.
 - Filter state lives in the route's `BrowseQuery`, so Back and tab switches keep it.
 - All filtering is local and runs off the main thread.
 - **[spike]** the grid must hold the hitch budget with all 7,920 movies.

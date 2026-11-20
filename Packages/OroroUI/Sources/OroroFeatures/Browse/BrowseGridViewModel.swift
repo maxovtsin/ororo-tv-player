@@ -3,12 +3,9 @@ import Observation
 import OroroCore
 import OroroDesign
 
-/// State of the filter grid: the query, its results (computed off the main actor), and the footer strip text.
+/// State of the filter grid: the query and its results and tiles (computed off the main actor).
 @MainActor @Observable final class BrowseGridViewModel {
     typealias Compute = @Sendable (BrowseQuery, Catalog) async -> [Title]
-
-    /// Spec: footer text debounce.
-    static let footerDebounce: Duration = .milliseconds(150)
 
     /// Runs on the global executor, never on the main actor.
     @concurrent static func defaultCompute(_ query: BrowseQuery, _ catalog: Catalog) async -> [Title] {
@@ -23,9 +20,6 @@ import OroroDesign
     private(set) var isFiltering = true
     /// Bumps each time `results` is replaced; the screen keys its crossfade on it.
     private(set) var resultsVersion = 0
-    private(set) var focused: Title?
-    /// Debounced by `footerDebounce` after focus moves.
-    private(set) var footerText: String?
     let genres: [String]
     let decades: [Int]
 
@@ -34,15 +28,12 @@ import OroroDesign
 
     @ObservationIgnored private let catalog: Catalog
     @ObservationIgnored private let compute: Compute
-    @ObservationIgnored private let debounce: Duration
     @ObservationIgnored private let locale: Locale
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private var computeTask: Task<Void, Never>?
-    @ObservationIgnored private var footerTask: Task<Void, Never>?
     @ObservationIgnored private var indexByTileID: [String: Int] = [:]
 
-    init(query: BrowseQuery, catalog: Catalog, debounce: Duration = BrowseGridViewModel.footerDebounce,
-         locale: Locale = .current, compute: @escaping Compute = BrowseGridViewModel.defaultCompute) {
+    init(query: BrowseQuery, catalog: Catalog, locale: Locale = .current, compute: @escaping Compute = BrowseGridViewModel.defaultCompute) {
         var query = query
         // A malformed route must not select options the kind does not offer.
         if query.kind == .movie {
@@ -52,7 +43,6 @@ import OroroDesign
         self.query = query
         self.catalog = catalog
         self.compute = compute
-        self.debounce = debounce
         self.locale = locale
         genres = BrowseEngine.genres(for: query.kind, in: catalog)
         decades = BrowseEngine.decades(for: query.kind, in: catalog)
@@ -97,16 +87,9 @@ import OroroDesign
         update { $0 = .default($0.kind) }
     }
 
-    /// `id` is a tile id ("show-12"); nil when focus left the grid.
-    func focusChanged(_ id: String?) {
-        focused = id.flatMap { indexByTileID[$0] }.map { results[$0] }
-        scheduleFooter()
-    }
-
-    /// Waits for the in-flight computation and footer update. For tests.
+    /// Waits for the in-flight computation. For tests.
     func settle() async {
         await computeTask?.value
-        await footerTask?.value
     }
 
     // MARK: - Private
@@ -123,12 +106,12 @@ import OroroDesign
     private func recompute() {
         computeTask?.cancel()
         generation += 1
-        let (current, query, catalog, compute) = (generation, query, catalog, compute)
+        let (current, query, catalog, compute, locale) = (generation, query, catalog, compute, locale)
         isFiltering = true
         computeTask = Task { [weak self] in
             let titles = await compute(query, catalog)
             guard !Task.isCancelled else { return }
-            let output = await Self.build(titles)
+            let output = await Self.build(titles, locale: locale)
             guard !Task.isCancelled else { return }
             self?.apply(output, generation: current)
         }
@@ -141,13 +124,14 @@ import OroroDesign
         let indexByTileID: [String: Int]
     }
 
-    @concurrent static func build(_ titles: [Title]) async -> Output {
+    @concurrent static func build(_ titles: [Title], locale: Locale) async -> Output {
         var index: [String: Int] = [:]
         index.reserveCapacity(titles.count)
         var tiles: [TileModel] = []
         tiles.reserveCapacity(titles.count)
         for (offset, title) in titles.enumerated() {
-            let tile = TileModel(title)
+            var tile = TileModel(title, locale: locale)
+            tile.subtitle = caption(for: title, locale: locale)
             tiles.append(tile)
             if index[tile.id] == nil { index[tile.id] = offset }
         }
@@ -166,38 +150,18 @@ import OroroDesign
         indexByTileID = output.indexByTileID
         resultsVersion += 1
         isFiltering = false
-        if let focused, indexByTileID[TileModel.tileID(focused.id)] == nil {
-            self.focused = nil
-            scheduleFooter()
-        }
     }
 
-    private func scheduleFooter() {
-        footerTask?.cancel()
-        let (target, debounce) = (focused, debounce)
-        footerTask = Task { [weak self] in
-            try? await Task.sleep(for: debounce)
-            guard !Task.isCancelled, let self else { return }
-            footerText = target.map { Self.footerText(for: $0, locale: locale) }
-        }
-    }
-
-    /// "name · IMDb 8.3 · 2019 · Ongoing"; absent parts are omitted, status is for shows only.
-    static func footerText(for title: Title, locale: Locale) -> String {
-        var parts = [title.name]
-        if let rating = title.imdbRating {
-            let value = rating.formatted(.number.precision(.fractionLength(1)).locale(locale))
-            parts.append(String(localized: "browse.grid.footer.imdb", defaultValue: "IMDb \(value)", bundle: .module, locale: locale))
-        }
+    /// The caption line under a grid tile: "2019 · ★ 8.3"; absent parts are omitted, nil when both are.
+    nonisolated static func caption(for title: Title, locale: Locale) -> String? {
+        var parts: [String] = []
         if let year = title.year {
             parts.append(String(year))
         }
-        if title.id.kind == .show, let ended = title.ended {
-            parts.append(ended
-                ? String(localized: "browse.status.ended", defaultValue: "Ended", bundle: .module, locale: locale)
-                : String(localized: "browse.status.ongoing", defaultValue: "Ongoing", bundle: .module, locale: locale))
+        if let rating = title.imdbRating {
+            parts.append("★ " + rating.formatted(.number.precision(.fractionLength(1)).locale(locale)))
         }
-        return parts.joined(separator: " · ")
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     /// Replaces the path entry holding this grid's original query so Back and tab switches keep the filters.

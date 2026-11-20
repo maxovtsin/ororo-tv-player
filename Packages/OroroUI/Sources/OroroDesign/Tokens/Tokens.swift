@@ -18,6 +18,8 @@ public enum Typography {
     public static let heroTitle: Font = .largeTitle.weight(.bold)
     public static let title: Font = .title2.weight(.semibold)
     public static let headline: Font = .headline
+    /// Poster grid captions: narrower than a landscape tile, so a step below `headline`.
+    public static let tileTitle: Font = .callout.weight(.semibold)
     public static let body: Font = .body
     public static let caption: Font = .caption
     public static let badge: Font = .caption2.weight(.bold)
@@ -31,4 +33,6 @@ public enum Palette {
     public static let textPrimary: Color = .primary
     public static let textSecondary: Color = .secondary
     public static let focusHighlight: Color = .white
+    /// Tint of a selected chip / active filter: a lighter glass capsule (the label adapts for contrast).
+    public static let selection: Color = .white.opacity(0.32)
 }
