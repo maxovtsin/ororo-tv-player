@@ -25,6 +25,26 @@ import Testing
         #expect(Motion.shimmer == .linear(duration: 1.4).repeatForever(autoreverses: false))
     }
 
+    @Test func reduceMotionShortensIntro() {
+        #expect(Motion.powerOnDuration(reduceMotion: false) == .milliseconds(1100))
+        #expect(Motion.powerOnDuration(reduceMotion: true) == .milliseconds(200))
+    }
+
+    @Test func powerOnTimelineFitsTheIntro() {
+        #expect(Motion.powerOnLine == .easeOut(duration: 0.35))
+        #expect(Motion.powerOnOpen == .easeOut(duration: 0.3))
+        let flickerEnd = Motion.powerOnFlickerAt + Motion.powerOnFlickerStep * (2 * Motion.powerOnFlickerDips)
+        #expect(Motion.powerOnOpenAt < Motion.powerOnFlickerAt)
+        #expect(flickerEnd <= Motion.powerOnDuration(reduceMotion: false))
+    }
+
+    @Test func warmLaunchEndsIntroWhenTheOpenCompletes() {
+        // 0.35 s line + 0.3 s open: the early end is the open's end, before the flicker.
+        #expect(Motion.powerOnEarlyEnd == .milliseconds(650))
+        #expect(Motion.powerOnEarlyEnd == Motion.powerOnOpenAt + .milliseconds(300))
+        #expect(Motion.powerOnEarlyEnd < Motion.powerOnDuration(reduceMotion: false))
+    }
+
     @Test func tokensAreDistinct() {
         #expect(Motion.quick != Motion.standard)
         #expect(Motion.standard != Motion.cinematic)

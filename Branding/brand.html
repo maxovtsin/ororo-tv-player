@@ -1,0 +1,129 @@
+<!doctype html>
+<!--
+  Ororo brand artwork: the neon "ororo" wordmark on a warm tube screen.
+  Rendered to PNG by Scripts/render-icons.sh with headless Chrome.
+
+    brand.html?art=<icon|appstore|topshelf|topshelfwide|ios|wordmark>&layer=<back|middle|front|flat>&w=<px>&h=<px>
+
+  back   = screen gradient + vignette + scanlines (opaque)
+  middle = the phosphor haze: the word blurred, with scanlines through it (transparent elsewhere)
+  front  = the word, with scanlines through it (transparent elsewhere)
+  flat   = all three composited, scanlines over everything
+  App icons (icon, appstore, ios) show the glowing ring; Top Shelf and the wordmark show the word, centred.
+  The "wordmark" art is haze + word without scanlines, for the loading screen (which draws its own
+  scanlines over everything).
+
+  The word is set in Nunito Black (SIL OFL), loaded from fonts/Nunito.ttf so the
+  rendering never depends on installed fonts.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Nunito; src: url(fonts/Nunito.ttf); font-weight: 200 1000; }
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<script>
+(async function () {
+  const AMBER = "#FFB547";      // the word
+  const RING = "#FF9F1C";       // the app-icon ring (option 10)
+  const SCREEN_IN = "#2B1606";  // tube screen, centre
+  const SCREEN_OUT = "#060303"; // tube screen, edge
+
+  const q = new URLSearchParams(location.search);
+  const art = q.get("art") || "icon";
+  const layer = art === "wordmark" ? "glowword" : (q.get("layer") || "flat");
+  const w = Number(q.get("w")) || 400;
+  const h = Number(q.get("h")) || 240;
+  document.body.style.width = w + "px";
+  document.body.style.height = h + "px";
+
+  // Word size and placement per art. Top Shelf keeps the word small and left of centre.
+  const fontSize = {
+    icon: 0.18 * w, appstore: 0.18 * w, ios: 0.23 * w,
+    topshelf: 0.11 * w, topshelfwide: 0.11 * w, wordmark: 0.24 * w
+  }[art];
+  const cx = w / 2;
+  // App icons are option 10's glowing CRT ring; the Top Shelf banners and the in-app wordmark are the word.
+  const isRing = ["icon", "appstore", "ios"].includes(art);
+  const cy = h / 2;
+  const tracking = -0.01 * fontSize;
+
+  const font = `900 ${fontSize}px Nunito`;
+  await document.fonts.load(font, "ororo");
+  if (!document.fonts.check(font, "ororo")) throw new Error("Nunito failed to load");
+
+  // Centre the ink (not the advance box) of the word on (cx, cy).
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font = font;
+  ctx.letterSpacing = tracking + "px";
+  const m = ctx.measureText("ororo");
+  const x = cx - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
+  const y = cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+
+  const word = (fill, extra = "") =>
+    `<text x="${x}" y="${y}" font-family="Nunito" font-weight="900" font-size="${fontSize}"
+       letter-spacing="${tracking}" fill="${fill}" ${extra}>ororo</text>`;
+
+  const s = Math.min(w, h);            // scale reference for blur radii and scanlines
+  const pitch = Math.max(4, Math.round(s / 64));   // scanline period: whole pixels, at least 4
+
+  const scanDefs = `
+      <pattern id="scan" width="${w}" height="${pitch}" patternUnits="userSpaceOnUse">
+        <rect width="${w}" height="${pitch / 2}" fill="#000" opacity=".32"/>
+      </pattern>`;
+  // Dark scan bands over `content` only (a layer stays transparent outside its own pixels).
+  const striped = (id, content) => `
+    <defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+      <g style="filter: brightness(0) invert(1)">${content}</g></mask></defs>
+    ${content}
+    <rect width="${w}" height="${h}" fill="url(#scan)" mask="url(#${id})"/>`;
+
+  const back = `
+    <defs>
+      <radialGradient id="screen" cx="${cx / w}" cy=".5" r=".8">
+        <stop offset="0" stop-color="${SCREEN_IN}"/><stop offset="1" stop-color="${SCREEN_OUT}"/>
+      </radialGradient>
+      <radialGradient id="vignette" cx=".5" cy=".5" r=".72">
+        <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+      </radialGradient>
+    </defs>
+    <rect width="${w}" height="${h}" fill="url(#screen)"/>
+    <rect width="${w}" height="${h}" fill="url(#vignette)"/>`;
+
+  // The phosphor haze: the word blurred and doubled up (option A's glow).
+  const hazeDefs = `
+      <filter id="haze" x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="${fontSize * 0.036}" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/></feMerge>
+      </filter>
+      <filter id="ringHaze" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="${0.025 * h}"/>
+      </filter>`;
+  // The ring (option 10): an orange ellipse, slightly wider than tall, with the same haze.
+  const ring = extra => `<ellipse cx="${cx}" cy="${cy}" rx="${0.23 * h}" ry="${0.211 * h}" fill="none"
+       stroke="${RING}" stroke-width="${0.072 * h}" ${extra}/>`;
+  const haze = isRing ? ring(`filter="url(#ringHaze)"`) : word(AMBER, `filter="url(#haze)"`);
+  const text = isRing ? ring("") : word(AMBER);
+
+  const layers = {
+    back: `<defs>${scanDefs}</defs>` + back + `<rect width="${w}" height="${h}" fill="url(#scan)"/>`,
+    middle: `<defs>${scanDefs}${hazeDefs}</defs>` + striped("m-mid", haze),
+    front: `<defs>${scanDefs}</defs>` + striped("m-front", text),
+    flat: `<defs>${scanDefs}${hazeDefs}</defs>` + back + haze + text + `<rect width="${w}" height="${h}" fill="url(#scan)"/>`,
+    // In-app wordmark: haze + word, no scan bands (the loading screen draws its own over everything).
+    glowword: `<defs>${hazeDefs}</defs>` + haze + text
+  };
+  const body = layers[layer];
+  document.body.innerHTML =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+})().catch(e => {
+  // Make a failure impossible to miss in the screenshot.
+  document.body.innerHTML = `<div style="background:#f0f;color:#000;font:20px monospace">${e}</div>`;
+});
+</script>
+</body>
+</html>
