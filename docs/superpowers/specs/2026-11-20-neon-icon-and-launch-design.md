@@ -85,7 +85,7 @@ Picked in the visual companion from 10 directions, then 4 blends of the two favo
 
 - Exact glow radii, scanline opacity and timings within the sketch's feel; check legibility
   at tvOS home-row size (the 400×240 @1x layer) before finishing.
-- How the render script outlines text (e.g. a small font-to-path step) and its tooling, as long
-  as it runs with what's on the Mac (Chrome headless, Python).
+- The render script's tooling, as long as it runs with what's on the Mac (Chrome headless,
+  Python). The text is not outlined: the page loads the committed TTF via `@font-face`.
 - Tests: the intro-and-session gating rule in `AppRootView` (when the loading screen may leave)
   is unit-tested; the artwork is checked by eye on the simulator and the TV.
