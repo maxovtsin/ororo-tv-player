@@ -33,4 +33,11 @@ enum LaunchGate {
     static func showsCRTHandoff(pending: Bool, state: AppSession.State, introFinished: Bool) -> Bool {
         pending && !showsLoading(state, introFinished: introFinished)
     }
+
+    /// Whether the loading screen shows: while launching or loading, and during a CRT hand-off until the new
+    /// screen beneath draws steadily (`handoffStarted`), so its first, empty frames never show.
+    static func showsLoadingScreen(_ state: AppSession.State, introFinished: Bool, handoffPending: Bool,
+                                   handoffStarted: Bool) -> Bool {
+        showsLoading(state, introFinished: introFinished) || (handoffPending && !handoffStarted)
+    }
 }

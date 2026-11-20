@@ -3,25 +3,17 @@ import OroroDesign
 @testable import OroroFeatures
 import Testing
 
-/// The hand-off from the power-on to the first screen: static as the channel tunes in, a hold on the old TV,
-/// then the glass flattening into the modern picture.
+/// The hand-off from the power-on to the first screen: a hold on the old TV, then the glass flattening into the
+/// modern picture.
 @Suite struct HandoffCurveTests {
     private func frame(_ duration: Duration) -> CRTOverlayFrame {
         HandoffCurve.frame(at: Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18)
     }
 
-    @Test func tunesInThroughStatic() {
-        let start = frame(.zero)
-        #expect(start.strength == 1)
-        #expect(start.noise > 0.5)
-        #expect(start.exposure < 1)
-        let tuned = frame(Motion.crtHandoffTuned)
-        #expect(tuned.noise <= CRTOverlayFrame.oldTV.noise + 1e-9)
-        #expect(tuned.exposure == 1)
-    }
-
-    @Test func holdsOnTheOldTV() {
-        #expect(frame(Motion.crtHandoffTuned + .milliseconds(10)) == .oldTV)
+    /// No static burst: the first screen appears straight on the old TV, as the power-on left it.
+    @Test func startsOnTheOldTVWithoutStatic() {
+        #expect(frame(.zero) == .oldTV)
+        #expect(frame(Motion.crtHandoffFlattenAt / 2) == .oldTV)
         #expect(frame(Motion.crtHandoffFlattenAt) == .oldTV)
     }
 
@@ -45,5 +37,16 @@ import Testing
         // Still on the loading screen (catalog downloading after the intro): not yet.
         #expect(!LaunchGate.showsCRTHandoff(pending: true, state: .loadingCatalog(0.4), introFinished: true))
         #expect(!LaunchGate.showsCRTHandoff(pending: false, state: .ready, introFinished: true))
+    }
+
+    /// The power-on picture stays on top of the new screen until that screen draws steadily (the hand-off has
+    /// started), so its first, empty frames never show.
+    @Test func loadingScreenCoversTheNewScreenUntilTheHandoffStarts() {
+        #expect(LaunchGate.showsLoadingScreen(.ready, introFinished: true, handoffPending: true, handoffStarted: false))
+        #expect(!LaunchGate.showsLoadingScreen(.ready, introFinished: true, handoffPending: true, handoffStarted: true))
+        // No hand-off (Reduce Motion, or a later catalog load): the usual rule.
+        #expect(!LaunchGate.showsLoadingScreen(.ready, introFinished: true, handoffPending: false, handoffStarted: false))
+        #expect(LaunchGate.showsLoadingScreen(.loadingCatalog(0.3), introFinished: true, handoffPending: false,
+                                              handoffStarted: false))
     }
 }

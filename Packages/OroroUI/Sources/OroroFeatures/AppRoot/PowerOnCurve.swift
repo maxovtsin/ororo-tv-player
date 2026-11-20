@@ -27,8 +27,8 @@ struct CRTFrame: Equatable {
     #endif
 
     /// The settled picture: a hint of misconvergence and grain, as on a real set.
-    static let rest = CRTFrame(rasterWidth: 1, rasterHeight: 1, exposure: 1, wash: 0, blur: 0, split: 0.6,
-                               wobble: 0, noise: 0.04)
+    static let rest = CRTFrame(rasterWidth: 1, rasterHeight: 1, exposure: 1, wash: 0, blur: 0, split: 1.0,
+                               wobble: 0, noise: 0.05)
 }
 
 /// The power-on of a CRT, as a pure function of time since the intro started (`Motion.powerOn…` key times):

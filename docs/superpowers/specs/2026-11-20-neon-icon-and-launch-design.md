@@ -83,12 +83,12 @@ Picked in the visual companion from 10 directions, then 4 blends of the two favo
   startup can't play it off screen, and a stall slows it down instead of skipping part of it.
 - Building requires Xcode's Metal Toolchain (README prerequisites).
 - **Hand-off to the first screen:**
-  - The power-on cuts to the next screen (Home, sign-in or the error screen) under a burst
-    of static, like a channel tuning in. The static also covers that screen's first render.
-  - The screen holds on the old TV for about half a second.
+  - The power-on cuts straight to the next screen (Home, sign-in or the error screen) on the
+    old TV, with no static burst (removed at the user's request), and holds there for about
+    half a second.
   - The glass then flattens smoothly into the modern picture (`HandoffCurve`, `Motion.crtHandoff…`).
   - The old TV is drawn *over* the live screen (`crtOverlay`, a `colorEffect` on a full-screen
-    rectangle): curved-glass edges, scanlines, vignette, hum bar, static and reflection. The
+    rectangle): curved-glass edges, scanlines, vignette, hum bar, fine grain and reflection. The
     tvOS `TabView` is UIKit-backed and can't go through a layer effect, so the screen itself
     isn't bent or colour-fringed.
   - The screen stays live and focusable throughout.
