@@ -35,4 +35,16 @@ public enum Palette {
     public static let focusHighlight: Color = .white
     /// Tint of a selected chip / active filter: a lighter glass capsule (the label adapts for contrast).
     public static let selection: Color = .white.opacity(0.32)
+
+    // Brand: the neon "ororo" on a warm tube screen (matches the app icon).
+    /// #FFB547, the neon wordmark and progress line.
+    public static let brandAmber = Color(red: 0xFF / 255, green: 0xB5 / 255, blue: 0x47 / 255)
+    /// #FFF3D6, the power-on line's hot core.
+    public static let tubeWhite = Color(red: 0xFF / 255, green: 0xF3 / 255, blue: 0xD6 / 255)
+    /// #2B1606, the warm centre of the tube screen.
+    public static let screenGlow = Color(red: 0x2B / 255, green: 0x16 / 255, blue: 0x06 / 255)
+    /// #060303, the tube screen's edge; also the system launch screen's colour.
+    public static let screenBlack = Color(red: 0x06 / 255, green: 0x03 / 255, blue: 0x03 / 255)
+    /// rgba(255, 214, 160, 0.6), captions on the tube screen.
+    public static let screenCaption = Color(red: 1, green: 0xD6 / 255, blue: 0xA0 / 255).opacity(0.6)
 }

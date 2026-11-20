@@ -12,6 +12,30 @@ public enum Motion {
     public static let shimmer: Animation = .linear(duration: 1.4).repeatForever(autoreverses: false)
     public static let staggerStep: Double = 0.04, staggerMax = 5
 
+    // MARK: Power-on intro (loading screen)
+    // Timeline from the intro's start: the line grows (0–0.35 s), opens while the wordmark
+    // unfolds (0.35–0.65 s), two flicker dips (0.65–1.05 s), done at 1.1 s.
+
+    /// The bright line growing to full width.
+    public static let powerOnLine: Animation = .easeOut(duration: 0.35)
+    /// The line opening vertically and fading while the wordmark unfolds and unblurs.
+    public static let powerOnOpen: Animation = .easeOut(duration: 0.3)
+    /// One half of a flicker dip (down or back up).
+    public static let powerOnFlicker: Animation = .easeInOut(duration: 0.1)
+    /// When the open starts, from the intro's start.
+    public static let powerOnOpenAt: Duration = .milliseconds(350)
+    /// When the first flicker dip starts, from the intro's start.
+    public static let powerOnFlickerAt: Duration = .milliseconds(650)
+    /// Length of one half dip; matches `powerOnFlicker`.
+    public static let powerOnFlickerStep: Duration = .milliseconds(100)
+    /// Number of flicker dips, and the wordmark's opacity at the bottom of each.
+    public static let powerOnFlickerDips = 2, powerOnFlickerOpacity = 0.55
+
+    /// The whole intro: 1.1 s, or the 0.2 s wordmark fade (`quick`) with Reduce Motion.
+    public static func powerOnDuration(reduceMotion: Bool) -> Duration {
+        reduceMotion ? .milliseconds(200) : .milliseconds(1100)
+    }
+
     /// Vertical rise, in points, of a staggered appearance.
     static let staggerRise: CGFloat = 24
 

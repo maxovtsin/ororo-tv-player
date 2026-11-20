@@ -30,6 +30,8 @@ private struct AppRootContent: View {
     @State private var session: AppSession
     @State private var launcher = PlaybackLauncher()
     @State private var tabs = TabsModel()
+    /// The power-on intro has ended or been skipped; it plays once per app run. See `LaunchGate`.
+    @State private var introFinished = false
     /// Drives the sign-in sheet; see `ReauthGate`.
     @State private var presentsReauth = false
     @Environment(\.scenePhase) private var scenePhase
@@ -41,27 +43,32 @@ private struct AppRootContent: View {
 
     var body: some View {
         ZStack {
-            switch session.state {
-            case .launching:
-                LoadingScreen(progress: nil)
+            if LaunchGate.showsLoading(session.state, introFinished: introFinished) {
+                // One identity across launching → loading, so the intro keeps running.
+                LoadingScreen(progress: LaunchGate.progress(session.state),
+                              playsIntro: LaunchGate.playsIntro(introFinished: introFinished),
+                              onIntroFinished: { introFinished = true })
                     .transition(.opacity)
-            case .signedOut:
-                SignInScreen(prefilledEmail: session.storedEmail)
+            } else {
+                switch session.state {
+                case .signedOut:
+                    SignInScreen(prefilledEmail: session.storedEmail)
+                        .transition(.opacity)
+                case .ready:
+                    TabRootView(tabs: tabs)
+                        .transition(.opacity)
+                case .failed(let error):
+                    CatalogFailureScreen(error: error) {
+                        Task { await session.retry() }
+                    }
                     .transition(.opacity)
-            case .loadingCatalog(let progress):
-                LoadingScreen(progress: progress)
-                    .transition(.opacity)
-            case .ready:
-                TabRootView(tabs: tabs)
-                    .transition(.opacity)
-            case .failed(let error):
-                CatalogFailureScreen(error: error) {
-                    Task { await session.retry() }
+                case .launching, .loadingCatalog:
+                    // Always on the loading screen above.
+                    EmptyView()
                 }
-                .transition(.opacity)
             }
         }
-        .motion(Motion.cinematic, value: Phase(session.state))
+        .motion(Motion.cinematic, value: Screen(session.state, introFinished: introFinished))
         .environment(session)
         .environment(launcher)
         .environment(\.appEnvironment, environment)
@@ -113,7 +120,7 @@ enum ReauthGate {
     }
 }
 
-/// `AppSession.State` without the loading fraction, so progress ticks don't re-run the root crossfade.
+/// `AppSession.State` without the loading fraction.
 private enum Phase: Equatable {
     case launching, signedOut, loading, ready, failed
 
@@ -122,6 +129,24 @@ private enum Phase: Equatable {
         case .launching: self = .launching
         case .signedOut: self = .signedOut
         case .loadingCatalog: self = .loading
+        case .ready: self = .ready
+        case .failed: self = .failed
+        }
+    }
+}
+
+/// What the root shows, without the loading fraction, so progress ticks don't re-run the crossfade.
+private enum Screen: Equatable {
+    case loading, signedOut, ready, failed
+
+    init(_ state: AppSession.State, introFinished: Bool) {
+        if LaunchGate.showsLoading(state, introFinished: introFinished) {
+            self = .loading
+            return
+        }
+        switch state {
+        case .launching, .loadingCatalog: self = .loading
+        case .signedOut: self = .signedOut
         case .ready: self = .ready
         case .failed: self = .failed
         }
