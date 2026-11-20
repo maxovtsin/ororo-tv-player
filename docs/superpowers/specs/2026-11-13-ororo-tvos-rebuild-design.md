@@ -311,10 +311,14 @@ Every screen defines its loading, empty and error state; see *States and errors*
 
 **Hero** — full-screen, with page dots (indicators, not focusable).
 
-- Items: 6, each must have a backdrop and a description. 3 shows with the highest
-  `user_popularity` among those with a new episode in the last 30 days, and 3 movies
-  with the highest `imdb_rating` among those updated in the last 30 days. Exact
-  weighting is left to the builder.
+- Items: 6 (3 shows + 3 movies), each with a backdrop and a description, drawn from a
+  pool per kind: the 45 best titles rated IMDb 7.0+ with a new episode (shows) or an
+  update (movies) in the last 30 days, shows ranked by `user_popularity`, movies by
+  `imdb_rating`. Each condition is dropped when it leaves fewer than 6.
+- The hero rotates every 3 hours: each cycle shuffles the pool (seeded by the cycle
+  number) and shows it 3 at a time, so no title repeats until all 45 have been featured
+  (about two days). The picks depend only on the catalog and the 3-hour slot, so the
+  cached snapshot and a rebuild in the same slot agree.
 - Content: backdrop, title, IMDb badge, year, genres, Ongoing/Ended (shows), runtime
   and HD (movies), 2–3 lines of `desc`. No CC badge (not in list data).
 - Buttons: **Play** (movies) or **Play S1 E1 / Resume S2 E3** (shows, from local

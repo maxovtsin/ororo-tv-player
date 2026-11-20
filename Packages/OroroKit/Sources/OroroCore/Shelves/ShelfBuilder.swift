@@ -5,14 +5,24 @@ public enum ShelfBuilder {
 
     private static let heroWindow: TimeInterval = 30 * 86_400
     private static let heroPerKind = 3
+    /// The hero moves on to the next titles this often.
+    private static let heroRotation: TimeInterval = 3 * 3600
+    /// Best titles per kind the hero rotates through: 15 slots, so a title returns after about two days.
+    private static let heroPoolSize = 45
+    private static let heroMinRating = 7.0
     private static let homeGenreRows = 4
     private static let topRatedYears = 20
 
-    /// 6: 3 shows + 3 movies, interleaved show first.
+    /// 6: 3 shows + 3 movies, interleaved show first. Rotates every `heroRotation` through the best fresh titles
+    /// (see `heroPool`), each shown once per cycle; the same `now` slot always gives the same titles, so a
+    /// rebuild never swaps the hero shown from the snapshot.
     public static func hero(catalog: Catalog, now: Date) -> [Title] {
         let cutoff = now.addingTimeInterval(-heroWindow)
-        let shows = heroPicks(catalog.shows, cutoff: cutoff, date: \.newestVideo) { Double($0.popularity) }
-        let movies = heroPicks(catalog.movies, cutoff: cutoff, date: \.updatedAt) { $0.imdbRating ?? -1 }
+        let slot = Int((now.timeIntervalSince1970 / heroRotation).rounded(.down))
+        let showPool = heroPool(catalog.shows, cutoff: cutoff, date: \.newestVideo) { Double($0.popularity) }
+        let moviePool = heroPool(catalog.movies, cutoff: cutoff, date: \.updatedAt) { $0.imdbRating ?? -1 }
+        let shows = heroRotationPicks(showPool, slot: slot, salt: 1)
+        let movies = heroRotationPicks(moviePool, slot: slot, salt: 2)
         var result: [Title] = []
         for index in 0..<heroPerKind {
             if index < shows.count { result.append(shows[index]) }
@@ -88,7 +98,9 @@ public enum ShelfBuilder {
 
     // MARK: - Hero
 
-    private static func heroPicks(
+    /// Up to `heroPoolSize` titles with a backdrop and description, best `score` first: rated `heroMinRating`+
+    /// and fresh (new episode / update within `heroWindow`). Each condition is dropped when it leaves too few.
+    private static func heroPool(
         _ titles: [Title],
         cutoff: Date,
         date: KeyPath<Title, Date?>,
@@ -98,13 +110,28 @@ public enum ShelfBuilder {
             title.backdropURL != nil
                 && !(title.desc ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
-        let recent = eligible.filter { ($0[keyPath: date] ?? .distantPast) >= cutoff }
-        let pool = recent.count >= heroPerKind ? recent : eligible
+        let enough = heroPerKind * 2
+        let good = eligible.filter { ($0.imdbRating ?? 0) >= heroMinRating }
+        let rated = good.count >= enough ? good : eligible
+        let fresh = rated.filter { ($0[keyPath: date] ?? .distantPast) >= cutoff }
+        let pool = fresh.count >= enough ? fresh : rated
         let sorted = pool.sorted { lhs, rhs in
             let (left, right) = (score(lhs), score(rhs))
             return left != right ? left > right : lhs.id.id < rhs.id.id
         }
-        return Array(sorted.prefix(heroPerKind))
+        return Array(sorted.prefix(heroPoolSize))
+    }
+
+    /// Slot `slot`'s titles: a cycle is the pool shuffled with a seed from the cycle number, shown
+    /// `heroPerKind` at a time, so no title repeats until the whole pool has been featured.
+    private static func heroRotationPicks(_ pool: [Title], slot: Int, salt: UInt64) -> [Title] {
+        let slotsPerCycle = pool.count / heroPerKind
+        guard slotsPerCycle > 1 else { return Array(pool.prefix(heroPerKind)) }
+        let cycle = slot.quotient(dividingBy: slotsPerCycle)
+        var generator = SplitMix64(seed: UInt64(bitPattern: Int64(cycle)) &* 0x9E37_79B9 &+ salt)
+        let order = pool.shuffled(using: &generator)
+        let start = slot.remainder(dividingBy: slotsPerCycle) * heroPerKind
+        return Array(order[start..<start + heroPerKind])
     }
 
     // MARK: - Orderings
@@ -167,5 +194,34 @@ public enum ShelfBuilder {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .gmt
         return calendar.component(.year, from: date)
+    }
+}
+
+/// A small seeded generator, so the hero's shuffle is the same for the same rotation cycle.
+private struct SplitMix64: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: UInt64) {
+        state = seed
+    }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
+}
+
+private extension Int {
+    /// Floor division, so slots before 1970 still map to whole cycles.
+    func quotient(dividingBy divisor: Int) -> Int {
+        (self - remainder(dividingBy: divisor)) / divisor
+    }
+
+    /// Non-negative remainder.
+    func remainder(dividingBy divisor: Int) -> Int {
+        ((self % divisor) + divisor) % divisor
     }
 }

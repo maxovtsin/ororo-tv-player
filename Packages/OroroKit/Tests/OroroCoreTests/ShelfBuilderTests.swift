@@ -83,24 +83,97 @@ import OroroTestSupport
         #expect(hero.count == 6)
         #expect(hero.map(\.id.kind) == [.show, .movie, .show, .movie, .show, .movie])
         #expect(hero.allSatisfy { $0.backdropURL != nil && !($0.desc ?? "").isEmpty })
-        let cutoff = Samples.now.addingTimeInterval(-30 * Samples.day)
-        let shows = hero.filter { $0.id.kind == .show }
-        #expect(shows.allSatisfy { ($0.newestVideo ?? .distantPast) >= cutoff })
-        #expect(shows.map(\.popularity) == shows.map(\.popularity).sorted(by: >))
-        let movies = hero.filter { $0.id.kind == .movie }
-        #expect(movies.allSatisfy { ($0.updatedAt ?? .distantPast) >= cutoff })
-        let ratings = movies.map { $0.imdbRating ?? 0 }
-        #expect(ratings == ratings.sorted(by: >))
     }
 
-    @Test func heroWidensWindowWhenNothingRecent() {
+    // MARK: Hero rotation
+
+    private static let rotation: TimeInterval = 3 * 3600
+
+    /// 100 fresh shows and movies with ratings 5.0…9.9; shows' popularity rises with id.
+    private static let heroCatalog = Catalog(
+        shows: (1...100).map {
+            Samples.show($0, popularity: $0 * 10, newestVideo: Samples.now.addingTimeInterval(-Samples.day),
+                         imdbRating: 5 + Double($0 % 50) / 10)
+        },
+        movies: (1...100).map {
+            Samples.movie($0, imdbRating: 5 + Double($0 % 50) / 10, updatedAt: Samples.now.addingTimeInterval(-Samples.day))
+        },
+        fetchedAt: Samples.now
+    )
+
+    private func heroIDs(at now: Date, catalog: Catalog = heroCatalog) -> Set<TitleID> {
+        Set(ShelfBuilder.hero(catalog: catalog, now: now).map(\.id))
+    }
+
+    @Test func heroOnlyFeaturesWellRatedTitles() {
+        for slot in 0..<40 {
+            let hero = ShelfBuilder.hero(catalog: Self.heroCatalog, now: Samples.now.addingTimeInterval(Double(slot) * Self.rotation))
+            #expect(hero.count == 6)
+            #expect(hero.allSatisfy { ($0.imdbRating ?? 0) >= 7 }, "slot \(slot)")
+        }
+    }
+
+    @Test func heroIsStableWithinARotationSlot() {
+        let start = Date(timeIntervalSince1970: (Samples.now.timeIntervalSince1970 / Self.rotation).rounded(.down) * Self.rotation)
+        #expect(heroIDs(at: start) == heroIDs(at: start.addingTimeInterval(Self.rotation - 1)))
+    }
+
+    @Test func heroChangesEverySlotWithoutRepeatsInACycle() {
+        let start = Date(timeIntervalSince1970: (Samples.now.timeIntervalSince1970 / Self.rotation).rounded(.down) * Self.rotation)
+        var seen: [TitleID: Int] = [:]
+        var previous: Set<TitleID> = []
+        // A cycle shows each pooled title once; look at the slots of one full cycle.
+        let cycle = Int(start.timeIntervalSince1970 / Self.rotation) / 15 * 15
+        for slot in cycle..<(cycle + 15) {
+            let ids = heroIDs(at: Date(timeIntervalSince1970: Double(slot) * Self.rotation))
+            #expect(ids.isDisjoint(with: previous), "slot \(slot) repeats the slot before")
+            ids.forEach { seen[$0, default: 0] += 1 }
+            previous = ids
+        }
+        #expect(seen.values.allSatisfy { $0 == 1 })
+        #expect(seen.count == 90)
+    }
+
+    @Test func heroPrefersPopularShowsAndTopRatedMovies() {
+        // Over a cycle the pool is the 45 best per kind: shows by popularity, movies by rating.
+        let cycle = Int(Samples.now.timeIntervalSince1970 / Self.rotation) / 15 * 15
+        let featured = (cycle..<(cycle + 15)).flatMap {
+            ShelfBuilder.hero(catalog: Self.heroCatalog, now: Date(timeIntervalSince1970: Double($0) * Self.rotation))
+        }
+        let shows = featured.filter { $0.id.kind == .show }
+        let movies = featured.filter { $0.id.kind == .movie }
+        let goodShows = Self.heroCatalog.shows.filter { ($0.imdbRating ?? 0) >= 7 }.sorted { $0.popularity > $1.popularity }
+        #expect(Set(shows.map(\.id)) == Set(goodShows.prefix(45).map(\.id)))
+        let goodMovies = Self.heroCatalog.movies.sorted {
+            ($0.imdbRating ?? 0) != ($1.imdbRating ?? 0) ? ($0.imdbRating ?? 0) > ($1.imdbRating ?? 0) : $0.id.id < $1.id.id
+        }
+        #expect(Set(movies.map(\.id)) == Set(goodMovies.prefix(45).map(\.id)))
+    }
+
+    @Test func heroPrefersFreshTitles() {
+        var shows = Self.heroCatalog.shows
+        // The 10 most popular stopped airing; the rest are fresh.
+        for index in shows.indices where shows[index].id.id > 90 {
+            shows[index].newestVideo = Samples.now.addingTimeInterval(-365 * Samples.day)
+        }
+        let catalog = Catalog(shows: shows, movies: Self.heroCatalog.movies, fetchedAt: Samples.now)
+        for slot in 0..<15 {
+            let hero = ShelfBuilder.hero(catalog: catalog, now: Samples.now.addingTimeInterval(Double(slot) * Self.rotation))
+            #expect(hero.filter { $0.id.kind == .show }.allSatisfy { $0.id.id <= 90 })
+        }
+    }
+
+    @Test func heroFallsBackWhenFewGoodOrFreshTitles() {
+        // Nothing fresh, nothing rated 7+: still six titles with backdrop and description.
         let future = Samples.now.addingTimeInterval(1000 * Samples.day)
-        let hero = ShelfBuilder.hero(catalog: Samples.catalog, now: future)
+        let weak = Catalog(
+            shows: (1...5).map { Samples.show($0, popularity: $0, imdbRating: 6.0) },
+            movies: (1...5).map { Samples.movie($0, imdbRating: 5.5) } + [Samples.movie(9, imdbRating: 8, hasBackdrop: false)],
+            fetchedAt: future
+        )
+        let hero = ShelfBuilder.hero(catalog: weak, now: future)
         #expect(hero.count == 6)
-        #expect(hero.allSatisfy { $0.backdropURL != nil && !($0.desc ?? "").isEmpty })
-        let best = Samples.catalog.shows.filter { $0.backdropURL != nil && !($0.desc ?? "").isEmpty }
-            .map(\.popularity).max()
-        #expect(hero[0].popularity == best)
+        #expect(hero.allSatisfy { $0.backdropURL != nil })
     }
 
     @Test func browseTabShows() {
